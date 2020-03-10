@@ -1,0 +1,19 @@
+{
+  "name": "queue-manager",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yog27ray/queue-manager.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yog27ray/queue-manager/issues"
+  },
+  "homepage": "https://github.com/yog27ray/queue-manager#readme"
+}
