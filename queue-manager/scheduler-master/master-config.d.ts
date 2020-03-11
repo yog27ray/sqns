@@ -11,4 +11,3 @@ declare class MasterConfig {
     set listener(value: (nextItemListParams: object) => Promise<[object, Array<EventItem>]>);
 }
 export { MasterConfig };
-//# sourceMappingURL=master-config.d.ts.map

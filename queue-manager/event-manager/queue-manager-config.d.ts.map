@@ -1,1 +1,0 @@
-{"version":3,"file":"queue-manager-config.d.ts","sourceRoot":"","sources":["../../../queue-manager/event-manager/queue-manager-config.ts"],"names":[],"mappings":"AAEA,cACM,kBAAkB;IACtB,OAAO,CAAC,UAAU,CAAS;IAE3B,IAAI,SAAS,IAAI,MAAM,CAEtB;IAED,IAAI,SAAS,CAAC,KAAK,EAAE,MAAM,EAE1B;CACF;AAED,OAAO,EAAE,kBAAkB,EAAE,CAAC"}

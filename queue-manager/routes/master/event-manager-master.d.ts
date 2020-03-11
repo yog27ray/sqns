@@ -9,4 +9,3 @@ declare class EventManagerMaster {
     eventPoll(req: Request, res: Response): void;
 }
 export { EventManagerMaster };
-//# sourceMappingURL=event-manager-master.d.ts.map

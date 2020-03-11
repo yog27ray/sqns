@@ -12,4 +12,3 @@ declare class SlaveEventScheduler {
     private requestEventToProcess;
 }
 export { SlaveEventScheduler };
-//# sourceMappingURL=slave-event-scheduler.d.ts.map

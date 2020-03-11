@@ -8,4 +8,3 @@ declare class QueueManager {
     generateRoutes(): any;
 }
 export { QueueManager };
-//# sourceMappingURL=queue-manager.d.ts.map

@@ -11,4 +11,3 @@ declare class EventManager {
     private notifyTaskNeeded;
 }
 export { EventManager, EventItem };
-//# sourceMappingURL=event-manager.d.ts.map

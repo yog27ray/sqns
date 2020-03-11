@@ -16,4 +16,3 @@ declare class EventQueue {
     queueNames(): Array<string>;
 }
 export { EventQueue };
-//# sourceMappingURL=event-queue.d.ts.map

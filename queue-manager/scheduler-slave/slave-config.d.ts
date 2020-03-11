@@ -18,4 +18,3 @@ declare class SlaveConfig {
     set hasMore(value: boolean);
 }
 export { SlaveConfig };
-//# sourceMappingURL=slave-config.d.ts.map

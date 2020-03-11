@@ -17,4 +17,3 @@ declare class EventItem {
     toRequestBody(): object;
 }
 export { EventItem };
-//# sourceMappingURL=event-item.d.ts.map

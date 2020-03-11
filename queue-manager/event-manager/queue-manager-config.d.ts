@@ -4,4 +4,3 @@ declare class QueueManagerConfig {
     set masterURL(value: string);
 }
 export { QueueManagerConfig };
-//# sourceMappingURL=queue-manager-config.d.ts.map
