@@ -1,5 +1,5 @@
 import debug from 'debug';
-import * as rp from 'request-promise';
+import rp from 'request-promise';
 import * as schedule from 'node-schedule';
 import { SlaveConfig } from './slave-config';
 import { QueueManagerConfig } from '../event-manager/queue-manager-config';
@@ -11,7 +11,7 @@ const log = debug('queue-manager:EventScheduler');
 class SlaveEventScheduler {
   static Config: { MAX_COUNT: number } = { MAX_COUNT: 1 };
 
-  private queueName: string;
+  private readonly queueName: string;
 
   private config: SlaveConfig;
 

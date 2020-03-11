@@ -1,5 +1,5 @@
 import debug from 'debug';
-import * as rp from 'request-promise';
+import rp from 'request-promise';
 import * as schedule from 'node-schedule';
 import { MasterConfig } from './master-config';
 import { QueueManagerConfig } from '../event-manager/queue-manager-config';
@@ -9,7 +9,7 @@ import { container } from '../inversify';
 const log = debug('queue-manager:EventScheduler');
 
 class MasterEventScheduler {
-  private queueName: string;
+  private readonly queueName: string;
 
   private config: MasterConfig;
 
