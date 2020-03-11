@@ -11,8 +11,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const debug_1 = require("debug");
+const debug_1 = __importDefault(require("debug"));
 const inversify_1 = require("inversify");
 const event_manager_1 = require("../../event-manager");
 const log = debug_1.default('queue-manager:Route');

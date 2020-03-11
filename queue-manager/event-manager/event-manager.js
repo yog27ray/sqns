@@ -11,10 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const debug_1 = require("debug");
+const debug_1 = __importDefault(require("debug"));
 const inversify_1 = require("inversify");
-const request_promise_1 = require("request-promise");
+const request_promise_1 = __importDefault(require("request-promise"));
 const event_queue_1 = require("./event-queue");
 const event_item_1 = require("./event-item");
 exports.EventItem = event_item_1.EventItem;
@@ -28,7 +31,7 @@ let EventManager = class EventManager {
         const queueNames = this.eventQueue.queueNames();
         queueNames.forEach((queueName) => {
             Object.values(this.eventQueue.eventIds(queueName)).forEach((priority) => {
-                if (priorityStats[queueName]) {
+                if (!priorityStats[queueName]) {
                     priorityStats[queueName] = { PRIORITY_TOTAL: 0 };
                 }
                 const statKey = `PRIORITY_${priority}`;

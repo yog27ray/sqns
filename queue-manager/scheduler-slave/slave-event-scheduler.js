@@ -1,8 +1,18 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const debug_1 = require("debug");
-const request_promise_1 = require("request-promise");
-const node_schedule_1 = require("node-schedule");
+const debug_1 = __importDefault(require("debug"));
+const rp = __importStar(require("request-promise"));
+const schedule = __importStar(require("node-schedule"));
 const slave_config_1 = require("./slave-config");
 const queue_manager_config_1 = require("../event-manager/queue-manager-config");
 const event_manager_1 = require("../event-manager");
@@ -22,7 +32,7 @@ class SlaveEventScheduler {
             return;
         }
         log('Adding scheduler job for event slave.');
-        node_schedule_1.default.scheduleJob(cronInterval, () => !this.config.polling && this.checkIfMoreItemsCanBeProcessed());
+        schedule.scheduleJob(cronInterval, () => !this.config.polling && this.checkIfMoreItemsCanBeProcessed());
     }
     checkIfMoreItemsCanBeProcessed() {
         this.config.polling = true;
@@ -41,7 +51,7 @@ class SlaveEventScheduler {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         setTimeout(async () => {
             try {
-                const [response] = await request_promise_1.default({
+                const [response] = await rp({
                     method: 'POST',
                     uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueName}/event/poll`,
                     json: true,

@@ -1,8 +1,18 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const debug_1 = require("debug");
-const request_promise_1 = require("request-promise");
-const node_schedule_1 = require("node-schedule");
+const debug_1 = __importDefault(require("debug"));
+const rp = __importStar(require("request-promise"));
+const schedule = __importStar(require("node-schedule"));
 const master_config_1 = require("./master-config");
 const queue_manager_config_1 = require("../event-manager/queue-manager-config");
 const inversify_1 = require("../inversify");
@@ -22,7 +32,7 @@ class MasterEventScheduler {
             return;
         }
         log('Adding scheduler job for event master.');
-        node_schedule_1.default.scheduleJob(cronInterval, () => !this.config.sending && this.requestEventsToAddInQueue(this.cloneBaseParams));
+        schedule.scheduleJob(cronInterval, () => !this.config.sending && this.requestEventsToAddInQueue(this.cloneBaseParams));
     }
     get cloneBaseParams() {
         return JSON.parse(JSON.stringify(this.config.baseParams));
@@ -37,7 +47,7 @@ class MasterEventScheduler {
                     this.config.sending = false;
                     return;
                 }
-                await request_promise_1.default({
+                await rp({
                     method: 'POST',
                     uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueName}/event/bulk/new`,
                     body: items.map((item) => item.toRequestBody()),
