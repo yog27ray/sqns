@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd distcd
+cd dist
 git reset --hard
 git checkout dist
 rm -r *
