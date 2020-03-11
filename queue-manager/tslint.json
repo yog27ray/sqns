@@ -1,0 +1,94 @@
+{
+  "extends": ["node-tslint-rules"],
+  "rules": {
+    "restrict-plus-operands": false,
+    "class-name": true,
+    "prefer-for-of": false,
+    "eofline": true,
+    "forin": true,
+    "no-floating-promises": false,
+    "strict-boolean-expressions": false,
+    "prefer-function-over-method": false,
+    "no-dynamic-delete": false,
+    "curly": true,
+    "no-restricted-syntax": false,
+    "comment-type": false,
+    "no-async-without-await": false,
+    "no-this-assignment": false,
+    "space-before-function-paren": false,
+    "static-this": false,
+    "no-invalid-this": false,
+    "prefer-readonly": false,
+    "align": false,
+    "no-implicit-dependencies": false,
+    "no-unused-expression": false,
+    "return-undefined": false,
+    "promise-function-async": false,
+    "variable-name": false,
+    "prefer-template": false,
+    "no-void-expression": false,
+    "max-file-line-count": false,
+    "newline-before-return": false,
+    "trailing-comma": false,
+    "only-arrow-functions": false,
+    "newline-per-chained-call": false,
+    "ter-no-sparse-arrays": false,
+    "no-default-import": false,
+    "no-object-literal-type-assertion": false,
+    "no-unnecessary-callback-wrapper": false,
+    "indent": [
+      true,
+      "spaces"
+    ],
+    "label-position": true,
+    "max-line-length": [
+      true,
+      140
+    ],
+    "no-arg": true,
+    "no-bitwise": false,
+    "no-console": [
+      true,
+      "debug",
+      "info",
+      "time",
+      "timeEnd",
+      "trace"
+    ],
+    "no-construct": true,
+    "no-debugger": true,
+    "no-duplicate-variable": true,
+    "no-eval": true,
+    "no-inferrable-types": false,
+    "no-shadowed-variable": false,
+    "no-string-literal": true,
+    "no-switch-case-fall-through": false,
+    "no-trailing-whitespace": true,
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-catch",
+      "check-whitespace"
+    ],
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "radix": true,
+    "semicolon": true,
+    "triple-equals": [
+      true,
+      "allow-undefined-check"
+    ],
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      }
+    ]
+  }
+}
