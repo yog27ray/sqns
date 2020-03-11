@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { EventItem } from './event-item';
 declare class EventQueue {
     private _notifyNeedTaskURLS;

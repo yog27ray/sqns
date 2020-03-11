@@ -6,6 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("reflect-metadata");
 const fastpriorityqueue_1 = require("fastpriorityqueue");
 const inversify_1 = require("inversify");
 let EventQueue = class EventQueue {
