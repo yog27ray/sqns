@@ -11,11 +11,14 @@ const log = debug('queue-manager:EventScheduler');
 class SlaveEventScheduler {
   static Config: { MAX_COUNT: number } = { MAX_COUNT: 1 };
 
+  private queueName: string;
+
   private config: SlaveConfig;
 
   private queueManagerConfig: QueueManagerConfig;
 
-  constructor(listener: (item: EventItem) => Promise<void>, cronInterval?: string) {
+  constructor(queueName: string, listener: (item: EventItem) => Promise<void>, cronInterval?: string) {
+    this.queueName = queueName;
     this.config = container.get(SlaveConfig);
     this.queueManagerConfig = container.get(QueueManagerConfig);
     this.config.listener = listener;
@@ -51,7 +54,7 @@ class SlaveEventScheduler {
       try {
         const [response]: any = await rp({
           method: 'POST',
-          uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueManagerConfig.queueName}/event/poll`,
+          uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueName}/event/poll`,
           json: true,
         });
         if (!response) {

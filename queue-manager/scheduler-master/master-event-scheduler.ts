@@ -9,11 +9,14 @@ import { container } from '../inversify';
 const log = debug('queue-manager:EventScheduler');
 
 class MasterEventScheduler {
+  private queueName: string;
+
   private config: MasterConfig;
 
   private queueManagerConfig: QueueManagerConfig;
 
-  constructor(baseParams: any, listener: (nextItemListParams) => Promise<[object, Array<any>]>, cronInterval?: string) {
+  constructor(queueName: string, baseParams: any, listener: (nextItemListParams) => Promise<[object, Array<any>]>, cronInterval?: string) {
+    this.queueName = queueName;
     this.config = container.get(MasterConfig);
     this.queueManagerConfig = container.get(QueueManagerConfig);
     this.config.listener = listener;
@@ -46,7 +49,7 @@ class MasterEventScheduler {
         }
         await rp({
           method: 'POST',
-          uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueManagerConfig.queueName}/event/bulk/new`,
+          uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueName}/event/bulk/new`,
           body: items.map((item: EventItem) => item.toRequestBody()),
           json: true,
         })
