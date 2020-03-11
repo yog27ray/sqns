@@ -46,7 +46,7 @@ class MasterEventScheduler {
         }
         await rp({
           method: 'POST',
-          uri: `${this.queueManagerConfig.masterURL}/event/bulk/new`,
+          uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueManagerConfig.queueName}/event/bulk/new`,
           body: items.map((item: EventItem) => item.toRequestBody()),
           json: true,
         })

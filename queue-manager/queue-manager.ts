@@ -10,11 +10,13 @@ const log = debug('queue-manager:QueueManager');
 class QueueManager {
   isMaster: boolean;
 
-  constructor({ isMaster, masterURL }: { isMaster: boolean; masterURL: string; requestTasks?: Array<string> }) {
+  constructor({ isMaster, masterURL, queueName }:
+    { isMaster: boolean; masterURL: string; queueName: string; requestTasks?: Array<string> }) {
     this.isMaster = isMaster;
     const eventManager: EventManager = container.get(EventManager);
     const queueManagerConfig: QueueManagerConfig = container.get(QueueManagerConfig);
     queueManagerConfig.masterURL = masterURL;
+    queueManagerConfig.queueName = queueName;
     if (isMaster) {
       eventManager.initialize();
     }

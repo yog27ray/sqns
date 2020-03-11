@@ -49,7 +49,11 @@ class SlaveEventScheduler {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setTimeout(async () => {
       try {
-        const [response]: any = await rp({ method: 'POST', uri: `${this.queueManagerConfig.masterURL}/event/poll`, json: true });
+        const [response]: any = await rp({
+          method: 'POST',
+          uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueManagerConfig.queueName}/event/poll`,
+          json: true,
+        });
         if (!response) {
           this.config.hasMore = false;
           return;
