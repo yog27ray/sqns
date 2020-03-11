@@ -1,5 +1,5 @@
 declare class MasterEventScheduler {
-    private queueName;
+    private readonly queueName;
     private config;
     private queueManagerConfig;
     constructor(queueName: string, baseParams: any, listener: (nextItemListParams: any) => Promise<[object, Array<any>]>, cronInterval?: string);

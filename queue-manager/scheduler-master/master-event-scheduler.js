@@ -11,7 +11,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
-const rp = __importStar(require("request-promise"));
+const request_promise_1 = __importDefault(require("request-promise"));
 const schedule = __importStar(require("node-schedule"));
 const master_config_1 = require("./master-config");
 const queue_manager_config_1 = require("../event-manager/queue-manager-config");
@@ -47,7 +47,7 @@ class MasterEventScheduler {
                     this.config.sending = false;
                     return;
                 }
-                await rp({
+                await request_promise_1.default({
                     method: 'POST',
                     uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueName}/event/bulk/new`,
                     body: items.map((item) => item.toRequestBody()),

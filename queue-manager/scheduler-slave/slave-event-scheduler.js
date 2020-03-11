@@ -11,7 +11,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
-const rp = __importStar(require("request-promise"));
+const request_promise_1 = __importDefault(require("request-promise"));
 const schedule = __importStar(require("node-schedule"));
 const slave_config_1 = require("./slave-config");
 const queue_manager_config_1 = require("../event-manager/queue-manager-config");
@@ -51,7 +51,7 @@ class SlaveEventScheduler {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         setTimeout(async () => {
             try {
-                const [response] = await rp({
+                const [response] = await request_promise_1.default({
                     method: 'POST',
                     uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueName}/event/poll`,
                     json: true,
