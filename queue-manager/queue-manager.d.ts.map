@@ -1,0 +1,1 @@
+{"version":3,"file":"queue-manager.d.ts","sourceRoot":"","sources":["../../queue-manager/queue-manager.ts"],"names":[],"mappings":"AASA,cAAM,YAAY;IAChB,QAAQ,EAAE,OAAO,CAAC;gBAEN,EAAE,QAAQ,EAAE,SAAS,EAAE,EAAE;QAAE,QAAQ,EAAE,OAAO,CAAC;QAAC,SAAS,EAAE,MAAM,CAAC;QAAC,YAAY,CAAC,EAAE,KAAK,CAAC,MAAM,CAAC,CAAA;KAAE;IAU3G,cAAc,IAAI,GAAG;CAGtB;AAED,OAAO,EAAE,YAAY,EAAE,CAAC"}
