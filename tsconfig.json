@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "emitDeclarationOnly": true,
-    "declarationMap": true,
     "declaration": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,

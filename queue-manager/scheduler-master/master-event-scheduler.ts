@@ -1,6 +1,6 @@
 import debug from 'debug';
-import rp from 'request-promise';
-import schedule from 'node-schedule';
+import * as rp from 'request-promise';
+import * as schedule from 'node-schedule';
 import { MasterConfig } from './master-config';
 import { QueueManagerConfig } from '../event-manager/queue-manager-config';
 import { EventItem } from '../event-manager';

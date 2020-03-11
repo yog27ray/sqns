@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import FastPriorityQueue from 'fastpriorityqueue';
 import { injectable } from 'inversify';
 import { EventItem } from './event-item';

@@ -13,7 +13,7 @@ class EventManager {
     const queueNames = this.eventQueue.queueNames();
     queueNames.forEach((queueName: string) => {
       Object.values(this.eventQueue.eventIds(queueName)).forEach((priority: number) => {
-        if (priorityStats[queueName]) {
+        if (!priorityStats[queueName]) {
           priorityStats[queueName] = { PRIORITY_TOTAL: 0 };
         }
         const statKey = `PRIORITY_${priority}`;
