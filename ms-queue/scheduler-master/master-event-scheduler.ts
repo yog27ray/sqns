@@ -2,35 +2,33 @@ import debug from 'debug';
 import rp from 'request-promise';
 import * as schedule from 'node-schedule';
 import { MasterConfig } from './master-config';
-import { QueueManagerConfig } from '../event-manager/queue-manager-config';
 import { EventItem } from '../event-manager';
 import { container } from '../inversify';
 
-const log = debug('queue-manager:EventScheduler');
+const log = debug('ms-queue:EventScheduler');
 
 class MasterEventScheduler {
   private readonly queueName: string;
 
+  private readonly hostName: string;
+
+  private job: schedule.Job;
+
   private config: MasterConfig;
 
-  private queueManagerConfig: QueueManagerConfig;
-
-  constructor(queueName: string, baseParams: any, listener: (nextItemListParams) => Promise<[object, Array<any>]>, cronInterval?: string) {
+  constructor(hostName: string, queueName: string, baseParams: any,
+    listener: (nextItemListParams) => Promise<[object, Array<EventItem>]>, cronInterval?: string) {
+    this.hostName = hostName;
     this.queueName = queueName;
     this.config = container.get(MasterConfig);
-    this.queueManagerConfig = container.get(QueueManagerConfig);
     this.config.listener = listener;
     this.config.baseParams = baseParams;
     this.initialize(cronInterval);
   }
 
   private initialize(cronInterval: string = '* * * * *'): void {
-    this.requestEventsToAddInQueue(this.cloneBaseParams);
-    if (process.env.NODE_ENV === 'test') {
-      return;
-    }
     log('Adding scheduler job for event master.');
-    schedule.scheduleJob(cronInterval, () => !this.config.sending && this.requestEventsToAddInQueue(this.cloneBaseParams));
+    this.job = schedule.scheduleJob(cronInterval, () => !this.config.sending && this.requestEventsToAddInQueue(this.cloneBaseParams));
   }
 
   private get cloneBaseParams(): object {
@@ -49,24 +47,20 @@ class MasterEventScheduler {
         }
         await rp({
           method: 'POST',
-          uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueName}/event/bulk/new`,
+          uri: `${this.hostName}/queue/${this.queueName}/event/bulk/new`,
           body: items.map((item: EventItem) => item.toRequestBody()),
           json: true,
-        })
-          .catch(async (error: any) => {
-            if (!error.code && error.message.startsWith('Error: connect ECONNREFUSED')) {
-              // eslint-disable-next-line no-console
-              console.log(error.message);
-              return;
-            }
-            await Promise.reject(error);
-          });
+        });
         this.requestEventsToAddInQueue(nextItemListParams);
       } catch (error) {
         log(error);
         this.config.sending = false;
       }
     }, 0);
+  }
+
+  cancel(): void {
+    this.job.cancel();
   }
 }
 

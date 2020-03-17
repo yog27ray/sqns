@@ -4,7 +4,7 @@ import rp from 'request-promise';
 import { EventQueue } from './event-queue';
 import { EventItem } from './event-item';
 
-const log = debug('queue-manager:EventManager');
+const log = debug('ms-queue:EventManager');
 
 @injectable()
 class EventManager {
@@ -62,6 +62,14 @@ class EventManager {
       return undefined;
     }
     return this.eventQueue.pop(queueName);
+  }
+
+  reset(queueName: string): void {
+    return this.eventQueue.reset(queueName);
+  }
+
+  resetAll(): void {
+    return this.eventQueue.resetAll();
   }
 
   private async notifyTaskNeeded(queueName: string, index: number = 0): Promise<any> {

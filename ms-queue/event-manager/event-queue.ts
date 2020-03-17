@@ -5,7 +5,7 @@ import { EventItem } from './event-item';
 
 @injectable()
 class EventQueue {
-  private _notifyNeedTaskURLS: Array<string>;
+  private _notifyNeedTaskURLS: Array<string> = [];
 
   private _queueNameEventIds: { [key: string]: { [key: string]: number } } = {};
 
@@ -47,6 +47,16 @@ class EventQueue {
     const item = this.priorityQueue(queueName).poll();
     delete this.eventIds(queueName)[item.id];
     return item;
+  }
+
+  reset(queueName: string): void {
+    delete this._queueName[queueName];
+    delete this._queueNameEventIds[queueName];
+  }
+
+  resetAll(): void {
+    this._queueName = {};
+    this._queueNameEventIds = {};
   }
 
   size(queueName: string): number {

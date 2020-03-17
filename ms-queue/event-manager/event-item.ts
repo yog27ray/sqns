@@ -13,7 +13,7 @@ class EventItem {
 
   data: object;
 
-  constructor(item: { type: string; data: object; id: string; priority: number }) {
+  constructor(item: { type: string; data?: object; id?: string; priority?: number }) {
     this.id = item.id || uuid();
     this.type = item.type;
     this.data = item.data || {};

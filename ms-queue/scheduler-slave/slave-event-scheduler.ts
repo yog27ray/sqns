@@ -2,36 +2,33 @@ import debug from 'debug';
 import rp from 'request-promise';
 import * as schedule from 'node-schedule';
 import { SlaveConfig } from './slave-config';
-import { QueueManagerConfig } from '../event-manager/queue-manager-config';
 import { EventItem } from '../event-manager';
 import { container } from '../inversify';
 
-const log = debug('queue-manager:EventScheduler');
+const log = debug('ms-queue:EventScheduler');
 
 class SlaveEventScheduler {
   static Config: { MAX_COUNT: number } = { MAX_COUNT: 1 };
 
+  private readonly hostName: string;
+
   private readonly queueName: string;
+
+  private job: schedule.Job;
 
   private config: SlaveConfig;
 
-  private queueManagerConfig: QueueManagerConfig;
-
-  constructor(queueName: string, listener: (item: EventItem) => Promise<void>, cronInterval?: string) {
+  constructor(hostName: string, queueName: string, listener: (item: EventItem) => Promise<void>, cronInterval?: string) {
+    this.hostName = hostName;
     this.queueName = queueName;
     this.config = container.get(SlaveConfig);
-    this.queueManagerConfig = container.get(QueueManagerConfig);
     this.config.listener = listener;
     this.initialize(cronInterval);
   }
 
   private initialize(cronInterval: string = '15 * * * * *'): void {
-    this.checkIfMoreItemsCanBeProcessed();
-    if (process.env.NODE_ENV === 'test') {
-      return;
-    }
     log('Adding scheduler job for event slave.');
-    schedule.scheduleJob(cronInterval, () => !this.config.polling && this.checkIfMoreItemsCanBeProcessed());
+    this.job = schedule.scheduleJob(cronInterval, () => this.checkIfMoreItemsCanBeProcessed());
   }
 
   private checkIfMoreItemsCanBeProcessed(): void {
@@ -53,8 +50,7 @@ class SlaveEventScheduler {
     setTimeout(async () => {
       try {
         const [response]: any = await rp({
-          method: 'POST',
-          uri: `${this.queueManagerConfig.masterURL}/queue/${this.queueName}/event/poll`,
+          uri: `${this.hostName}/queue/${this.queueName}/event/poll`,
           json: true,
         });
         if (!response) {
@@ -62,17 +58,19 @@ class SlaveEventScheduler {
           return;
         }
         await this.config.listener(new EventItem(response));
-        this.requestEventToProcess();
       } catch (error) {
         log(error);
         if (!error.code && error.message.startsWith('Error: connect ECONNREFUSED')) {
           this.config.hasMore = false;
-          return;
         }
       }
       this.config.config.count -= 1;
       this.checkIfMoreItemsCanBeProcessed();
     }, 0);
+  }
+
+  cancel(): void {
+    this.job.cancel();
   }
 }
 
