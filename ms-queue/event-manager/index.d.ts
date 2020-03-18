@@ -1,2 +1,3 @@
 import { EventItem, EventManager } from './event-manager';
-export { EventManager, EventItem };
+import { MSQueueRequestHandler } from './m-s-queue-request-handler';
+export { EventManager, EventItem, MSQueueRequestHandler };

@@ -4,8 +4,8 @@ declare class MasterEventScheduler {
     private readonly hostName;
     private job;
     private config;
+    private msQueueRequestHandler;
     constructor(hostName: string, queueName: string, baseParams: any, listener: (nextItemListParams: any) => Promise<[object, Array<EventItem>]>, cronInterval?: string);
-    addEventsToQueue(events: Array<EventItem>): Promise<any>;
     cancel(): void;
     private initialize;
     private get cloneBaseParams();

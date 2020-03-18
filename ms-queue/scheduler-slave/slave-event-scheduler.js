@@ -12,7 +12,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
 const schedule = __importStar(require("node-schedule"));
-const request_promise_1 = __importDefault(require("request-promise"));
 const event_manager_1 = require("../event-manager");
 const inversify_1 = require("../inversify");
 const slave_config_1 = require("./slave-config");
@@ -23,17 +22,8 @@ class SlaveEventScheduler {
         this.queueName = queueName;
         this.config = inversify_1.container.get(slave_config_1.SlaveConfig);
         this.config.listener = listener;
+        this.msQueueRequestHandler = new event_manager_1.MSQueueRequestHandler();
         this.initialize(cronInterval);
-    }
-    async fetchEventsFromQueue() {
-        const [response] = await request_promise_1.default({
-            uri: `${this.hostName}/queue/${this.queueName}/event/poll`,
-            json: true,
-        });
-        if (!response) {
-            return undefined;
-        }
-        return new event_manager_1.EventItem(response);
     }
     cancel() {
         this.job.cancel();
@@ -59,7 +49,7 @@ class SlaveEventScheduler {
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         setTimeout(async () => {
             try {
-                const eventItem = await this.fetchEventsFromQueue();
+                const eventItem = await this.msQueueRequestHandler.fetchEventsFromQueue(this.hostName, this.queueName);
                 if (!eventItem) {
                     this.config.hasMore = false;
                     return;

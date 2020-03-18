@@ -12,7 +12,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
 const schedule = __importStar(require("node-schedule"));
-const request_promise_1 = __importDefault(require("request-promise"));
+const event_manager_1 = require("../event-manager");
 const inversify_1 = require("../inversify");
 const master_config_1 = require("./master-config");
 const log = debug_1.default('ms-queue:EventScheduler');
@@ -23,15 +23,8 @@ class MasterEventScheduler {
         this.config = inversify_1.container.get(master_config_1.MasterConfig);
         this.config.listener = listener;
         this.config.baseParams = baseParams;
+        this.msQueueRequestHandler = new event_manager_1.MSQueueRequestHandler();
         this.initialize(cronInterval);
-    }
-    addEventsToQueue(events) {
-        return request_promise_1.default({
-            method: 'POST',
-            uri: `${this.hostName}/queue/${this.queueName}/event/bulk/new`,
-            body: events.map((item) => item.toRequestBody()),
-            json: true,
-        });
     }
     cancel() {
         this.job.cancel();
@@ -56,7 +49,7 @@ class MasterEventScheduler {
                     this.config.sending = false;
                     return;
                 }
-                await this.addEventsToQueue(items);
+                await this.msQueueRequestHandler.addEventsToQueue(this.hostName, this.queueName, items);
                 this.requestEventsToAddInQueue(nextItemListParams);
             }
             catch (error) {

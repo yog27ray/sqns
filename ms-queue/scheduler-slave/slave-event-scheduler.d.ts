@@ -7,8 +7,8 @@ declare class SlaveEventScheduler {
     private readonly queueName;
     private job;
     private config;
+    private msQueueRequestHandler;
     constructor(hostName: string, queueName: string, listener: (item: EventItem) => Promise<void>, cronInterval?: string);
-    fetchEventsFromQueue(): Promise<EventItem>;
     cancel(): void;
     private initialize;
     private checkIfMoreItemsCanBeProcessed;
