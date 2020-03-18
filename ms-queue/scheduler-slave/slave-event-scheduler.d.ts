@@ -8,9 +8,10 @@ declare class SlaveEventScheduler {
     private job;
     private config;
     constructor(hostName: string, queueName: string, listener: (item: EventItem) => Promise<void>, cronInterval?: string);
+    fetchEventsFromQueue(): Promise<EventItem>;
+    cancel(): void;
     private initialize;
     private checkIfMoreItemsCanBeProcessed;
     private requestEventToProcess;
-    cancel(): void;
 }
 export { SlaveEventScheduler };

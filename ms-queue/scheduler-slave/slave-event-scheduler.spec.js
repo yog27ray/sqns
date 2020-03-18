@@ -3,8 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const request_promise_1 = __importDefault(require("request-promise"));
 const chai_1 = require("chai");
+const request_promise_1 = __importDefault(require("request-promise"));
 const test_env_1 = require("../test-env");
 const slave_event_scheduler_1 = require("./slave-event-scheduler");
 describe('SlaveEventSchedulerSpec', () => {

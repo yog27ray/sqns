@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const request_promise_1 = __importDefault(require("request-promise"));
 const chai_1 = require("chai");
-const master_event_scheduler_1 = require("./master-event-scheduler");
-const test_env_1 = require("../test-env");
+const request_promise_1 = __importDefault(require("request-promise"));
 const event_manager_1 = require("../event-manager");
+const test_env_1 = require("../test-env");
+const master_event_scheduler_1 = require("./master-event-scheduler");
 describe('MasterEventSchedulerSpec', () => {
     context('installing a master scheduler', () => {
         let masterScheduler;

@@ -9,9 +9,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-require("reflect-metadata");
 const fastpriorityqueue_1 = __importDefault(require("fastpriorityqueue"));
 const inversify_1 = require("inversify");
+// tslint:disable-next-line:no-import-side-effect
+require("reflect-metadata");
 let EventQueue = class EventQueue {
     constructor() {
         this._notifyNeedTaskURLS = [];
@@ -29,12 +30,6 @@ let EventQueue = class EventQueue {
             this._queueNameEventIds[queueName] = {};
         }
         return this._queueNameEventIds[queueName];
-    }
-    priorityQueue(queueName) {
-        if (!this._queueName[queueName]) {
-            this._queueName[queueName] = new fastpriorityqueue_1.default((event1, event2) => (event1.priority < event2.priority));
-        }
-        return this._queueName[queueName];
     }
     add(queueName, item) {
         this.eventIds(queueName)[item.id] = item.priority;
@@ -61,6 +56,12 @@ let EventQueue = class EventQueue {
     }
     queueNames() {
         return Object.keys(this._queueNameEventIds);
+    }
+    priorityQueue(queueName) {
+        if (!this._queueName[queueName]) {
+            this._queueName[queueName] = new fastpriorityqueue_1.default((event1, event2) => (event1.priority < event2.priority));
+        }
+        return this._queueName[queueName];
     }
 };
 EventQueue = __decorate([

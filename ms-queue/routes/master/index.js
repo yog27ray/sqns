@@ -8,8 +8,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = __importStar(require("express"));
-const event_manager_master_1 = require("./event-manager-master");
 const inversify_1 = require("../../inversify");
+const event_manager_master_1 = require("./event-manager-master");
 const controller = inversify_1.container.get(event_manager_master_1.EventManagerMaster);
 const router = express.Router();
 exports.router = router;

@@ -11,10 +11,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
-const request_promise_1 = __importDefault(require("request-promise"));
 const schedule = __importStar(require("node-schedule"));
-const master_config_1 = require("./master-config");
+const request_promise_1 = __importDefault(require("request-promise"));
 const inversify_1 = require("../inversify");
+const master_config_1 = require("./master-config");
 const log = debug_1.default('ms-queue:EventScheduler');
 class MasterEventScheduler {
     constructor(hostName, queueName, baseParams, listener, cronInterval) {
@@ -24,6 +24,17 @@ class MasterEventScheduler {
         this.config.listener = listener;
         this.config.baseParams = baseParams;
         this.initialize(cronInterval);
+    }
+    addEventsToQueue(events) {
+        return request_promise_1.default({
+            method: 'POST',
+            uri: `${this.hostName}/queue/${this.queueName}/event/bulk/new`,
+            body: events.map((item) => item.toRequestBody()),
+            json: true,
+        });
+    }
+    cancel() {
+        this.job.cancel();
     }
     initialize(cronInterval = '* * * * *') {
         log('Adding scheduler job for event master.');
@@ -45,12 +56,7 @@ class MasterEventScheduler {
                     this.config.sending = false;
                     return;
                 }
-                await request_promise_1.default({
-                    method: 'POST',
-                    uri: `${this.hostName}/queue/${this.queueName}/event/bulk/new`,
-                    body: items.map((item) => item.toRequestBody()),
-                    json: true,
-                });
+                await this.addEventsToQueue(items);
                 this.requestEventsToAddInQueue(nextItemListParams);
             }
             catch (error) {
@@ -58,9 +64,6 @@ class MasterEventScheduler {
                 this.config.sending = false;
             }
         }, 0);
-    }
-    cancel() {
-        this.job.cancel();
     }
 }
 exports.MasterEventScheduler = MasterEventScheduler;

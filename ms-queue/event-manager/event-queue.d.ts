@@ -9,7 +9,6 @@ declare class EventQueue {
     eventIds(queueName: string): {
         [key: string]: number;
     };
-    private priorityQueue;
     add(queueName: string, item: EventItem): void;
     isEventPresent(queueName: string, eventItem: EventItem): boolean;
     pop(queueName: string): EventItem;
@@ -17,5 +16,6 @@ declare class EventQueue {
     resetAll(): void;
     size(queueName: string): number;
     queueNames(): Array<string>;
+    private priorityQueue;
 }
 export { EventQueue };

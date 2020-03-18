@@ -1,5 +1,5 @@
-import { EventQueue } from './event-queue';
 import { EventItem } from './event-item';
+import { EventQueue } from './event-queue';
 declare class EventManager {
     private eventQueue;
     get eventStats(): object;

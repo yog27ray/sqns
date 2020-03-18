@@ -18,9 +18,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
 const inversify_1 = require("inversify");
 const request_promise_1 = __importDefault(require("request-promise"));
-const event_queue_1 = require("./event-queue");
 const event_item_1 = require("./event-item");
 exports.EventItem = event_item_1.EventItem;
+const event_queue_1 = require("./event-queue");
 const log = debug_1.default('ms-queue:EventManager');
 let EventManager = class EventManager {
     constructor(eventQueue) {
