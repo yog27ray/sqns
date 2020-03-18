@@ -1,6 +1,6 @@
 import * as express from 'express';
-import { EventManagerMaster } from './event-manager-master';
 import { container } from '../../inversify';
+import { EventManagerMaster } from './event-manager-master';
 
 const controller = container.get(EventManagerMaster);
 

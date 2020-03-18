@@ -1,8 +1,8 @@
-import rp from 'request-promise';
 import { expect } from 'chai';
-import { MasterEventScheduler } from './master-event-scheduler';
-import { Env } from '../test-env';
+import rp from 'request-promise';
 import { EventItem } from '../event-manager';
+import { Env } from '../test-env';
+import { MasterEventScheduler } from './master-event-scheduler';
 
 describe('MasterEventSchedulerSpec', () => {
   context('installing a master scheduler', () => {

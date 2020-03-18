@@ -1,6 +1,7 @@
-import 'reflect-metadata';
 import FastPriorityQueue from 'fastpriorityqueue';
 import { injectable } from 'inversify';
+// tslint:disable-next-line:no-import-side-effect
+import 'reflect-metadata';
 import { EventItem } from './event-item';
 
 @injectable()
@@ -24,14 +25,6 @@ class EventQueue {
       this._queueNameEventIds[queueName] = {};
     }
     return this._queueNameEventIds[queueName];
-  }
-
-  private priorityQueue(queueName: string): FastPriorityQueue<EventItem> {
-    if (!this._queueName[queueName]) {
-      this._queueName[queueName] = new FastPriorityQueue<EventItem>(
-        (event1: EventItem, event2: EventItem): boolean => (event1.priority < event2.priority));
-    }
-    return this._queueName[queueName];
   }
 
   add(queueName: string, item: EventItem): void {
@@ -65,6 +58,14 @@ class EventQueue {
 
   queueNames(): Array<string> {
     return Object.keys(this._queueNameEventIds);
+  }
+
+  private priorityQueue(queueName: string): FastPriorityQueue<EventItem> {
+    if (!this._queueName[queueName]) {
+      this._queueName[queueName] = new FastPriorityQueue<EventItem>(
+        (event1: EventItem, event2: EventItem): boolean => (event1.priority < event2.priority));
+    }
+    return this._queueName[queueName];
   }
 }
 

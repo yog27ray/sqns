@@ -1,7 +1,7 @@
-import rp from 'request-promise';
 import { expect } from 'chai';
-import { Env } from '../test-env';
+import rp from 'request-promise';
 import { EventItem } from '../event-manager';
+import { Env } from '../test-env';
 import { SlaveEventScheduler } from './slave-event-scheduler';
 
 describe('SlaveEventSchedulerSpec', () => {

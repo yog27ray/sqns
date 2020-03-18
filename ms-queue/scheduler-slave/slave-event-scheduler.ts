@@ -1,9 +1,9 @@
 import debug from 'debug';
-import rp from 'request-promise';
 import * as schedule from 'node-schedule';
-import { SlaveConfig } from './slave-config';
+import rp from 'request-promise';
 import { EventItem } from '../event-manager';
 import { container } from '../inversify';
+import { SlaveConfig } from './slave-config';
 
 const log = debug('ms-queue:EventScheduler');
 
@@ -24,6 +24,21 @@ class SlaveEventScheduler {
     this.config = container.get(SlaveConfig);
     this.config.listener = listener;
     this.initialize(cronInterval);
+  }
+
+  async fetchEventsFromQueue(): Promise<EventItem> {
+    const [response]: Array<any> = await rp({
+      uri: `${this.hostName}/queue/${this.queueName}/event/poll`,
+      json: true,
+    });
+    if (!response) {
+      return undefined;
+    }
+    return new EventItem(response);
+  }
+
+  cancel(): void {
+    this.job.cancel();
   }
 
   private initialize(cronInterval: string = '15 * * * * *'): void {
@@ -49,15 +64,12 @@ class SlaveEventScheduler {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setTimeout(async () => {
       try {
-        const [response]: any = await rp({
-          uri: `${this.hostName}/queue/${this.queueName}/event/poll`,
-          json: true,
-        });
-        if (!response) {
+        const eventItem: EventItem = await this.fetchEventsFromQueue();
+        if (!eventItem) {
           this.config.hasMore = false;
           return;
         }
-        await this.config.listener(new EventItem(response));
+        await this.config.listener(eventItem);
       } catch (error) {
         log(error);
         if (!error.code && error.message.startsWith('Error: connect ECONNREFUSED')) {
@@ -67,10 +79,6 @@ class SlaveEventScheduler {
       this.config.config.count -= 1;
       this.checkIfMoreItemsCanBeProcessed();
     }, 0);
-  }
-
-  cancel(): void {
-    this.job.cancel();
   }
 }
 

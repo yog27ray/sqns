@@ -13,3 +13,4 @@ cd dist
 git add *
 git commit -m "$VERSION"
 git push origin dist
+npm publish

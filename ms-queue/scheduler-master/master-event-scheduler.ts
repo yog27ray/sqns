@@ -1,9 +1,9 @@
 import debug from 'debug';
-import rp from 'request-promise';
 import * as schedule from 'node-schedule';
-import { MasterConfig } from './master-config';
+import rp from 'request-promise';
 import { EventItem } from '../event-manager';
 import { container } from '../inversify';
+import { MasterConfig } from './master-config';
 
 const log = debug('ms-queue:EventScheduler');
 
@@ -24,6 +24,19 @@ class MasterEventScheduler {
     this.config.listener = listener;
     this.config.baseParams = baseParams;
     this.initialize(cronInterval);
+  }
+
+  addEventsToQueue(events: Array<EventItem>): Promise<any> {
+    return rp({
+      method: 'POST',
+      uri: `${this.hostName}/queue/${this.queueName}/event/bulk/new`,
+      body: events.map((item: EventItem) => item.toRequestBody()),
+      json: true,
+    });
+  }
+
+  cancel(): void {
+    this.job.cancel();
   }
 
   private initialize(cronInterval: string = '* * * * *'): void {
@@ -48,22 +61,13 @@ class MasterEventScheduler {
           this.config.sending = false;
           return;
         }
-        await rp({
-          method: 'POST',
-          uri: `${this.hostName}/queue/${this.queueName}/event/bulk/new`,
-          body: items.map((item: EventItem) => item.toRequestBody()),
-          json: true,
-        });
+        await this.addEventsToQueue(items);
         this.requestEventsToAddInQueue(nextItemListParams);
       } catch (error) {
         log(error);
         this.config.sending = false;
       }
     }, 0);
-  }
-
-  cancel(): void {
-    this.job.cancel();
   }
 }
 

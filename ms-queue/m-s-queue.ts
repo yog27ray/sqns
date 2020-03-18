@@ -1,7 +1,7 @@
 import { EventManager } from './event-manager';
+import { container } from './inversify';
 import { router as masterRoutes } from './routes/master';
 import { router as slaveRoutes } from './routes/slave';
-import { container } from './inversify';
 
 class MSQueue {
   isMaster: boolean;

@@ -1,8 +1,8 @@
 import debug from 'debug';
 import { inject, injectable } from 'inversify';
 import rp from 'request-promise';
-import { EventQueue } from './event-queue';
 import { EventItem } from './event-item';
+import { EventQueue } from './event-queue';
 
 const log = debug('ms-queue:EventManager');
 
