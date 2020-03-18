@@ -1,7 +1,6 @@
 import debug from 'debug';
 import * as schedule from 'node-schedule';
-import rp from 'request-promise';
-import { EventItem } from '../event-manager';
+import { EventItem, MSQueueRequestHandler } from '../event-manager';
 import { container } from '../inversify';
 import { MasterConfig } from './master-config';
 
@@ -16,6 +15,8 @@ class MasterEventScheduler {
 
   private config: MasterConfig;
 
+  private msQueueRequestHandler: MSQueueRequestHandler;
+
   constructor(hostName: string, queueName: string, baseParams: any,
     listener: (nextItemListParams) => Promise<[object, Array<EventItem>]>, cronInterval?: string) {
     this.hostName = hostName;
@@ -23,16 +24,8 @@ class MasterEventScheduler {
     this.config = container.get(MasterConfig);
     this.config.listener = listener;
     this.config.baseParams = baseParams;
+    this.msQueueRequestHandler = new MSQueueRequestHandler();
     this.initialize(cronInterval);
-  }
-
-  addEventsToQueue(events: Array<EventItem>): Promise<any> {
-    return rp({
-      method: 'POST',
-      uri: `${this.hostName}/queue/${this.queueName}/event/bulk/new`,
-      body: events.map((item: EventItem) => item.toRequestBody()),
-      json: true,
-    });
   }
 
   cancel(): void {
@@ -61,7 +54,7 @@ class MasterEventScheduler {
           this.config.sending = false;
           return;
         }
-        await this.addEventsToQueue(items);
+        await this.msQueueRequestHandler.addEventsToQueue(this.hostName, this.queueName, items);
         this.requestEventsToAddInQueue(nextItemListParams);
       } catch (error) {
         log(error);

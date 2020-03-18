@@ -1,7 +1,6 @@
 import debug from 'debug';
 import * as schedule from 'node-schedule';
-import rp from 'request-promise';
-import { EventItem } from '../event-manager';
+import { EventItem, MSQueueRequestHandler } from '../event-manager';
 import { container } from '../inversify';
 import { SlaveConfig } from './slave-config';
 
@@ -18,23 +17,15 @@ class SlaveEventScheduler {
 
   private config: SlaveConfig;
 
+  private msQueueRequestHandler: MSQueueRequestHandler;
+
   constructor(hostName: string, queueName: string, listener: (item: EventItem) => Promise<void>, cronInterval?: string) {
     this.hostName = hostName;
     this.queueName = queueName;
     this.config = container.get(SlaveConfig);
     this.config.listener = listener;
+    this.msQueueRequestHandler = new MSQueueRequestHandler();
     this.initialize(cronInterval);
-  }
-
-  async fetchEventsFromQueue(): Promise<EventItem> {
-    const [response]: Array<any> = await rp({
-      uri: `${this.hostName}/queue/${this.queueName}/event/poll`,
-      json: true,
-    });
-    if (!response) {
-      return undefined;
-    }
-    return new EventItem(response);
   }
 
   cancel(): void {
@@ -64,7 +55,7 @@ class SlaveEventScheduler {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setTimeout(async () => {
       try {
-        const eventItem: EventItem = await this.fetchEventsFromQueue();
+        const eventItem: EventItem = await this.msQueueRequestHandler.fetchEventsFromQueue(this.hostName, this.queueName);
         if (!eventItem) {
           this.config.hasMore = false;
           return;
