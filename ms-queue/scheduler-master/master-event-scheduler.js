@@ -30,6 +30,9 @@ class MasterEventScheduler {
         this.job = schedule.scheduleJob(cronInterval, () => !this.config.sending && this.requestEventsToAddInQueue(this.cloneBaseParams));
     }
     get cloneBaseParams() {
+        if (typeof this.config.baseParams === 'function') {
+            return JSON.parse(JSON.stringify(this.config.baseParams()));
+        }
         return JSON.parse(JSON.stringify(this.config.baseParams));
     }
     requestEventsToAddInQueue(itemListParams) {

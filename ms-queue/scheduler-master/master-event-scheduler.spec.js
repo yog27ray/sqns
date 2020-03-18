@@ -42,6 +42,29 @@ describe('MasterEventSchedulerSpec', () => {
                 PRIORITY_999999: 2,
             });
         });
+        it('should add job events in the queue when base params is function', async () => {
+            await new Promise((resolve) => {
+                masterScheduler = new master_event_scheduler_1.MasterEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', () => ({ page: 0 }), async ({ page }) => {
+                    const result = [];
+                    if (!page) {
+                        result.push(new event_manager_1.EventItem({ type: 'type1', id: '123' }));
+                    }
+                    else if (page === 1) {
+                        result.push(new event_manager_1.EventItem({ type: 'type1', id: '1234' }));
+                    }
+                    else if (page === 2) {
+                        resolve();
+                    }
+                    return [{ page: page + 1 }, result];
+                }, '*/10 * * * * *');
+            });
+            const stats = await request_promise_1.default({ uri: `${test_env_1.Env.URL}/api/queues/events/stats`, json: true });
+            chai_1.expect(stats).to.deep.equal({
+                PRIORITY_TOTAL: 2,
+                queue1: { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
+                PRIORITY_999999: 2,
+            });
+        });
         afterEach(async () => {
             if (masterScheduler) {
                 masterScheduler.cancel();
