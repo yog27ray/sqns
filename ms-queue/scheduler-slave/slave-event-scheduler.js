@@ -52,9 +52,10 @@ class SlaveEventScheduler {
                 const eventItem = await this.msQueueRequestHandler.fetchEventsFromQueue(this.hostName, this.queueName);
                 if (!eventItem) {
                     this.config.hasMore = false;
-                    return;
                 }
-                await this.config.listener(eventItem);
+                else {
+                    await this.config.listener(eventItem);
+                }
             }
             catch (error) {
                 log(error);

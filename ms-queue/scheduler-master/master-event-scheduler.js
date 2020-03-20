@@ -35,7 +35,7 @@ class MasterEventScheduler {
     }
     get cloneBaseParams() {
         if (typeof this.config.baseParams === 'function') {
-            return JSON.parse(JSON.stringify(this.config.baseParams()));
+            return this.config.baseParams();
         }
         return JSON.parse(JSON.stringify(this.config.baseParams));
     }
