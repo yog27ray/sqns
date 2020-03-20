@@ -31,13 +31,13 @@ class EventManager {
     const prometheusRows = [];
     const priorityStats = this.eventStats;
     Object.keys(priorityStats).forEach((queueName: string) => {
-      Object.keys(priorityStats[queueName]).forEach((key: string) => {
-        if (typeof priorityStats[key] === 'object') {
+      if (typeof priorityStats[queueName] === 'object') {
+        Object.keys(priorityStats[queueName]).forEach((key: string) => {
           prometheusRows.push(`${queueName}_queue_priority{label="${key}"} ${priorityStats[key]} ${unixTimeStamp}`);
-          return;
-        }
-        prometheusRows.push(`queue_priority{label="${key}"} ${priorityStats[key]} ${unixTimeStamp}`);
-      });
+        });
+        return;
+      }
+      prometheusRows.push(`queue_priority{label="${queueName}"} ${priorityStats[queueName]} ${unixTimeStamp}`);
     });
     return `${prometheusRows.join('\n')}\n`;
   }

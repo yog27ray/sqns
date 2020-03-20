@@ -58,9 +58,9 @@ class SlaveEventScheduler {
         const eventItem: EventItem = await this.msQueueRequestHandler.fetchEventsFromQueue(this.hostName, this.queueName);
         if (!eventItem) {
           this.config.hasMore = false;
-          return;
+        } else {
+          await this.config.listener(eventItem);
         }
-        await this.config.listener(eventItem);
       } catch (error) {
         log(error);
         if (!error.code && error.message.startsWith('Error: connect ECONNREFUSED')) {
