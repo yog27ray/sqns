@@ -184,9 +184,12 @@ describe('EventManagerMasterSpec', () => {
                 return words.join(' ');
             }).join('\n');
             chai_1.expect(statsWithoutTimeStamp).to.deep.equal('queue_priority{label="PRIORITY_TOTAL"} 5\n'
+                + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 5\n'
+                + 'queue1_queue_priority{label="PRIORITY_999999"} 4\n'
                 + 'queue_priority{label="PRIORITY_999999"} 4\n'
-                + 'queue_priority{label="PRIORITY_TOTAL"} 5\n'
-                + 'queue_priority{label="PRIORITY_999999"} 4\n'
+                + 'queue2_queue_priority{label="PRIORITY_TOTAL"} 5\n'
+                + 'queue2_queue_priority{label="PRIORITY_999999"} 4\n'
+                + 'queue2_queue_priority{label="PRIORITY_1"} 1\n'
                 + 'queue_priority{label="PRIORITY_1"} 1\n');
         });
     });

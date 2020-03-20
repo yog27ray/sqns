@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var EventManager_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
 const inversify_1 = require("inversify");
@@ -22,12 +23,12 @@ const event_item_1 = require("./event-item");
 exports.EventItem = event_item_1.EventItem;
 const event_queue_1 = require("./event-queue");
 const log = debug_1.default('ms-queue:EventManager');
-let EventManager = class EventManager {
+let EventManager = EventManager_1 = class EventManager {
     constructor(eventQueue) {
         this.eventQueue = eventQueue;
     }
     get eventStats() {
-        const priorityStats = { PRIORITY_TOTAL: 0 };
+        const priorityStats = JSON.parse(JSON.stringify(EventManager_1.DEFAULT_PRIORITIES));
         const queueNames = this.eventQueue.queueNames();
         queueNames.forEach((queueName) => {
             Object.values(this.eventQueue.eventIds(queueName)).forEach((priority) => {
@@ -35,6 +36,7 @@ let EventManager = class EventManager {
                     priorityStats[queueName] = { PRIORITY_TOTAL: 0 };
                 }
                 const statKey = `PRIORITY_${priority}`;
+                EventManager_1[statKey] = 0;
                 priorityStats[queueName][statKey] = (priorityStats[queueName][statKey] || 0) + 1;
                 priorityStats[queueName].PRIORITY_TOTAL += 1;
                 priorityStats[statKey] = (priorityStats[statKey] || 0) + 1;
@@ -95,7 +97,8 @@ let EventManager = class EventManager {
         await this.notifyTaskNeeded(queueName, index + 1);
     }
 };
-EventManager = __decorate([
+EventManager.DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
+EventManager = EventManager_1 = __decorate([
     inversify_1.injectable(),
     __param(0, inversify_1.inject(event_queue_1.EventQueue)),
     __metadata("design:paramtypes", [event_queue_1.EventQueue])
