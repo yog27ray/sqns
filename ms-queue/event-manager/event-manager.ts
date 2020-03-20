@@ -8,8 +8,10 @@ const log = debug('ms-queue:EventManager');
 
 @injectable()
 class EventManager {
+  private static DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
+
   get eventStats(): object {
-    const priorityStats = { PRIORITY_TOTAL: 0 };
+    const priorityStats = JSON.parse(JSON.stringify(EventManager.DEFAULT_PRIORITIES));
     const queueNames = this.eventQueue.queueNames();
     queueNames.forEach((queueName: string) => {
       Object.values(this.eventQueue.eventIds(queueName)).forEach((priority: number) => {
@@ -17,6 +19,7 @@ class EventManager {
           priorityStats[queueName] = { PRIORITY_TOTAL: 0 };
         }
         const statKey = `PRIORITY_${priority}`;
+        EventManager[statKey] = 0;
         priorityStats[queueName][statKey] = (priorityStats[queueName][statKey] || 0) + 1;
         priorityStats[queueName].PRIORITY_TOTAL += 1;
         priorityStats[statKey] = (priorityStats[statKey] || 0) + 1;
