@@ -1,5 +1,7 @@
 import { expect } from 'chai';
 import rp from 'request-promise';
+import { EventQueue } from '../../event-manager/event-queue';
+import { container } from '../../inversify';
 import { Env } from '../../test-env';
 
 describe('EventManagerMasterSpec', () => {
@@ -189,15 +191,33 @@ describe('EventManagerMasterSpec', () => {
         words.pop();
         return words.join(' ');
       }).join('\n');
-      expect(statsWithoutTimeStamp).to.deep.equal('queue_priority{label="PRIORITY_TOTAL"} 5\n'
-        + 'queue_priority{label="PRIORITY_999999"} 4\n'
+      expect(statsWithoutTimeStamp).to.deep.equal('queue1_queue_priority{label="PRIORITY_999999"} 2\n'
+        + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 2\n'
+        + 'queue2_queue_priority{label="PRIORITY_1"} 1\n'
+        + 'queue2_queue_priority{label="PRIORITY_999999"} 2\n'
+        + 'queue2_queue_priority{label="PRIORITY_TOTAL"} 3\n'
         + 'queue_priority{label="PRIORITY_1"} 1\n'
-        + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 5\n'
-        + 'queue1_queue_priority{label="PRIORITY_999999"} 4\n'
-        + 'queue1_queue_priority{label="PRIORITY_1"} 1\n'
-        + 'queue2_queue_priority{label="PRIORITY_TOTAL"} 5\n'
-        + 'queue2_queue_priority{label="PRIORITY_999999"} 4\n'
-        + 'queue2_queue_priority{label="PRIORITY_1"} 1\n');
+        + 'queue_priority{label="PRIORITY_999999"} 4\n'
+        + 'queue_priority{label="PRIORITY_TOTAL"} 5\n');
+    });
+
+    it('should preserve all priority with zero', async () => {
+      await rp({ uri: `${Env.URL}/api/queues/events/stats?format=prometheus`, json: true });
+      container.get(EventQueue).resetAll();
+      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats?format=prometheus`, json: true });
+      const statsWithoutTimeStamp = stats.split('\n').map((each: string) => {
+        const words = each.split(' ');
+        words.pop();
+        return words.join(' ');
+      }).join('\n');
+      expect(statsWithoutTimeStamp).to.deep.equal('queue1_queue_priority{label="PRIORITY_999999"} 0\n'
+        + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 0\n'
+        + 'queue2_queue_priority{label="PRIORITY_1"} 0\n'
+        + 'queue2_queue_priority{label="PRIORITY_999999"} 0\n'
+        + 'queue2_queue_priority{label="PRIORITY_TOTAL"} 0\n'
+        + 'queue_priority{label="PRIORITY_1"} 0\n'
+        + 'queue_priority{label="PRIORITY_999999"} 0\n'
+        + 'queue_priority{label="PRIORITY_TOTAL"} 0\n');
     });
   });
 

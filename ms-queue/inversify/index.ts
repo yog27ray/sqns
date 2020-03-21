@@ -6,9 +6,9 @@ import { SlaveConfig } from '../scheduler-slave/slave-config';
 import { container } from './container';
 
 container.bind(EventManager).to(EventManager);
-container.bind(EventQueue).to(EventQueue);
 container.bind(MasterEventScheduler).to(MasterEventScheduler);
 container.bind(SlaveConfig).to(SlaveConfig);
 container.bind(MasterConfig).to(MasterConfig);
 
+container.bind(EventQueue).to(EventQueue).inSingletonScope();
 export { container };

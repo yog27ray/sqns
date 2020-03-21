@@ -16,10 +16,15 @@ class EventManager {
     queueNames.forEach((queueName: string) => {
       Object.values(this.eventQueue.eventIds(queueName)).forEach((priority: number) => {
         if (!priorityStats[queueName]) {
-          priorityStats[queueName] = JSON.parse(JSON.stringify(EventManager.DEFAULT_PRIORITIES));
+          priorityStats[queueName] = { PRIORITY_TOTAL: 0 };
         }
         const statKey = `PRIORITY_${priority}`;
         EventManager.DEFAULT_PRIORITIES[statKey] = 0;
+        if (!EventManager.DEFAULT_PRIORITIES[queueName]) {
+          EventManager.DEFAULT_PRIORITIES[queueName] = { PRIORITY_TOTAL: 0 };
+        }
+        EventManager.DEFAULT_PRIORITIES[queueName][statKey] = 0;
+
         priorityStats[queueName][statKey] = (priorityStats[queueName][statKey] || 0) + 1;
         priorityStats[queueName].PRIORITY_TOTAL += 1;
         priorityStats[statKey] = (priorityStats[statKey] || 0) + 1;
@@ -36,13 +41,13 @@ class EventManager {
     Object.keys(priorityStats).forEach((queueName: string) => {
       if (typeof priorityStats[queueName] === 'object') {
         Object.keys(priorityStats[queueName]).forEach((key: string) => {
-          prometheusRows.push(`${queueName}_queue_priority{label="${key}"} ${priorityStats[key]} ${unixTimeStamp}`);
+          prometheusRows.push(`${queueName}_queue_priority{label="${key}"} ${priorityStats[queueName][key]} ${unixTimeStamp}`);
         });
         return;
       }
       prometheusRows.push(`queue_priority{label="${queueName}"} ${priorityStats[queueName]} ${unixTimeStamp}`);
     });
-    return `${prometheusRows.join('\n')}\n`;
+    return `${prometheusRows.sort().join('\n')}\n`;
   }
 
   constructor(@inject(EventQueue) private eventQueue: EventQueue) {}
