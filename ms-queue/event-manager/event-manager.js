@@ -33,10 +33,10 @@ let EventManager = EventManager_1 = class EventManager {
         queueNames.forEach((queueName) => {
             Object.values(this.eventQueue.eventIds(queueName)).forEach((priority) => {
                 if (!priorityStats[queueName]) {
-                    priorityStats[queueName] = { PRIORITY_TOTAL: 0 };
+                    priorityStats[queueName] = JSON.parse(JSON.stringify(EventManager_1.DEFAULT_PRIORITIES));
                 }
                 const statKey = `PRIORITY_${priority}`;
-                EventManager_1[statKey] = 0;
+                EventManager_1.DEFAULT_PRIORITIES[statKey] = 0;
                 priorityStats[queueName][statKey] = (priorityStats[queueName][statKey] || 0) + 1;
                 priorityStats[queueName].PRIORITY_TOTAL += 1;
                 priorityStats[statKey] = (priorityStats[statKey] || 0) + 1;
@@ -81,6 +81,7 @@ let EventManager = EventManager_1 = class EventManager {
         return this.eventQueue.reset(queueName);
     }
     resetAll() {
+        EventManager_1.DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
         return this.eventQueue.resetAll();
     }
     async notifyTaskNeeded(queueName, index = 0) {
