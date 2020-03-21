@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
 const request_promise_1 = __importDefault(require("request-promise"));
+const event_queue_1 = require("../../event-manager/event-queue");
+const inversify_1 = require("../../inversify");
 const test_env_1 = require("../../test-env");
 describe('EventManagerMasterSpec', () => {
     context('eventBulkNew', () => {
@@ -183,15 +185,32 @@ describe('EventManagerMasterSpec', () => {
                 words.pop();
                 return words.join(' ');
             }).join('\n');
-            chai_1.expect(statsWithoutTimeStamp).to.deep.equal('queue_priority{label="PRIORITY_TOTAL"} 5\n'
-                + 'queue_priority{label="PRIORITY_999999"} 4\n'
+            chai_1.expect(statsWithoutTimeStamp).to.deep.equal('queue1_queue_priority{label="PRIORITY_999999"} 2\n'
+                + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 2\n'
+                + 'queue2_queue_priority{label="PRIORITY_1"} 1\n'
+                + 'queue2_queue_priority{label="PRIORITY_999999"} 2\n'
+                + 'queue2_queue_priority{label="PRIORITY_TOTAL"} 3\n'
                 + 'queue_priority{label="PRIORITY_1"} 1\n'
-                + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 5\n'
-                + 'queue1_queue_priority{label="PRIORITY_999999"} 4\n'
-                + 'queue1_queue_priority{label="PRIORITY_1"} 1\n'
-                + 'queue2_queue_priority{label="PRIORITY_TOTAL"} 5\n'
-                + 'queue2_queue_priority{label="PRIORITY_999999"} 4\n'
-                + 'queue2_queue_priority{label="PRIORITY_1"} 1\n');
+                + 'queue_priority{label="PRIORITY_999999"} 4\n'
+                + 'queue_priority{label="PRIORITY_TOTAL"} 5\n');
+        });
+        it('should preserve all priority with zero', async () => {
+            await request_promise_1.default({ uri: `${test_env_1.Env.URL}/api/queues/events/stats?format=prometheus`, json: true });
+            inversify_1.container.get(event_queue_1.EventQueue).resetAll();
+            const stats = await request_promise_1.default({ uri: `${test_env_1.Env.URL}/api/queues/events/stats?format=prometheus`, json: true });
+            const statsWithoutTimeStamp = stats.split('\n').map((each) => {
+                const words = each.split(' ');
+                words.pop();
+                return words.join(' ');
+            }).join('\n');
+            chai_1.expect(statsWithoutTimeStamp).to.deep.equal('queue1_queue_priority{label="PRIORITY_999999"} 0\n'
+                + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 0\n'
+                + 'queue2_queue_priority{label="PRIORITY_1"} 0\n'
+                + 'queue2_queue_priority{label="PRIORITY_999999"} 0\n'
+                + 'queue2_queue_priority{label="PRIORITY_TOTAL"} 0\n'
+                + 'queue_priority{label="PRIORITY_1"} 0\n'
+                + 'queue_priority{label="PRIORITY_999999"} 0\n'
+                + 'queue_priority{label="PRIORITY_TOTAL"} 0\n');
         });
     });
     context('eventPoll', () => {
