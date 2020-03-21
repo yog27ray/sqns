@@ -34,7 +34,7 @@ class SlaveEventScheduler {
 
   private initialize(cronInterval: string = '15 * * * * *'): void {
     log('Adding scheduler job for event slave.');
-    this.job = schedule.scheduleJob(cronInterval, () => this.config.polling && this.checkIfMoreItemsCanBeProcessed());
+    this.job = schedule.scheduleJob(cronInterval, () => !this.config.polling && this.checkIfMoreItemsCanBeProcessed());
   }
 
   private checkIfMoreItemsCanBeProcessed(): void {
