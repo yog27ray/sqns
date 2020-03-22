@@ -42,7 +42,7 @@ class SlaveEventScheduler {
         }
         if (!this.config.config.count && !this.config.hasMore) {
             this.config.polling = false;
-            this.config.hasMore = false;
+            this.config.hasMore = true;
         }
     }
     requestEventToProcess() {
