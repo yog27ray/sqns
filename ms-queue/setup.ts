@@ -9,7 +9,8 @@ const app: any = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.json());
-app.use('/api', new MSQueue({ isMaster: true }).generateRoutes());
+const mSQueue = new MSQueue();
+app.use('/api', mSQueue.generateRoutes());
 const server = http.createServer(app);
 
 const log = debug('ms-queue:App');
@@ -19,4 +20,4 @@ server.listen(Env.PORT, '0.0.0.0', () => {
 });
 
 // Expose app
-export { app };
+export { app, mSQueue };

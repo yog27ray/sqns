@@ -56,6 +56,10 @@ class EventManager {
     this.eventQueue.notifyNeedTaskURLS = notifyNeedTaskURLS;
   }
 
+  comparatorFunction(queueName: string, value: (event1: EventItem, event2: EventItem) => boolean): void {
+    this.eventQueue.comparatorFunction(queueName, value);
+  }
+
   add(queueName: string, eventItem: EventItem): void {
     if (this.eventQueue.isEventPresent(queueName, eventItem)) {
       return;

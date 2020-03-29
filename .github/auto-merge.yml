@@ -1,0 +1,12 @@
+updateBranch: false
+deleteBranchAfterMerge: true
+mergeMethod: squash
+reportStatus: true
+
+blockingLabels:
+- blocked
+
+blockingTitleRegex: '\bwip\b'
+
+minApprovals:
+  COLLABORATOR: 1

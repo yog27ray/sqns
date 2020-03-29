@@ -36,6 +36,7 @@
     "mocha": "^7.1.1",
     "node-tslint-rules": "^1.20.3",
     "nyc": "^15.0.0",
+    "ts-node": "^8.8.1",
     "tslint": "^6.1.0",
     "typescript": "^3.8.3"
   },

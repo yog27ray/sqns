@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import { EventItem } from '../event-manager';
 
 @injectable()
-class MasterConfig {
+class CollectorConfig {
   private _sending: boolean = false;
 
   private _baseParams: any;
@@ -34,4 +34,4 @@ class MasterConfig {
   }
 }
 
-export { MasterConfig };
+export { CollectorConfig };

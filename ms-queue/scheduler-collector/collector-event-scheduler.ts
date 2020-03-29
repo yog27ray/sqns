@@ -2,18 +2,18 @@ import debug from 'debug';
 import * as schedule from 'node-schedule';
 import { EventItem, MSQueueRequestHandler } from '../event-manager';
 import { container } from '../inversify';
-import { MasterConfig } from './master-config';
+import { CollectorConfig } from './collector-config';
 
 const log = debug('ms-queue:EventScheduler');
 
-class MasterEventScheduler {
+class CollectorEventScheduler {
   private readonly queueName: string;
 
   private readonly hostName: string;
 
   private job: schedule.Job;
 
-  private config: MasterConfig;
+  private config: CollectorConfig;
 
   private msQueueRequestHandler: MSQueueRequestHandler;
 
@@ -21,7 +21,7 @@ class MasterEventScheduler {
     listener: (nextItemListParams) => Promise<[object, Array<EventItem>]>, cronInterval?: string) {
     this.hostName = hostName;
     this.queueName = queueName;
-    this.config = container.get(MasterConfig);
+    this.config = container.get(CollectorConfig);
     this.config.listener = listener;
     this.config.baseParams = baseParams;
     this.msQueueRequestHandler = new MSQueueRequestHandler();
@@ -64,4 +64,4 @@ class MasterEventScheduler {
   }
 }
 
-export { MasterEventScheduler };
+export { CollectorEventScheduler };

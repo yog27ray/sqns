@@ -2,7 +2,7 @@ import { injectable } from 'inversify';
 import { EventItem } from '../event-manager';
 
 @injectable()
-class SlaveConfig {
+class ProcessingConfig {
   private _config: { count: number } = { count: 0 };
 
   private _polling: boolean = false;
@@ -44,4 +44,4 @@ class SlaveConfig {
   }
 }
 
-export { SlaveConfig };
+export { ProcessingConfig };
