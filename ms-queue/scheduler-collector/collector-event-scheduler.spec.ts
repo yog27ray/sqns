@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import rp from 'request-promise';
 import { EventItem } from '../event-manager';
 import { Env } from '../test-env';
-import { MasterEventScheduler } from './master-event-scheduler';
+import { CollectorEventScheduler } from './collector-event-scheduler';
 
-describe('MasterEventSchedulerSpec', () => {
-  context('installing a master scheduler', () => {
-    let masterScheduler: MasterEventScheduler;
+describe('CollectorEventSchedulerSpec', () => {
+  context('installing a collector scheduler', () => {
+    let masterScheduler: CollectorEventScheduler;
 
     beforeEach(async () => {
       await rp({
@@ -19,7 +19,7 @@ describe('MasterEventSchedulerSpec', () => {
 
     it('should add job events in the queue', async () => {
       await new Promise((resolve: Function) => {
-        masterScheduler = new MasterEventScheduler(
+        masterScheduler = new CollectorEventScheduler(
           `${Env.URL}/api`,
           'queue1',
           { page: 0 },
@@ -45,7 +45,7 @@ describe('MasterEventSchedulerSpec', () => {
 
     it('should add job events in the queue when base params is function', async () => {
       await new Promise((resolve: Function) => {
-        masterScheduler = new MasterEventScheduler(
+        masterScheduler = new CollectorEventScheduler(
           `${Env.URL}/api`,
           'queue1',
           () => ({ page: 0 }),
@@ -77,7 +77,7 @@ describe('MasterEventSchedulerSpec', () => {
   });
 
   context('error handling of master scheduler', () => {
-    let masterScheduler: MasterEventScheduler;
+    let masterScheduler: CollectorEventScheduler;
 
     beforeEach(async () => {
       await rp({
@@ -91,7 +91,7 @@ describe('MasterEventSchedulerSpec', () => {
     it('should re-attempt to check if server is ready.', async () => {
       await new Promise((resolve: Function) => {
         let maxAttemptCount = 2;
-        masterScheduler = new MasterEventScheduler(
+        masterScheduler = new CollectorEventScheduler(
           `${Env.URL}1/api`,
           'queue1',
           { page: 0 },

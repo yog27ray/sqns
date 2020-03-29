@@ -2,12 +2,12 @@ import debug from 'debug';
 import * as schedule from 'node-schedule';
 import { EventItem, MSQueueRequestHandler } from '../event-manager';
 import { container } from '../inversify';
-import { SlaveConfig } from './slave-config';
+import { ProcessingConfig } from './processing-config';
 
 const log = debug('ms-queue:EventScheduler');
 
-class SlaveEventScheduler {
-  static Config: { MAX_COUNT: number } = { MAX_COUNT: 1 };
+class ProcessingEventScheduler {
+  private Config: { MAX_COUNT: number } = { MAX_COUNT: 1 };
 
   private readonly hostName: string;
 
@@ -15,17 +15,22 @@ class SlaveEventScheduler {
 
   private job: schedule.Job;
 
-  private config: SlaveConfig;
+  private config: ProcessingConfig;
 
   private msQueueRequestHandler: MSQueueRequestHandler;
 
   constructor(hostName: string, queueName: string, listener: (item: EventItem) => Promise<void>, cronInterval?: string) {
     this.hostName = hostName;
     this.queueName = queueName;
-    this.config = container.get(SlaveConfig);
+    this.config = container.get(ProcessingConfig);
     this.config.listener = listener;
     this.msQueueRequestHandler = new MSQueueRequestHandler();
     this.initialize(cronInterval);
+    this.setParallelProcessingCount(1);
+  }
+
+  setParallelProcessingCount(count: number): void {
+    this.Config.MAX_COUNT = count;
   }
 
   cancel(): void {
@@ -39,10 +44,10 @@ class SlaveEventScheduler {
 
   private checkIfMoreItemsCanBeProcessed(): void {
     this.config.polling = true;
-    if (this.config.config.count >= SlaveEventScheduler.Config.MAX_COUNT) {
+    if (this.config.config.count >= this.Config.MAX_COUNT) {
       return;
     }
-    while (this.config.config.count < SlaveEventScheduler.Config.MAX_COUNT && this.config.hasMore) {
+    while (this.config.config.count < this.Config.MAX_COUNT && this.config.hasMore) {
       this.requestEventToProcess();
     }
     if (!this.config.config.count && !this.config.hasMore) {
@@ -74,4 +79,4 @@ class SlaveEventScheduler {
   }
 }
 
-export { SlaveEventScheduler };
+export { ProcessingEventScheduler };

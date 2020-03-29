@@ -1,6 +1,6 @@
 import { EventItem, MSQueueRequestHandler } from './ms-queue/event-manager';
 import { MSQueue } from './ms-queue/m-s-queue';
-import { MasterEventScheduler } from './ms-queue/scheduler-master/master-event-scheduler';
-import { SlaveEventScheduler } from './ms-queue/scheduler-slave/slave-event-scheduler';
+import { CollectorEventScheduler } from './ms-queue/scheduler-collector/collector-event-scheduler';
+import { ProcessingEventScheduler } from './ms-queue/scheduler-processing/processing-event-scheduler';
 
-export { MSQueue, MasterEventScheduler, SlaveEventScheduler, EventItem, MSQueueRequestHandler };
+export { MSQueue, CollectorEventScheduler, ProcessingEventScheduler, EventItem, MSQueueRequestHandler };

@@ -1,0 +1,75 @@
+kind: pipeline
+name: automatic-testing
+
+steps:
+  - name: restore-cache
+    image: golang
+    volumes:
+      - name: cache
+        path: /cache
+    commands:
+      - git rev-parse --short HEAD
+      - mkdir -p /cache/ms-queue/node_modules
+      - cp -Rf /cache/ms-queue/node_modules/ node_modules/
+    depends_on: [ clone ]
+
+  - name: npm-update
+    image: node:12.13.0
+    commands:
+      - npm install
+    depends_on: [ restore-cache ]
+
+  - name: eslint-server
+    image: node:12.13.0
+    commands:
+      - node_modules/eslint/bin/eslint.js  --ext .ts ms-queue
+    depends_on: [ npm-update ]
+
+  - name: tslint
+    image: node:12.13.0
+    commands:
+      - node_modules/tslint/bin/tslint -p ./ -c ms-queue/tslint.json
+      - node_modules/typescript/bin/tsc -p ./
+      - rm -r dist
+    depends_on: [ npm-update ]
+
+  - name: test-server
+    image: node:12.13.0
+    privileged: true
+    commands:
+      - node_modules/.bin/nyc node_modules/.bin/mocha require ts-node/register/transpile-only --opts .mocharc ms-queue/setup.ts ms-queue/setup.spec.ts  ./**/*.spec.ts --exit
+      - node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov;
+    depends_on: [ eslint-server, tslint ]
+
+#  - name: report
+#    image: node:12.13.0
+#    privileged: true
+#    when:
+#      status:
+#        - success
+#        - failure
+#    commands:
+#      - ./node_modules/.bin/codecov --token="5fe36227-eeed-48f9-b15a-36aed5b0314f"
+#    depends_on: [ test-server ]
+
+  - name: build-cache
+    image: golang
+    volumes:
+      - name: cache
+        path: /cache
+    commands:
+      - cp -Rf node_modules/ /cache/ms-queue/
+    depends_on: [ test-server-cpu1 ]
+
+  - name: build-success
+    image: plugins/slack
+    settings:
+      webhook: https://hooks.slack.com/services/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
+      channel: test_build
+      username: drone
+    depends_on: [ test-server-cpu1 ]
+
+volumes:
+  - name: cache
+    host:
+      path: /home/ubuntu/cureskin/live/drone/cache

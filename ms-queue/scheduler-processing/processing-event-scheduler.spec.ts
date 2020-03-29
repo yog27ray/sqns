@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import rp from 'request-promise';
 import { EventItem } from '../event-manager';
 import { Env } from '../test-env';
-import { SlaveEventScheduler } from './slave-event-scheduler';
+import { ProcessingEventScheduler } from './processing-event-scheduler';
 
 describe('SlaveEventSchedulerSpec', () => {
   context('installing a slave scheduler', () => {
-    let slaveScheduler: SlaveEventScheduler;
+    let slaveScheduler: ProcessingEventScheduler;
 
     beforeEach(async () => {
       await rp({
@@ -26,7 +26,7 @@ describe('SlaveEventSchedulerSpec', () => {
       const result: Array<EventItem> = [];
       await new Promise((resolve: Function) => {
         let itemCheck = 2;
-        slaveScheduler = new SlaveEventScheduler(
+        slaveScheduler = new ProcessingEventScheduler(
           `${Env.URL}/api`,
           'queue1',
           async (item: EventItem) => {
@@ -51,7 +51,7 @@ describe('SlaveEventSchedulerSpec', () => {
   });
 
   context('processing multiple events', () => {
-    let slaveScheduler: SlaveEventScheduler;
+    let slaveScheduler: ProcessingEventScheduler;
     const ITEM_COUNT = 100;
 
     beforeEach(async () => {
@@ -71,7 +71,7 @@ describe('SlaveEventSchedulerSpec', () => {
     it('should process 100 events in the queue', async () => {
       await new Promise((resolve: Function, reject: Function) => {
         let itemCheck = ITEM_COUNT;
-        slaveScheduler = new SlaveEventScheduler(
+        slaveScheduler = new ProcessingEventScheduler(
           `${Env.URL}/api`,
           'queue1',
           // eslint-disable-next-line promise/param-names
@@ -94,7 +94,7 @@ describe('SlaveEventSchedulerSpec', () => {
   });
 
   context('error handling of slave scheduler', () => {
-    let slaveScheduler: SlaveEventScheduler;
+    let slaveScheduler: ProcessingEventScheduler;
 
     beforeEach(async () => {
       await rp({
@@ -114,7 +114,7 @@ describe('SlaveEventSchedulerSpec', () => {
     it('should re-attempt to check if server is ready.', async () => {
       await new Promise((resolve: Function) => {
         const timeout = setTimeout(resolve, 6000);
-        slaveScheduler = new SlaveEventScheduler(
+        slaveScheduler = new ProcessingEventScheduler(
           `${Env.URL}1/api`,
           'queue1',
           async () => {
