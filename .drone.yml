@@ -59,7 +59,7 @@ steps:
         path: /cache
     commands:
       - cp -Rf node_modules/ /cache/ms-queue/
-    depends_on: [ test-server-cpu1 ]
+    depends_on: [ test-server ]
 
   - name: build-success
     image: plugins/slack
@@ -67,7 +67,7 @@ steps:
       webhook: https://hooks.slack.com/services/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
       channel: test_build
       username: drone
-    depends_on: [ test-server-cpu1 ]
+    depends_on: [ test-server ]
 
 volumes:
   - name: cache
