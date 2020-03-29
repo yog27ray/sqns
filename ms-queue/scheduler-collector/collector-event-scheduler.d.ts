@@ -1,5 +1,5 @@
 import { EventItem } from '../event-manager';
-declare class MasterEventScheduler {
+declare class CollectorEventScheduler {
     private readonly queueName;
     private readonly hostName;
     private job;
@@ -11,4 +11,4 @@ declare class MasterEventScheduler {
     private get cloneBaseParams();
     private requestEventsToAddInQueue;
 }
-export { MasterEventScheduler };
+export { CollectorEventScheduler };

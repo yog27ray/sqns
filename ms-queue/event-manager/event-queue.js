@@ -5,6 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -18,6 +21,12 @@ let EventQueue = class EventQueue {
         this._notifyNeedTaskURLS = [];
         this._queueNameEventIds = {};
         this._queueName = {};
+        this._comparatorFunctionMap = {};
+        this._defaultComparatorFunction = (event1, event2) => (event1.priority < event2.priority);
+    }
+    comparatorFunction(queueName, value) {
+        this._comparatorFunctionMap[queueName] = value;
+        this.reset(queueName);
     }
     set notifyNeedTaskURLS(value) {
         this._notifyNeedTaskURLS = value;
@@ -59,13 +68,19 @@ let EventQueue = class EventQueue {
     }
     priorityQueue(queueName) {
         if (!this._queueName[queueName]) {
-            this._queueName[queueName] = new fastpriorityqueue_1.default((event1, event2) => (event1.priority < event2.priority));
+            this._queueName[queueName] = new fastpriorityqueue_1.default((event1, event2) => {
+                if (this._comparatorFunctionMap[queueName]) {
+                    return this._comparatorFunctionMap[queueName](event1, event2);
+                }
+                return this._defaultComparatorFunction(event1, event2);
+            });
         }
         return this._queueName[queueName];
     }
 };
 EventQueue = __decorate([
-    inversify_1.injectable()
+    inversify_1.injectable(),
+    __metadata("design:paramtypes", [])
 ], EventQueue);
 exports.EventQueue = EventQueue;
 //# sourceMappingURL=event-queue.js.map

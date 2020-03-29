@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
-let MasterConfig = class MasterConfig {
+let CollectorConfig = class CollectorConfig {
     constructor() {
         this._sending = false;
     }
@@ -30,8 +30,8 @@ let MasterConfig = class MasterConfig {
         this._listener = value;
     }
 };
-MasterConfig = __decorate([
+CollectorConfig = __decorate([
     inversify_1.injectable()
-], MasterConfig);
-exports.MasterConfig = MasterConfig;
-//# sourceMappingURL=master-config.js.map
+], CollectorConfig);
+exports.CollectorConfig = CollectorConfig;
+//# sourceMappingURL=collector-config.js.map

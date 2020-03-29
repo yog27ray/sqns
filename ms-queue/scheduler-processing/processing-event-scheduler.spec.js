@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
 const request_promise_1 = __importDefault(require("request-promise"));
 const test_env_1 = require("../test-env");
-const slave_event_scheduler_1 = require("./slave-event-scheduler");
+const processing_event_scheduler_1 = require("./processing-event-scheduler");
 describe('SlaveEventSchedulerSpec', () => {
     context('installing a slave scheduler', () => {
         let slaveScheduler;
@@ -27,7 +27,7 @@ describe('SlaveEventSchedulerSpec', () => {
             const result = [];
             await new Promise((resolve) => {
                 let itemCheck = 2;
-                slaveScheduler = new slave_event_scheduler_1.SlaveEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', async (item) => {
+                slaveScheduler = new processing_event_scheduler_1.ProcessingEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', async (item) => {
                     result.push(item);
                     itemCheck -= 1;
                     if (!itemCheck) {
@@ -65,7 +65,7 @@ describe('SlaveEventSchedulerSpec', () => {
         it('should process 100 events in the queue', async () => {
             await new Promise((resolve, reject) => {
                 let itemCheck = ITEM_COUNT;
-                slaveScheduler = new slave_event_scheduler_1.SlaveEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', 
+                slaveScheduler = new processing_event_scheduler_1.ProcessingEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', 
                 // eslint-disable-next-line promise/param-names
                 () => new Promise((resolve1) => setTimeout(() => {
                     resolve1();
@@ -101,7 +101,7 @@ describe('SlaveEventSchedulerSpec', () => {
         it('should re-attempt to check if server is ready.', async () => {
             await new Promise((resolve) => {
                 const timeout = setTimeout(resolve, 6000);
-                slaveScheduler = new slave_event_scheduler_1.SlaveEventScheduler(`${test_env_1.Env.URL}1/api`, 'queue1', async () => {
+                slaveScheduler = new processing_event_scheduler_1.ProcessingEventScheduler(`${test_env_1.Env.URL}1/api`, 'queue1', async () => {
                     clearTimeout(timeout);
                 }, '*/2 * * * * *');
             });
@@ -117,4 +117,4 @@ describe('SlaveEventSchedulerSpec', () => {
         });
     });
 });
-//# sourceMappingURL=slave-event-scheduler.spec.js.map
+//# sourceMappingURL=processing-event-scheduler.spec.js.map

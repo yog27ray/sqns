@@ -67,6 +67,9 @@ let EventManager = EventManager_1 = class EventManager {
     initialize(notifyNeedTaskURLS = []) {
         this.eventQueue.notifyNeedTaskURLS = notifyNeedTaskURLS;
     }
+    comparatorFunction(queueName, value) {
+        this.eventQueue.comparatorFunction(queueName, value);
+    }
     add(queueName, eventItem) {
         if (this.eventQueue.isEventPresent(queueName, eventItem)) {
             return;

@@ -7,9 +7,9 @@ const chai_1 = require("chai");
 const request_promise_1 = __importDefault(require("request-promise"));
 const event_manager_1 = require("../event-manager");
 const test_env_1 = require("../test-env");
-const master_event_scheduler_1 = require("./master-event-scheduler");
-describe('MasterEventSchedulerSpec', () => {
-    context('installing a master scheduler', () => {
+const collector_event_scheduler_1 = require("./collector-event-scheduler");
+describe('CollectorEventSchedulerSpec', () => {
+    context('installing a collector scheduler', () => {
         let masterScheduler;
         beforeEach(async () => {
             await request_promise_1.default({
@@ -21,7 +21,7 @@ describe('MasterEventSchedulerSpec', () => {
         });
         it('should add job events in the queue', async () => {
             await new Promise((resolve) => {
-                masterScheduler = new master_event_scheduler_1.MasterEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', { page: 0 }, async ({ page }) => {
+                masterScheduler = new collector_event_scheduler_1.CollectorEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', { page: 0 }, async ({ page }) => {
                     const result = [];
                     if (!page) {
                         result.push(new event_manager_1.EventItem({ type: 'type1', id: '123' }));
@@ -44,7 +44,7 @@ describe('MasterEventSchedulerSpec', () => {
         });
         it('should add job events in the queue when base params is function', async () => {
             await new Promise((resolve) => {
-                masterScheduler = new master_event_scheduler_1.MasterEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', () => ({ page: 0 }), async ({ page }) => {
+                masterScheduler = new collector_event_scheduler_1.CollectorEventScheduler(`${test_env_1.Env.URL}/api`, 'queue1', () => ({ page: 0 }), async ({ page }) => {
                     const result = [];
                     if (!page) {
                         result.push(new event_manager_1.EventItem({ type: 'type1', id: '123' }));
@@ -84,7 +84,7 @@ describe('MasterEventSchedulerSpec', () => {
         it('should re-attempt to check if server is ready.', async () => {
             await new Promise((resolve) => {
                 let maxAttemptCount = 2;
-                masterScheduler = new master_event_scheduler_1.MasterEventScheduler(`${test_env_1.Env.URL}1/api`, 'queue1', { page: 0 }, async ({ page }) => {
+                masterScheduler = new collector_event_scheduler_1.CollectorEventScheduler(`${test_env_1.Env.URL}1/api`, 'queue1', { page: 0 }, async ({ page }) => {
                     if (!maxAttemptCount) {
                         resolve();
                     }
@@ -102,4 +102,4 @@ describe('MasterEventSchedulerSpec', () => {
         });
     });
 });
-//# sourceMappingURL=master-event-scheduler.spec.js.map
+//# sourceMappingURL=collector-event-scheduler.spec.js.map

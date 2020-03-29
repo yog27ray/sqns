@@ -14,7 +14,9 @@ exports.app = app;
 app.use(body_parser_1.default.urlencoded({ extended: false }));
 app.use(body_parser_1.default.json({ type: 'text/plain' }));
 app.use(body_parser_1.default.json());
-app.use('/api', new index_1.MSQueue({ isMaster: true }).generateRoutes());
+const mSQueue = new index_1.MSQueue();
+exports.mSQueue = mSQueue;
+app.use('/api', mSQueue.generateRoutes());
 const server = http_1.default.createServer(app);
 const log = debug_1.default('ms-queue:App');
 server.listen(test_env_1.Env.PORT, '0.0.0.0', () => {

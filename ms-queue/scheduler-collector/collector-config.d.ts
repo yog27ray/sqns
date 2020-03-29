@@ -1,5 +1,5 @@
 import { EventItem } from '../event-manager';
-declare class MasterConfig {
+declare class CollectorConfig {
     private _sending;
     private _baseParams;
     private _listener;
@@ -10,4 +10,4 @@ declare class MasterConfig {
     get listener(): (nextItemListParams: object) => Promise<[object, Array<EventItem>]>;
     set listener(value: (nextItemListParams: object) => Promise<[object, Array<EventItem>]>);
 }
-export { MasterConfig };
+export { CollectorConfig };

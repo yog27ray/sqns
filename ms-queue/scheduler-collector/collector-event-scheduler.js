@@ -14,13 +14,13 @@ const debug_1 = __importDefault(require("debug"));
 const schedule = __importStar(require("node-schedule"));
 const event_manager_1 = require("../event-manager");
 const inversify_1 = require("../inversify");
-const master_config_1 = require("./master-config");
+const collector_config_1 = require("./collector-config");
 const log = debug_1.default('ms-queue:EventScheduler');
-class MasterEventScheduler {
+class CollectorEventScheduler {
     constructor(hostName, queueName, baseParams, listener, cronInterval) {
         this.hostName = hostName;
         this.queueName = queueName;
-        this.config = inversify_1.container.get(master_config_1.MasterConfig);
+        this.config = inversify_1.container.get(collector_config_1.CollectorConfig);
         this.config.listener = listener;
         this.config.baseParams = baseParams;
         this.msQueueRequestHandler = new event_manager_1.MSQueueRequestHandler();
@@ -59,5 +59,5 @@ class MasterEventScheduler {
         }, 0);
     }
 }
-exports.MasterEventScheduler = MasterEventScheduler;
-//# sourceMappingURL=master-event-scheduler.js.map
+exports.CollectorEventScheduler = CollectorEventScheduler;
+//# sourceMappingURL=collector-event-scheduler.js.map

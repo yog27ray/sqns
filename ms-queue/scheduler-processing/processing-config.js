@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const inversify_1 = require("inversify");
-let SlaveConfig = class SlaveConfig {
+let ProcessingConfig = class ProcessingConfig {
     constructor() {
         this._config = { count: 0 };
         this._polling = false;
@@ -38,8 +38,8 @@ let SlaveConfig = class SlaveConfig {
         this._hasMore = value;
     }
 };
-SlaveConfig = __decorate([
+ProcessingConfig = __decorate([
     inversify_1.injectable()
-], SlaveConfig);
-exports.SlaveConfig = SlaveConfig;
-//# sourceMappingURL=slave-config.js.map
+], ProcessingConfig);
+exports.ProcessingConfig = ProcessingConfig;
+//# sourceMappingURL=processing-config.js.map

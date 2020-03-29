@@ -7,6 +7,7 @@ declare class EventManager {
     get prometheus(): string;
     constructor(eventQueue: EventQueue);
     initialize(notifyNeedTaskURLS?: Array<string>): void;
+    comparatorFunction(queueName: string, value: (event1: EventItem, event2: EventItem) => boolean): void;
     add(queueName: string, eventItem: EventItem): void;
     poll(queueName: string): EventItem;
     reset(queueName: string): void;

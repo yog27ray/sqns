@@ -1,2 +1,4 @@
+import { MSQueue } from '../index';
 declare const app: any;
-export { app };
+declare const mSQueue: MSQueue;
+export { app, mSQueue };

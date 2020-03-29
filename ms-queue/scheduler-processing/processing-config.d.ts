@@ -1,5 +1,5 @@
 import { EventItem } from '../event-manager';
-declare class SlaveConfig {
+declare class ProcessingConfig {
     private _config;
     private _polling;
     private _hasMore;
@@ -17,4 +17,4 @@ declare class SlaveConfig {
     get hasMore(): boolean;
     set hasMore(value: boolean);
 }
-export { SlaveConfig };
+export { ProcessingConfig };
