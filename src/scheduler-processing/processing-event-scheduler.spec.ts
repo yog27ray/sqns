@@ -81,7 +81,7 @@ describe('SlaveEventSchedulerSpec', () => {
             if (!itemCheck) {
               resolve();
             }
-          }, 100)),
+          }, 10)),
           '*/2 * * * * *');
       });
       const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
@@ -100,7 +100,6 @@ describe('SlaveEventSchedulerSpec', () => {
       await rp({
         method: 'POST',
         uri: `${Env.URL}/api/queues/reset`,
-        body: { id: '123', type: 'type1' },
         json: true,
       });
       await rp({

@@ -1,7 +1,0 @@
---colors
---ui bdd
---recursive
---timeout 20000
---require ts-node/register/transpile-only
---require mocha.conf.js
---exit
