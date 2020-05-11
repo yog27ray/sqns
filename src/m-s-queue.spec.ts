@@ -1,12 +1,13 @@
 import { expect } from 'chai';
 import rp from 'request-promise';
 import { EventItem, MSQueueRequestHandler } from '../index';
-import { mSQueue } from './setup';
+import { mongoConnection, mSQueue } from './setup';
 import { Env } from './test-env';
 
 describe('MSQueue', () => {
   context('Processing of msQueue with comparator function in ascending order', () => {
     before(async () => {
+      await mongoConnection.dropDatabase();
       mSQueue.queueComparator('queue1', (item1: EventItem, item2: EventItem) => (item1.priority > item2.priority));
       await rp({
         method: 'POST',
@@ -48,6 +49,7 @@ describe('MSQueue', () => {
 
   context('Processing of msQueue with comparator function in descending order', () => {
     before(async () => {
+      await mongoConnection.dropDatabase();
       mSQueue.queueComparator('queue1', (item1: EventItem, item2: EventItem) => (item1.priority < item2.priority));
       await rp({
         method: 'POST',

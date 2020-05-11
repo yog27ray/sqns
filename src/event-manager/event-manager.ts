@@ -1,6 +1,8 @@
 import debug from 'debug';
 import { inject, injectable } from 'inversify';
 import rp from 'request-promise';
+import { Database, StorageEngine } from '../storage';
+import { StorageToQueueWorker } from '../worker/storage-to-queue-worker';
 import { EventItem } from './event-item';
 import { EventQueue } from './event-queue';
 
@@ -8,7 +10,13 @@ const log = debug('ms-queue:EventManager');
 
 @injectable()
 class EventManager {
+  static readonly Database = Database;
+
   private static DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
+
+  private _storageEngine: StorageEngine;
+
+  private storageToQueueWorker: StorageToQueueWorker;
 
   get eventStats(): object {
     const priorityStats = JSON.parse(JSON.stringify(EventManager.DEFAULT_PRIORITIES));
@@ -50,7 +58,13 @@ class EventManager {
     return `${prometheusRows.sort().join('\n')}\n`;
   }
 
-  constructor(@inject(EventQueue) private eventQueue: EventQueue) {}
+  constructor(@inject(EventQueue) private eventQueue: EventQueue) {
+  }
+
+  setStorageEngine(database: Database, config: any = {}): void {
+    this._storageEngine = new StorageEngine(database, config);
+    this.storageToQueueWorker = new StorageToQueueWorker(this._storageEngine, this.addEventInQueueListener);
+  }
 
   initialize(notifyNeedTaskURLS: Array<string> = []): void {
     this.eventQueue.notifyNeedTaskURLS = notifyNeedTaskURLS;
@@ -60,29 +74,55 @@ class EventManager {
     this.eventQueue.comparatorFunction(queueName, value);
   }
 
-  add(queueName: string, eventItem: EventItem): void {
-    if (this.eventQueue.isEventPresent(queueName, eventItem)) {
-      return;
+  async add(queueName: string, eventItem: EventItem): Promise<any> {
+    this.storageToQueueWorker.setUpIntervalForQueue(queueName);
+    const insertedEventItem = await this._storageEngine.addEventItem(queueName, eventItem);
+    if (insertedEventItem.eventTime.getTime() <= new Date().getTime()) {
+      this.storageToQueueWorker.startProcessingOfQueue(queueName);
     }
-    this.eventQueue.add(queueName, eventItem);
+    this.addToPriorities(queueName, insertedEventItem.priority);
   }
 
-  poll(queueName: string): EventItem {
+  async poll(queueName: string): Promise<EventItem> {
     if (!this.eventQueue.size(queueName)) {
       this.notifyTaskNeeded(queueName)
         .catch((error: any) => log(error));
       return undefined;
     }
-    return this.eventQueue.pop(queueName);
+    const eventItem = this.eventQueue.pop(queueName);
+    await this._storageEngine.updateEventStateProcessing(queueName, eventItem.id, 'sent to slave');
+    return eventItem;
   }
 
   reset(queueName: string): void {
+    delete EventManager.DEFAULT_PRIORITIES[queueName];
     return this.eventQueue.reset(queueName);
   }
 
-  resetAll(): void {
-    EventManager.DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
+  resetAll(preservePriorityName: boolean = true): void {
+    if (!preservePriorityName) {
+      EventManager.DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
+    }
     return this.eventQueue.resetAll();
+  }
+
+  async updateEventStateSuccess(queueName: string, id: string, data: any): Promise<any> {
+    await this._storageEngine.updateEventStateSuccess(queueName, id, data);
+  }
+
+  async updateEventStateFailure(queueName: string, id: string, data: any): Promise<any> {
+    await this._storageEngine.updateEventStateFailure(queueName, id, data);
+  }
+
+  private addEventInQueueListener: (queueName: string, item: EventItem) => void = (queueName: string, item: EventItem) => {
+    this.addItemInQueue(queueName, item);
+  }
+
+  private addItemInQueue(queueName: string, eventItem: EventItem): void {
+    if (this.eventQueue.isEventPresent(queueName, eventItem)) {
+      return;
+    }
+    this.eventQueue.add(queueName, eventItem);
   }
 
   private async notifyTaskNeeded(queueName: string, index: number = 0): Promise<any> {
@@ -96,6 +136,19 @@ class EventManager {
       log(error);
     }
     await this.notifyTaskNeeded(queueName, index + 1);
+  }
+
+  private addToPriorities(queueName: string, priority: number): void {
+    const statKey = `PRIORITY_${priority}`;
+    if (!EventManager.DEFAULT_PRIORITIES[statKey]) {
+      EventManager.DEFAULT_PRIORITIES[statKey] = 0;
+    }
+    if (!EventManager.DEFAULT_PRIORITIES[queueName]) {
+      EventManager.DEFAULT_PRIORITIES[queueName] = { PRIORITY_TOTAL: 0 };
+    }
+    if (!EventManager.DEFAULT_PRIORITIES[queueName][statKey]) {
+      EventManager.DEFAULT_PRIORITIES[queueName][statKey] = 0;
+    }
   }
 }
 

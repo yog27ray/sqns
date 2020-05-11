@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import rp from 'request-promise';
-import { EventQueue } from '../../event-manager/event-queue';
-import { container } from '../../inversify';
+import { EventState } from '../../event-manager/event-item';
+import { mongoConnection, mSQueue } from '../../setup';
 import { Env } from '../../test-env';
 
 describe('EventManagerMasterSpec', () => {
@@ -153,6 +153,7 @@ describe('EventManagerMasterSpec', () => {
 
   context('eventStats', () => {
     before(async () => {
+      await mongoConnection.dropDatabase();
       await rp({
         method: 'POST',
         uri: `${Env.URL}/api/queues/reset`,
@@ -203,7 +204,7 @@ describe('EventManagerMasterSpec', () => {
 
     it('should preserve all priority with zero', async () => {
       await rp({ uri: `${Env.URL}/api/queues/events/stats?format=prometheus`, json: true });
-      container.get(EventQueue).resetAll();
+      mSQueue.resetAll();
       const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats?format=prometheus`, json: true });
       const statsWithoutTimeStamp = stats.split('\n').map((each: string) => {
         const words = each.split(' ');
@@ -244,11 +245,13 @@ describe('EventManagerMasterSpec', () => {
       });
       expect(event.length).to.equal(1);
       delete event[0].createdAt;
+      delete event[0].eventTime;
       expect(event).to.deep.equal([{
         id: '1224',
         type: 'type2',
         data: {},
         priority: 1,
+        state: EventState.PENDING.valueOf(),
       }]);
     });
 

@@ -38,19 +38,27 @@ steps:
     privileged: true
     commands:
       - node_modules/.bin/nyc node_modules/.bin/mocha src/setup.ts src/setup.spec.ts  ./**/*.spec.ts --exit
-      - node_modules/.bin/nyc report --reporter=text-lcov > coverage.lcov;
+      - node_modules/.bin/nyc report --reporter=text-lcov > coverage1.lcov;
     depends_on: [ eslint-server, tslint ]
 
-#  - name: report
-#    image: node:12.13.0
-#    privileged: true
-#    when:
-#      status:
-#        - success
-#        - failure
-#    commands:
-#      - ./node_modules/.bin/codecov --token="5fe36227-eeed-48f9-b15a-36aed5b0314f"
-#    depends_on: [ test-server ]
+  - name: test-server-mongodb
+    image: node:12.13.0
+    privileged: true
+    commands:
+      - node_modules/.bin/nyc node_modules/.bin/mocha src/setup.ts src/setup.spec.ts  ./**/*.spec.ts --exit
+      - node_modules/.bin/nyc report --reporter=text-lcov > coverage2.lcov;
+    depends_on: [ eslint-server, tslint ]
+
+  - name: report
+    image: node:12.13.0
+    privileged: true
+    when:
+      status:
+        - success
+        - failure
+    commands:
+      - ./node_modules/.bin/codecov --token="ea035e13-0f06-415e-86cb-bb8baf8d464e"
+    depends_on: [ test-server, test-server-mongodb ]
 
   - name: build-cache
     image: golang
@@ -59,7 +67,7 @@ steps:
         path: /cache
     commands:
       - cp -Rf node_modules/ /cache/ms-queue/
-    depends_on: [ test-server ]
+    depends_on: [ test-server, test-server-mongodb ]
 
 volumes:
   - name: cache

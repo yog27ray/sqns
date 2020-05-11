@@ -9,6 +9,6 @@ container.bind(EventManager).to(EventManager);
 container.bind(CollectorEventScheduler).to(CollectorEventScheduler);
 container.bind(ProcessingConfig).to(ProcessingConfig);
 container.bind(CollectorConfig).to(CollectorConfig);
+container.bind(EventQueue).to(EventQueue);
 
-container.bind(EventQueue).to(EventQueue).inSingletonScope();
 export { container };

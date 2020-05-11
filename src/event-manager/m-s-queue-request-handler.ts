@@ -21,6 +21,24 @@ class MSQueueRequestHandler {
     }
     return new EventItem(response);
   }
+
+  markEventSuccess(hostName: string, queueName: string, eventId: string, message: string = ''): Promise<any> {
+    return rp({
+      method: 'POST',
+      uri: `${hostName}/queue/${queueName}/event/${eventId}/success`,
+      body: { message },
+      json: true,
+    });
+  }
+
+  markEventFailure(hostName: string, queueName: string, eventId: string, message: string = ''): Promise<any> {
+    return rp({
+      method: 'POST',
+      uri: `${hostName}/queue/${queueName}/event/${eventId}/failure`,
+      body: { message },
+      json: true,
+    });
+  }
 }
 
 export { MSQueueRequestHandler };

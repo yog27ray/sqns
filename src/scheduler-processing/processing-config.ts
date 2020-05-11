@@ -9,14 +9,10 @@ class ProcessingConfig {
 
   private _hasMore: boolean = true;
 
-  private _listener: (item: EventItem) => Promise<void>;
+  private _listener: (item: EventItem) => Promise<string>;
 
   get config(): { count: number } {
     return this._config;
-  }
-
-  set config(value: { count: number }) {
-    this._config = value;
   }
 
   get polling(): boolean {
@@ -27,11 +23,11 @@ class ProcessingConfig {
     this._polling = value;
   }
 
-  get listener(): (item: EventItem) => Promise<void> {
+  get listener(): (item: EventItem) => Promise<string> {
     return this._listener;
   }
 
-  set listener(value: (item: EventItem) => Promise<void>) {
+  set listener(value: (item: EventItem) => Promise<string>) {
     this._listener = value;
   }
 
