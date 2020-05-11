@@ -26,7 +26,8 @@ class EventItem {
 
   state: EventState = EventState.PENDING;
 
-  constructor(item: { type: string; data?: object; id?: string; priority?: number; eventTime?: Date; createdAt?: Date; state?: EventState }) {
+  constructor(item:
+                { type: string; data?: object; id?: string; priority?: number; eventTime?: Date; createdAt?: Date; state?: EventState }) {
     this.id = item.id || uuid();
     this.type = item.type;
     this.data = item.data || {};
