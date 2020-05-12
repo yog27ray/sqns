@@ -30,6 +30,11 @@ const mongoConnection = new MongoDBConnection(queueConfig.config.uri, {});
 app.use('/api', mSQueue.generateRoutes());
 const server = http.createServer(app);
 
+if (process.env.PORT) {
+  Env.PORT = Number(process.env.PORT);
+  Env.URL = `http://localhost:${Env.PORT}`;
+}
+
 server.listen(Env.PORT, '0.0.0.0', () => {
   log('Express server listening on %d, in test mode', Env.PORT);
 });

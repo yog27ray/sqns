@@ -195,7 +195,7 @@ describe('SlaveEventSchedulerSpec', () => {
         });
       });
 
-      it('should call failure api when request fails.', async () => {
+      it('should call failure api when request fails in mongoDB.', async () => {
         await new Promise((resolve: Function) => {
           let count = 0;
           slaveScheduler = new ProcessingEventScheduler(
