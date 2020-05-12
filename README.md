@@ -140,3 +140,11 @@ new ProcessingEventScheduler(
       },
       '0 * * * *');
 ```
+
+### Storage Engine
+Default it uses in-memory management of queue, i.e. if service is restarted al items will be lost. 
+If you want to preserve queue even after restart you can change the storage engine to MongoDB.
+ 
+```
+const mSQueue = new MSQueue({ database: MSQueue.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27017/msQueue' } });
+```
