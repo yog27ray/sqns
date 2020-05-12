@@ -1,11 +1,19 @@
 import { Request, Response } from 'express';
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import { EventItem, EventManager } from '../../event-manager';
 import { MSError } from '../../event-manager/m-s-error';
 
 @injectable()
 class EventManagerMaster {
-  constructor(@inject(EventManager) private eventManager: EventManager) {}
+  private _eventManager: EventManager;
+
+  set eventManager(value: EventManager) {
+    this._eventManager = value;
+  }
+
+  get eventManager(): EventManager {
+    return this._eventManager;
+  }
 
   requestHandler(req: Request, res: Response, callback: (req: Request, res: Response) => Promise<void>): void {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -19,32 +27,50 @@ class EventManagerMaster {
   }
 
   eventBulkNew(req: Request, res: Response): void {
-    this.requestHandler(req, res, (): Promise<any> => {
+    this.requestHandler(req, res, async (): Promise<any> => {
       const { queueName } = req.params;
       let rows = req.body || [];
       if (rows.some((row: any) => !row.type)) {
         throw new MSError({ code: 400, message: 'Event type is missing for some items' });
       }
-      rows = rows.map(({ type, data, id, priority }: any) => {
-        const eventItem = new EventItem({ type, data, id, priority });
-        this.eventManager.add(queueName, eventItem);
+      rows = await Promise.all(rows.map(async ({ type, data, id, priority, eventTime }: any) => {
+        const eventItem = new EventItem({ type, data, id, priority, eventTime: eventTime ? new Date(eventTime) : eventTime });
+        await this.eventManager.add(queueName, eventItem);
         return eventItem.createResponse();
-      });
+      }));
       res.status(201).json(rows);
       return Promise.resolve();
     });
   }
 
   eventNew(req: Request, res: Response): any {
-    this.requestHandler(req, res, (): Promise<any> => {
-      const { body: { type, data, id, priority }, params: { queueName } }: any = req;
+    this.requestHandler(req, res, async (): Promise<any> => {
+      const { body: { type, data, id, priority, eventTime }, params: { queueName } }: any = req;
       if (!type) {
         throw new MSError({ code: 400, message: 'Event type is missing' });
       }
-      const eventItem = new EventItem({ type, data, id, priority });
-      this.eventManager.add(queueName, eventItem);
+      const eventItem = new EventItem({ type, data, id, priority, eventTime: eventTime ? new Date(eventTime) : eventTime });
+      await this.eventManager.add(queueName, eventItem);
       res.status(201).json(eventItem.createResponse());
       return Promise.resolve();
+    });
+  }
+
+  eventSuccess(req: Request, res: Response): any {
+    this.requestHandler(req, res, async (): Promise<any> => {
+      const { queueName, id } = req.params;
+      req.body.message = req.body.message || 'Event marked success without response.';
+      await this.eventManager.updateEventStateSuccess(queueName, id, req.body);
+      res.status(200).json({ message: 'updated' });
+    });
+  }
+
+  eventFailure(req: Request, res: Response): any {
+    this.requestHandler(req, res, async (): Promise<any> => {
+      const { queueName, id } = req.params;
+      req.body.message = req.body.message || 'Event marked failed without response.';
+      await this.eventManager.updateEventStateFailure(queueName, id, req.body);
+      res.status(200).json({ message: 'updated' });
     });
   }
 
@@ -59,9 +85,9 @@ class EventManagerMaster {
   }
 
   eventPoll(req: Request, res: Response): void {
-    this.requestHandler(req, res, (): Promise<any> => {
+    this.requestHandler(req, res, async (): Promise<any> => {
       const { queueName } = req.params;
-      const eventItem = this.eventManager.poll(queueName);
+      const eventItem = await this.eventManager.poll(queueName);
       res.json(eventItem ? [eventItem] : []);
       return Promise.resolve();
     });
@@ -78,7 +104,7 @@ class EventManagerMaster {
 
   resetAll(req: Request, res: Response): void {
     this.requestHandler(req, res, (): Promise<any> => {
-      this.eventManager.resetAll();
+      this.eventManager.resetAll(false);
       res.end();
       return Promise.resolve();
     });

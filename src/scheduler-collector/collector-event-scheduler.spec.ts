@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import rp from 'request-promise';
 import { EventItem } from '../event-manager';
+import { mongoConnection } from '../setup';
 import { Env } from '../test-env';
 import { CollectorEventScheduler } from './collector-event-scheduler';
 
@@ -9,6 +10,7 @@ describe('CollectorEventSchedulerSpec', () => {
     let masterScheduler: CollectorEventScheduler;
 
     beforeEach(async () => {
+      await mongoConnection.dropDatabase();
       await rp({
         method: 'POST',
         uri: `${Env.URL}/api/queues/reset`,
@@ -80,6 +82,7 @@ describe('CollectorEventSchedulerSpec', () => {
     let masterScheduler: CollectorEventScheduler;
 
     beforeEach(async () => {
+      await mongoConnection.dropDatabase();
       await rp({
         method: 'POST',
         uri: `${Env.URL}/api/queues/reset`,

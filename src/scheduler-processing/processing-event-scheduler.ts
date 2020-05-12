@@ -19,7 +19,7 @@ class ProcessingEventScheduler {
 
   private msQueueRequestHandler: MSQueueRequestHandler;
 
-  constructor(hostName: string, queueName: string, listener: (item: EventItem) => Promise<void>, cronInterval?: string) {
+  constructor(hostName: string, queueName: string, listener: (item: EventItem) => Promise<string>, cronInterval?: string) {
     this.hostName = hostName;
     this.queueName = queueName;
     this.config = container.get(ProcessingConfig);
@@ -65,7 +65,12 @@ class ProcessingEventScheduler {
         if (!eventItem) {
           this.config.hasMore = false;
         } else {
-          await this.config.listener(eventItem);
+          const [isSuccess, response] = await this.processEvent(eventItem);
+          if (isSuccess) {
+            await this.msQueueRequestHandler.markEventSuccess(this.hostName, this.queueName, eventItem.id, response);
+          } else {
+            await this.msQueueRequestHandler.markEventFailure(this.hostName, this.queueName, eventItem.id, response);
+          }
         }
       } catch (error) {
         log(error);
@@ -76,6 +81,15 @@ class ProcessingEventScheduler {
       this.config.config.count -= 1;
       this.checkIfMoreItemsCanBeProcessed();
     }, 0);
+  }
+
+  private async processEvent(eventItem: EventItem): Promise<[boolean, string]> {
+    try {
+      const response = await this.config.listener(eventItem);
+      return [true, response];
+    } catch (error) {
+      return [false, error.message];
+    }
   }
 }
 
