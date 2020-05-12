@@ -89,6 +89,18 @@ There can be only one Collector sytem but many Processing systems.
    GET /api/queue/:queueName/event/poll
    ```
 
+7. Event Status success API
+    ```
+    POST /api/queue/:queueName/event/:id/success
+    { messag: 'success' }
+    ```
+
+8. Event Status failure API
+    ```
+    POST /api/queue/:queueName/event/:id/failure
+    { messag: 'failure' }
+    ```
+
 #####Note: Event id is unique and optional. If not provided system will automatically assign one. If queue already have the event with same id, it will not be added twice.
 
 ### Collector Scheduler
