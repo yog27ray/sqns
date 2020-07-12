@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import rp from 'request-promise';
-import { SimpleQueueServerClient } from '../aws';
 import { delay, dropDatabase } from '../../setup';
 import { deleteDynamicDataOfResults, deleteQueues, Env } from '../../test-env';
-import { WorkerEventScheduler } from './worker-event-scheduler';
+import { SimpleQueueServerClient } from '../aws';
 import { ResponseItem } from '../request-response-types/response-item';
+import { WorkerEventScheduler } from './worker-event-scheduler';
 
 describe('SlaveEventSchedulerSpec', () => {
   context('installing a slave scheduler', () => {

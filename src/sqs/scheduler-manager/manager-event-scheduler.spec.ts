@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import rp from 'request-promise';
-import { SimpleQueueServerClient } from '../aws';
 import { dropDatabase } from '../../setup';
 import { deleteQueues, Env } from '../../test-env';
-import { ManagerEventScheduler } from './manager-event-scheduler';
+import { SimpleQueueServerClient } from '../aws';
 import { RequestItem } from '../request-response-types/request-item';
+import { ManagerEventScheduler } from './manager-event-scheduler';
 
 describe('CollectorEventSchedulerSpec', () => {
   context('installing a collector scheduler', () => {
