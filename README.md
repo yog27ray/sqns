@@ -17,11 +17,11 @@ There can be only one Collector sytem but many Processing systems.
 
 1. Register routes of Express Server.
     ```
-    import { MSQueue } from 'ms-queue';
+    import { SimpleQueueServer } from 'ms-queue';
     
     ....
     
-    const mSQueue = new MSQueue();
+    const mSQueue = new SimpleQueueServer();
     app.use('/api', mSQueue.generateRoutes()); 
     ```
    This will enable the api support for the Collector server.
@@ -105,8 +105,8 @@ There can be only one Collector sytem but many Processing systems.
 
 ### Collector Scheduler
 
-Either you can use the api support to add the event in the queue or use CollectorEventScheduler to fetch events and add them into the queue periodically.
-CollectorEventScheduler constructor requires below parameters
+Either you can use the api support to add the event in the queue or use ManagerEventScheduler to fetch events and add them into the queue periodically.
+ManagerEventScheduler constructor requires below parameters
 1. Collector server url.
 2. Queue Name to which events will be added.
 3. Initial params to support pagination
@@ -116,7 +116,7 @@ CollectorEventScheduler constructor requires below parameters
  If items that need to be added in the queue length is zero then next time listener function will be called wih initial pagination params.
 5. Cron Interval (optional).
 ```
-import { EventItem, CollectorEventScheduler } from 'ms-queue';
+import { EventItem, ManagerEventScheduler } from 'ms-queue';
 
 ...
 
@@ -133,18 +133,18 @@ new MasterEventScheduler(
 ```
 
 ### Processing Scheduler
-Either you can use the api support to fetch the event from CollectorServer or use ProcessingEventScheduler to fetch events and process them periodically.
-ProcessingEventScheduler constructor requires below parameters
+Either you can use the api support to fetch the event from CollectorServer or use WorkerEventScheduler to fetch events and process them periodically.
+WorkerEventScheduler constructor requires below parameters
 1. Collector server url.
 2. Queue Name to which events will be added.
 3. Listener function that will be called with EventItem to be process.
 4. Cron Interval (optional).
 ```
-import { EventItem, ProcessingEventScheduler } from 'ms-queue';
+import { EventItem, WorkerEventScheduler } from 'ms-queue';
 
 ...
 
-new ProcessingEventScheduler(
+new WorkerEventScheduler(
       "http://collector.server.url/api",
       "queueName",
       (eventItem) => {
@@ -158,5 +158,5 @@ Default it uses in-memory management of queue, i.e. if service is restarted al i
 If you want to preserve queue even after restart you can change the storage engine to MongoDB.
  
 ```
-const mSQueue = new MSQueue({ database: MSQueue.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27017/msQueue' } });
+const mSQueue = new SimpleQueueServer({ database: SimpleQueueServer.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27017/msQueue' } });
 ```
