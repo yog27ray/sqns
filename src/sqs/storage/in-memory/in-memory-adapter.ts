@@ -47,8 +47,9 @@ class InMemoryAdapter implements StorageAdapter {
     }));
   }
 
-  getQueues(): Promise<Array<Queue>> {
-    return Promise.resolve(Object.keys(this._db).map((each: string) => this._db[each].queue));
+  getQueues(queueNamePrefix: string = ''): Promise<Array<Queue>> {
+    return Promise.resolve(Object.keys(this._db).filter((each: string) => each.startsWith(queueNamePrefix))
+      .map((each: string) => this._db[each].queue));
   }
 
   async updateEvent(id: string, data: object): Promise<void> {

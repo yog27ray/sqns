@@ -56,7 +56,7 @@ describe('EventManagerMasterSpec', () => {
         });
         await new Promise((resolve: Function, reject: Function) => {
           sqs.addPermission({
-            QueueUrl: 'http://localhost:1234/api/sqs/queue/queue1',
+            QueueUrl: `${Env.URL}/api/sqs/queue/queue1`,
             Label: 'label',
             AWSAccountIds: ['accountIds'],
             Actions: ['testAction'],
@@ -99,13 +99,13 @@ describe('EventManagerMasterSpec', () => {
         Attributes: { attribute: 'attribute1' },
         tags: { tag: 'tag1' },
       });
-      expect(result.QueueUrl).to.equal('http://localhost:1234/api/sqs/queue/queue1');
+      expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/queue/queue1`);
     });
 
     it('should allow request create same queue multiple times', async () => {
       await client.createQueue({ QueueName: 'queue1' });
       const result = await client.createQueue({ QueueName: 'queue1' });
-      expect(result.QueueUrl).to.equal('http://localhost:1234/api/sqs/queue/queue1');
+      expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/queue/queue1`);
     });
   });
 
@@ -136,7 +136,7 @@ describe('EventManagerMasterSpec', () => {
 
     it('should return queue1 url', async () => {
       const result = await client.getQueueUrl({ QueueName: 'queue1' });
-      expect(result.QueueUrl).to.equal('http://localhost:1234/api/sqs/queue/queue1');
+      expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/queue/queue1`);
     });
   });
 
@@ -157,7 +157,7 @@ describe('EventManagerMasterSpec', () => {
 
     it('should give error when queue doesn\'t exists.', async () => {
       try {
-        await client.deleteQueue({ QueueUrl: 'http://localhost:1234/api/sqs/queue11' });
+        await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/queue11` });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
       } catch (error) {
         expect(error.code).to.equal('NonExistentQueue');
@@ -208,17 +208,17 @@ describe('EventManagerMasterSpec', () => {
     it('should return list of all queues', async () => {
       const list = await client.listQueues();
       expect(list.QueueUrls).to.deep.equal([
-        'http://localhost:1234/api/sqs/queue/1queue1',
-        'http://localhost:1234/api/sqs/queue/1queue2',
-        'http://localhost:1234/api/sqs/queue/2queue3',
+        `${Env.URL}/api/sqs/queue/1queue1`,
+        `${Env.URL}/api/sqs/queue/1queue2`,
+        `${Env.URL}/api/sqs/queue/2queue3`,
       ]);
     });
 
     it('should return list of all queues starting with "1q"', async () => {
       const list = await client.listQueues({ QueueNamePrefix: '1q' });
       expect(list.QueueUrls).to.deep.equal([
-        'http://localhost:1234/api/sqs/queue/1queue1',
-        'http://localhost:1234/api/sqs/queue/1queue2',
+        `${Env.URL}/api/sqs/queue/1queue1`,
+        `${Env.URL}/api/sqs/queue/1queue2`,
       ]);
     });
   });

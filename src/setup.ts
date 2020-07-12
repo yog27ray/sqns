@@ -22,7 +22,7 @@ let queueConfig: any;
 if (process.env.TEST_DB === 'mongoDB') {
   const mongoDB = new MongoMemoryServer({ instance: { dbName: 'msQueue', port: 27020 } });
   mongoDB.getUri().catch((error: any) => log(error));
-  queueConfig = { database: SimpleQueueServer.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27017/msQueue' } };
+  queueConfig = { database: SimpleQueueServer.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27020/msQueue' } };
 } else {
   queueConfig = { config: {} };
 }

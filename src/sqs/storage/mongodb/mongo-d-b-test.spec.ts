@@ -235,7 +235,7 @@ if (process.env.TEST_DB === 'mongoDB') {
             secretAccessKey: 'wrongSecret',
             maxRetries: 0,
           });
-          await client.markEventFailure('eventId', 'http://localhost:1234/api/sqs/queue/queue1', 'failureMessage');
+          await client.markEventFailure('eventId', `${Env.URL}/api/sqs/queue/queue1`, 'failureMessage');
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error;
@@ -255,7 +255,7 @@ if (process.env.TEST_DB === 'mongoDB') {
             secretAccessKey: Env.secretAccessKey,
             maxRetries: 0,
           });
-          await client.markEventSuccess('eventId', 'http://localhost:1234/api/wrong/sqs/queue/queue1', 'failureMessage');
+          await client.markEventSuccess('eventId', `${Env.URL}/api/wrong/sqs/queue/queue1`, 'failureMessage');
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error;

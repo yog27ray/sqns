@@ -4,8 +4,9 @@ import { ExpressMiddleware } from '../routes/master/express-helper';
 
 class AwsToServerTransformer {
   static transformRequestBody(): ExpressMiddleware {
-    return (req: Request & { serverBody: object }, res: Response, next: NextFunction): void => {
+    return (req: Request & { serverBody: object; sqsBaseURL: string }, res: Response, next: NextFunction): void => {
       req.serverBody = AwsToServerTransformer.transformPlainJSONToNestedJSON(req.body);
+      req.sqsBaseURL = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
       Object.assign(req.serverBody, { requestId: uuid() });
       if (req.body.QueueUrl) {
         Object.assign(req.serverBody, { queueName: req.body.QueueUrl.split('/').pop() });

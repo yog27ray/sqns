@@ -35,18 +35,19 @@ class EventManagerMaster {
   }
 
   sqs(): ExpressMiddleware {
-    return ExpressHelper.requestHandler(async (req: Request & { serverBody: any; user: any }, res: Response): Promise<any> => {
+    return ExpressHelper.requestHandler(async (req: Request & { serverBody: any; user: any; sqsBaseURL: string }, res: Response)
+      : Promise<any> => {
       switch (req.body.Action) {
         case 'CreateQueue': {
           const { name } = await this.eventManager.createQueue(
             req.serverBody.QueueName,
             AwsToServerTransformer.transformArrayToJSON(req.serverBody.Attribute),
             AwsToServerTransformer.transformArrayToJSON(req.serverBody.Tag));
-          return res.send(AwsXmlFormat.createQueue('http://localhost:1234/api', name));
+          return res.send(AwsXmlFormat.createQueue(req.sqsBaseURL, name));
         }
         case 'GetQueueUrl': {
           const { name } = await this.eventManager.getQueue(req.serverBody.QueueName);
-          return res.send(AwsXmlFormat.getQueueURL('http://localhost:1234/api', name));
+          return res.send(AwsXmlFormat.getQueueURL(req.sqsBaseURL, name));
         }
         case 'DeleteQueue': {
           await this.eventManager.deleteQueue(req.serverBody.queueName);
@@ -54,7 +55,7 @@ class EventManagerMaster {
         }
         case 'ListQueues': {
           const queues = await this.eventManager.listQueues(req.body.QueueNamePrefix);
-          return res.send(AwsXmlFormat.listQueues('http://localhost:1234/api', queues));
+          return res.send(AwsXmlFormat.listQueues(req.sqsBaseURL, queues));
         }
         case 'SendMessageBatch': {
           const { queueName, SendMessageBatchRequestEntry, requestId } = req.serverBody;
