@@ -57,6 +57,7 @@ steps:
         - success
         - failure
     commands:
+      - ls
       - ./node_modules/.bin/codecov --token="ea035e13-0f06-415e-86cb-bb8baf8d464e"
     depends_on: [ test-server-inmemory, test-server-mongodb ]
 
