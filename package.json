@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "coverage": "npm run test:inmemory && npm run test:mongodb",
-    "coverage:inmemory": "nyc mocha src/setup.ts src/setup.spec.ts '**/*.spec.ts' --exit",
-    "coverage:mongodb": "TEST_DB=mongoDB nyc mocha src/setup.ts src/setup.spec.ts '**/*.spec.ts'",
+    "coverage:inmemory": "nyc mocha src/setup.ts '**/*.spec.ts' --exit",
+    "coverage:mongodb": "TEST_DB=mongoDB nyc mocha src/setup.ts '**/*.spec.ts'",
     "test": "npm run test:inmemory && npm run test:mongodb",
-    "test:inmemory": "mocha src/setup.ts src/setup.spec.ts '**/*.spec.ts' --exit",
-    "test:mongodb": "TEST_DB=mongoDB mocha src/setup.ts src/setup.spec.ts '**/*.spec.ts'"
+    "test:inmemory": "mocha src/setup.ts '**/*.spec.ts' --exit",
+    "test:mongodb": "TEST_DB=mongoDB mocha src/setup.ts '**/*.spec.ts'"
   },
   "repository": {
     "type": "git",
