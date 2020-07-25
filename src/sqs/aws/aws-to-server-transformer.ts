@@ -71,7 +71,7 @@ class AwsToServerTransformer {
   }
 
   private static subArray(array: Array<string>, startIndex: number, endIndex: number): Array<string> {
-    return array.map((each: string) => each.slice(startIndex, endIndex));
+    return array.map((each: string) => each).slice(startIndex, endIndex);
   }
 }
 
