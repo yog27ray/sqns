@@ -16,7 +16,7 @@ class AwsXmlFormat {
       },
       RequestId: 'cdd49001-ea49-5cbd-b098-c74c65559f22',
     };
-    return builder.buildObject(errorJSON);
+    return builder.buildObject(errorJSON) as string;
   }
 
   static createQueue(host: string, queue: string): string {
@@ -25,7 +25,7 @@ class AwsXmlFormat {
       CreateQueueResult: { QueueUrl: AwsXmlFormat.generateSQSURL(queue, host) },
       ResponseMetadata: { RequestId: '29637ffb-6ecd-54d0-8313-28b470a7bdf1' },
     };
-    return builder.buildObject(json);
+    return builder.buildObject(json) as string;
   }
 
   static getQueueURL(host: string, queue: string): string {
@@ -34,13 +34,13 @@ class AwsXmlFormat {
       GetQueueUrlResult: { QueueUrl: AwsXmlFormat.generateSQSURL(queue, host) },
       ResponseMetadata: { RequestId: '29637ffb-6ecd-54d0-8313-28b470a7bdf1' },
     };
-    return builder.buildObject(json);
+    return builder.buildObject(json) as string;
   }
 
   static deleteQueue(): string {
     const builder = new xml2js.Builder({ rootName: 'DeleteQueueResponse' });
     const json = { ResponseMetadata: { RequestId: '29637ffb-6ecd-54d0-8313-28b470a7bdf1' } };
-    return builder.buildObject(json);
+    return builder.buildObject(json) as string;
   }
 
   static listQueues(host: string, queues: Array<Queue>): string {
@@ -49,7 +49,7 @@ class AwsXmlFormat {
       ListQueuesResult: { QueueUrl: queues.map((queue: Queue) => AwsXmlFormat.generateSQSURL(queue.name, host)) },
       ResponseMetadata: { RequestId: 'bf4e3b3d-6019-59fe-a3fd-6c7090c8f0a9' },
     };
-    return builder.buildObject(json);
+    return builder.buildObject(json) as string;
   }
 
   static sendMessage(requestId: string, event: EventItem): string {
@@ -58,10 +58,10 @@ class AwsXmlFormat {
       SendMessageResult: AwsXmlFormat.generateSendMessageResponse(event),
       ResponseMetadata: { RequestId: requestId },
     };
-    return builder.buildObject(json);
+    return builder.buildObject(json) as string;
   }
 
-  static generateSendMessageResponse(event: EventItem): any {
+  static generateSendMessageResponse(event: EventItem): { [key: string]: any } {
     return {
       MessageId: event.id,
       MD5OfMessageBody: AwsXmlFormat.md5Hash(event.MessageBody),
@@ -79,7 +79,7 @@ class AwsXmlFormat {
       SendMessageBatchResult: { SendMessageBatchResultEntry: eventsResponse },
       ResponseMetadata: { RequestId: requestId },
     };
-    return builder.buildObject(json);
+    return builder.buildObject(json) as string;
   }
 
   static receiveMessage(requestId: string, messages: Array<any>, AttributeName: Array<string>, MessageAttributeName: Array<string>)
@@ -91,11 +91,12 @@ class AwsXmlFormat {
         Message: messages.map((message: any) => AwsXmlFormat.responseMessage(message, AttributeName, MessageAttributeName)),
       },
     };
-    return builder.buildObject(json);
+    return builder.buildObject(json) as string;
   }
 
-  private static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>): object {
-    const result: any = {
+  private static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
+    : { [key: string]: any } {
+    const result: { [key: string]: any } = {
       MessageId: event.id,
       ReceiptHandle: uuid(),
       MD5OfBody: AwsXmlFormat.md5Hash(event.MessageBody),
@@ -107,9 +108,11 @@ class AwsXmlFormat {
       result.MessageAttribute = attributeFields.map((key: string) => ({ Name: key, Value: event.MessageAttribute[key] }));
     }
     if (AttributeName) {
-      const eventSystemAttribute = {};
+      const eventSystemAttribute: { [key: string]: any } = {};
       Object.keys(event.MessageSystemAttribute)
-        .forEach((key: string) => eventSystemAttribute[key] = event.MessageSystemAttribute[key].StringValue);
+        .forEach((key: string) => {
+          eventSystemAttribute[key] = event.MessageSystemAttribute[key].StringValue;
+        });
       const attributes = {
         ...eventSystemAttribute,
         SenderId: event.queueId,
@@ -124,7 +127,7 @@ class AwsXmlFormat {
     return result;
   }
 
-  private static md5HashJSON(json: object = {}): string {
+  private static md5HashJSON(json: { [key: string]: any } = {}): string {
     const message = Object.keys(json).sort().map((key: string) => `${key}=${encodeURIComponent(json[key])}`).join('&');
     return AwsXmlFormat.md5Hash(message);
   }

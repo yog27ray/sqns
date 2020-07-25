@@ -3,9 +3,9 @@ import { RequestItem } from '../request-response-types/request-item';
 class ManagerConfig {
   private _sending: boolean = false;
 
-  private _baseParams: any;
+  private _baseParams: (() => { [key: string]: any }) | { [key: string]: any };
 
-  private _listener: (nextItemListParams: object) => Promise<[object, Array<RequestItem>]>;
+  private _listener: (nextItemListParams: { [key: string]: any }) => Promise<[{ [key: string]: any }, Array<RequestItem>]>;
 
   get sending(): boolean {
     return this._sending;
@@ -15,19 +15,19 @@ class ManagerConfig {
     this._sending = value;
   }
 
-  get baseParams(): any {
+  get baseParams(): (() => { [key: string]: any }) | { [key: string]: any } {
     return this._baseParams;
   }
 
-  set baseParams(value: any) {
+  set baseParams(value: (() => { [key: string]: any }) | { [key: string]: any }) {
     this._baseParams = value;
   }
 
-  get listener(): (nextItemListParams: object) => Promise<[object, Array<RequestItem>]> {
+  get listener(): (nextItemListParams: { [key: string]: any }) => Promise<[{ [key: string]: any }, Array<RequestItem>]> {
     return this._listener;
   }
 
-  set listener(value: (nextItemListParams: object) => Promise<[object, Array<RequestItem>]>) {
+  set listener(value: (nextItemListParams: { [key: string]: any }) => Promise<[{ [key: string]: any }, Array<RequestItem>]>) {
     this._listener = value;
   }
 }

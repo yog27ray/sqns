@@ -59,7 +59,7 @@ class EventManagerMaster {
         }
         case 'SendMessageBatch': {
           const { queueName, SendMessageBatchRequestEntry, requestId } = req.serverBody;
-          const batchIds = SendMessageBatchRequestEntry.map((each: any) => each.Id);
+          const batchIds = SendMessageBatchRequestEntry.map((each: { Id: string }) => each.Id);
           const events = await this.sendMessageBatch(queueName, SendMessageBatchRequestEntry);
           return res.send(AwsXmlFormat.sendMessageBatch(requestId, events, batchIds));
         }
@@ -100,7 +100,7 @@ class EventManagerMaster {
       MessageDeduplicationId);
   }
 
-  private async sendMessageBatch(queueName: string, entries: Array<EventItem>): Promise<Array<any>> {
+  private async sendMessageBatch(queueName: string, entries: Array<EventItem>): Promise<Array<EventItem>> {
     const entry = entries.pop();
     if (!entry) {
       return [];

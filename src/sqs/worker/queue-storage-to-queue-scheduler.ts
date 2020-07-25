@@ -9,8 +9,9 @@ class QueueStorageToQueueScheduler {
 
   private config: QueueStorageToQueueConfig;
 
-  constructor(queueName: string, baseParams: () => object,
-    listener: (queueName: string, nextItemListParams: any) => Promise<[object, boolean]>, cronInterval: string = '*/5 * * * * *') {
+  constructor(queueName: string, baseParams: () => { [key: string]: any },
+    listener: (queueName: string, nextItemListParams: any) => Promise<[{ [key: string]: any }, boolean]>,
+    cronInterval: string = '*/5 * * * * *') {
     this.config = new QueueStorageToQueueConfig();
     this.config.listener = listener;
     this.config.queueName = queueName;
@@ -30,11 +31,11 @@ class QueueStorageToQueueScheduler {
     this.findEventsToAddInQueue(this.cloneBaseParams);
   }
 
-  private get cloneBaseParams(): object {
-    return this.config.baseParams();
+  private get cloneBaseParams(): { [key: string]: any } {
+    return this.config.baseParams;
   }
 
-  private findEventsToAddInQueue(itemListParams: object): void {
+  private findEventsToAddInQueue(itemListParams: { [key: string]: any }): void {
     this.config.sending = true;
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setTimeout(async () => {

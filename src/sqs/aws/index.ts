@@ -26,7 +26,7 @@ class SimpleQueueServerClient {
   }
 
   listQueues(params: ListQueuesRequest = {}): Promise<ListQueuesResult> {
-    return new Promise((resolve: Function, reject: Function) => {
+    return new Promise((resolve: (listQueuesResult: ListQueuesResult) => void, reject: (error: AWSError) => void) => {
       this.sqs.listQueues(params, (error: AWSError, queuesResult_: ListQueuesResult) => {
         if (error) {
           reject(error);
@@ -40,7 +40,7 @@ class SimpleQueueServerClient {
   }
 
   createQueue(params: CreateQueueRequest): Promise<CreateQueueResult> {
-    return new Promise((resolve: Function, reject: Function) => {
+    return new Promise((resolve: (createQueueResult: CreateQueueResult) => void, reject: (error: AWSError) => void) => {
       this.sqs.createQueue(params, (error: AWSError, result: CreateQueueResult) => {
         if (error) {
           reject(error);
@@ -52,7 +52,7 @@ class SimpleQueueServerClient {
   }
 
   getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult> {
-    return new Promise((resolve: Function, reject: Function) => {
+    return new Promise((resolve: (getQueueUrlResult: GetQueueUrlResult) => void, reject: (error: AWSError) => void) => {
       this.sqs.getQueueUrl(params, (error: AWSError, result: GetQueueUrlResult) => {
         if (error) {
           reject(error);
@@ -64,7 +64,7 @@ class SimpleQueueServerClient {
   }
 
   deleteQueue(params: DeleteQueueRequest): Promise<any> {
-    return new Promise((resolve: Function, reject: Function) => {
+    return new Promise((resolve: (item: { [key: string]: any }) => void, reject: (error: AWSError) => void) => {
       this.sqs.deleteQueue(params, (error: AWSError, result: any) => {
         if (error) {
           reject(error);
@@ -75,8 +75,8 @@ class SimpleQueueServerClient {
     });
   }
 
-  sendMessage(params: SendMessageRequest): Promise<any> {
-    return new Promise((resolve: Function, reject: Function) => {
+  sendMessage(params: SendMessageRequest): Promise<SendMessageResult> {
+    return new Promise((resolve: (sendMessageResult: SendMessageResult) => void, reject: (error: AWSError) => void) => {
       this.sqs.sendMessage(params, (error: AWSError, result: SendMessageResult) => {
         if (error) {
           reject(error);
@@ -88,7 +88,7 @@ class SimpleQueueServerClient {
   }
 
   receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult> {
-    return new Promise((resolve: Function, reject: Function) => {
+    return new Promise((resolve: (receiveMessageResult: ReceiveMessageResult) => void, reject: (error: AWSError) => void) => {
       this.sqs.receiveMessage(params, (error: AWSError, result_: ReceiveMessageResult) => {
         if (error) {
           reject(error);
@@ -102,7 +102,7 @@ class SimpleQueueServerClient {
   }
 
   sendMessageBatch(params: SendMessageBatchRequest): Promise<SendMessageBatchResult> {
-    return new Promise((resolve: Function, reject: Function) => {
+    return new Promise((resolve: (sendMessageBatchResult: SendMessageBatchResult) => void, reject: (error: AWSError) => void) => {
       this.sqs.sendMessageBatch(params, (error: AWSError, result: SendMessageBatchResult) => {
         if (error) {
           reject(error);
@@ -113,7 +113,7 @@ class SimpleQueueServerClient {
     });
   }
 
-  async markEventSuccess(MessageId: any, QueueUrl: string, successMessage: string = ''): Promise<void> {
+  async markEventSuccess(MessageId: string, QueueUrl: string, successMessage: string = ''): Promise<void> {
     const request = {
       method: 'POST',
       uri: `${QueueUrl}/event/${MessageId}/success`,
@@ -123,7 +123,7 @@ class SimpleQueueServerClient {
     await this.request(request);
   }
 
-  async markEventFailure(MessageId: any, QueueUrl: string, failureMessage: string = ''): Promise<void> {
+  async markEventFailure(MessageId: string, QueueUrl: string, failureMessage: string = ''): Promise<void> {
     const request = {
       method: 'POST',
       uri: `${QueueUrl}/event/${MessageId}/failure`,
@@ -149,7 +149,7 @@ class SimpleQueueServerClient {
       request.body);
     request.headers = { ...(request.headers || {}), ...headers, authorization };
     await rp(request)
-      .catch((error: any) => new Promise((resolve: Function, reject: any) => {
+      .catch((error: any) => new Promise((resolve: () => void, reject: any) => {
         parseString(error.error, (parserError: any, result: any) => {
           if (parserError) {
             reject(new AwsError({ code: error.statusCode, message: error.error }));

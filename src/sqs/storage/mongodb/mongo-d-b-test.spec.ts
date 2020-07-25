@@ -37,7 +37,7 @@ if (process.env.TEST_DB === 'mongoDB') {
       });
 
       it('should call failure api when request fails in mongoDB.', async () => {
-        await new Promise((resolve: Function) => {
+        await new Promise((resolve: () => void) => {
           let count = 0;
           slaveScheduler = new WorkerEventScheduler(
             {
@@ -157,7 +157,7 @@ if (process.env.TEST_DB === 'mongoDB') {
       });
 
       it('should update event status as failed when event is not processed successfully', async () => {
-        await new Promise((resolve: Function) => {
+        await new Promise((resolve: () => void) => {
           slaveScheduler = new WorkerEventScheduler(
             {
               region: Env.region,

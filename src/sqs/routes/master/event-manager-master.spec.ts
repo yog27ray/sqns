@@ -54,7 +54,7 @@ describe('EventManagerMasterSpec', () => {
           secretAccessKey: Env.secretAccessKey,
           maxRetries: 0,
         });
-        await new Promise((resolve: Function, reject: Function) => {
+        await new Promise((resolve: () => void, reject: (e: Error) => void) => {
           sqs.addPermission({
             QueueUrl: `${Env.URL}/api/sqs/queue/queue1`,
             Label: 'label',

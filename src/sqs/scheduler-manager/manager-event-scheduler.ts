@@ -18,8 +18,8 @@ class ManagerEventScheduler {
 
   private queue: SQS.CreateQueueResult;
 
-  constructor(options: SQS.ClientConfiguration, queueName: string, baseParams: any,
-    listener: (nextItemListParams) => Promise<[object, Array<RequestItem>]>, cronInterval?: string) {
+  constructor(options: SQS.ClientConfiguration, queueName: string, baseParams: { [key: string]: any },
+    listener: (nextItemListParams) => Promise<[{ [key: string]: any }, Array<RequestItem>]>, cronInterval?: string) {
     this.queueName = queueName;
     this.config = new ManagerConfig();
     this.config.listener = listener;
@@ -44,14 +44,15 @@ class ManagerEventScheduler {
     this.job = schedule.scheduleJob(cronInterval, () => !this.config.sending && this.requestEventsToAddInQueue(this.cloneBaseParams));
   }
 
-  private get cloneBaseParams(): object {
+  private get cloneBaseParams(): { [key: string]: any } {
     if (typeof this.config.baseParams === 'function') {
-      return this.config.baseParams();
+      const baseParamsFunction: () => { [key: string]: any } = this.config.baseParams as () => { [key: string]: any };
+      return baseParamsFunction();
     }
-    return JSON.parse(JSON.stringify(this.config.baseParams));
+    return JSON.parse(JSON.stringify(this.config.baseParams)) as { [key: string]: any };
   }
 
-  private requestEventsToAddInQueue(itemListParams: object): void {
+  private requestEventsToAddInQueue(itemListParams: { [key: string]: any }): void {
     this.config.sending = true;
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setTimeout(async () => {

@@ -6,7 +6,7 @@ import { ExpressHelper, ExpressMiddleware } from '../routes/master/express-helpe
 import { AwsError } from './aws-error';
 
 function generateAuthorizationHash(accessKeyId: string, secretAccessKey: string, region: string, date: string, host: string,
-                                   originalUrl: string, method: string, body: any): string {
+                                   originalUrl: string, method: string, body: { [key: string]: any }): string {
   const testRequest = {
     method,
     region,

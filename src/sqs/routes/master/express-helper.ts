@@ -18,7 +18,7 @@ class ExpressHelper {
     };
   }
 
-  static errorHandler(error: any, response: Response): void {
+  static errorHandler(error: Error & { code: number }, response: Response): void {
     if (error instanceof AwsError) {
       const awsError: AwsError = error;
       response.status(400).send(AwsXmlFormat.errorResponse(awsError.code, awsError.message, awsError.detail));

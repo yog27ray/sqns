@@ -2,7 +2,7 @@ import fs from 'fs';
 import { Db, MongoClient } from 'mongodb';
 
 class MongoDBConnection {
-  private readonly _option: any;
+  private readonly _option: { [key: string]: any };
 
   private readonly _uri: string;
 
@@ -10,7 +10,7 @@ class MongoDBConnection {
 
   private client: MongoClient;
 
-  constructor(uri: string, config: any) {
+  constructor(uri: string, config: { [key: string]: any }) {
     this._uri = uri;
     this._option = config;
     if (this._uri) {
@@ -28,7 +28,7 @@ class MongoDBConnection {
     }
     let client: MongoClient;
     if (!this.client) {
-      const options: any = {
+      const options: { [key: string]: any } = {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         ...this._option,
@@ -50,12 +50,12 @@ class MongoDBConnection {
     this.client = await client.connect();
   }
 
-  async find(tableName: string, query: any = {}, sort: any = {}): Promise<Array<any>> {
+  async find(tableName: string, query: any = {}, sort: { [key: string]: number } = {}): Promise<Array<any>> {
     await this.connect();
     return this.getDB().collection(tableName).find(query, { sort }).toArray();
   }
 
-  async findOne(tableName: string, filter: any = {}): Promise<any> {
+  async findOne(tableName: string, filter: any = {}): Promise<{ [key: string]: any }> {
     await this.connect();
     return this.getDB().collection(tableName).findOne(filter);
   }
@@ -65,7 +65,7 @@ class MongoDBConnection {
       return Promise.resolve();
     }
     await this.connect();
-    return new Promise((resolve: Function, reject: Function) => {
+    return new Promise((resolve: (item: { [key: string]: any }) => void, reject: (error: Error) => void) => {
       this.getDB().dropDatabase((error, result) => {
         if (error) {
           reject(error);
@@ -76,13 +76,13 @@ class MongoDBConnection {
     });
   }
 
-  async insert(collectionName: string, item: any): Promise<string> {
+  async insert(collectionName: string, item: { [key: string]: any }): Promise<string> {
     await this.connect();
     const newDocument = await this.getDB().collection(collectionName).insertOne(item);
-    return newDocument.insertedId;
+    return newDocument.insertedId as string;
   }
 
-  async update(collectionName: string, documentId: string, document: object): Promise<void> {
+  async update(collectionName: string, documentId: string, document: { [key: string]: any }): Promise<void> {
     await this.connect();
     await this.getDB().collection(collectionName).updateOne({ _id: documentId }, { $set: document });
   }

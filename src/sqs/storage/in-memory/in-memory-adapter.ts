@@ -5,11 +5,11 @@ import { Queue } from '../../event-manager/queue';
 import { StorageAdapter } from '../storage-adapter';
 
 class InMemoryAdapter implements StorageAdapter {
-  private _config: any;
+  private _config: { [key: string]: any };
 
   private _db: { [key: string]: { list: Array<EventItem>; queue: Queue } } = {};
 
-  constructor(config: any) {
+  constructor(config: { [key: string]: any }) {
     this._config = config;
   }
 
@@ -17,7 +17,7 @@ class InMemoryAdapter implements StorageAdapter {
     const insertedItem: EventItem = item.clone();
     const queueList = this.getDBQueue(queue.name);
     if (item.id) {
-      const queueItem = queueList.find((existingItem: any) => insertedItem.id === existingItem.id);
+      const queueItem = queueList.find((existingItem: { [key: string]: any }) => insertedItem.id === existingItem.id);
       if (queueItem) {
         return Promise.resolve(queueItem.clone());
       }
@@ -30,11 +30,12 @@ class InMemoryAdapter implements StorageAdapter {
     const eventsToProcess = [];
     const queueList = this.getDBQueue(queue.name);
     for (let i = queueList.length - 1; i >= 0; i -= 1) {
-      if (queue[i].eventTime.getTime() <= time.getTime()) {
+      if (queueList[i].eventTime.getTime() <= time.getTime()) {
         eventsToProcess.push(queueList[i]);
       }
     }
-    return Promise.resolve(eventsToProcess.sort((item1: any, item2: any) => {
+    return Promise.resolve(eventsToProcess.sort((item1: { [key: string]: any, eventTime: Date },
+      item2: { [key: string]: any, eventTime: Date }) => {
       const value1 = item1.eventTime.getTime();
       const value2 = item2.eventTime.getTime();
       if (value1 === value2) {
@@ -52,22 +53,25 @@ class InMemoryAdapter implements StorageAdapter {
       .map((each: string) => this._db[each].queue));
   }
 
-  async updateEvent(id: string, data: object): Promise<void> {
+  async updateEvent(id: string, data: { [key: string]: any }): Promise<void> {
     const eventItem = await this.findById(id);
-    Object.keys(data).forEach((key: string) => eventItem[key] = data[key]);
+    Object.keys(data).forEach((key: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      eventItem[key] = data[key];
+    });
     if (eventItem.state === EventState.SUCCESS || eventItem.receiveCount >= eventItem.maxReceiveCount) {
-      const queue = Object.values(this._db).find((each: any) => each.list.includes(eventItem));
+      const queue = Object.values(this._db).find((each: { list: Array<EventItem> }) => each.list.includes(eventItem));
       queue.list = queue.list.filter((each: EventItem) => (each !== eventItem));
     }
   }
 
   findById(id: string): Promise<EventItem> {
     const allEvents = [];
-    Object.values(this._db).forEach((each: any) => allEvents.push(...each.list));
-    return Promise.resolve(allEvents.find((each: EventItem) => each.id === id));
+    Object.values(this._db).forEach((each: { list: Array<EventItem> }) => allEvents.push(...each.list));
+    return Promise.resolve<EventItem>(allEvents.find((each: EventItem) => each.id === id));
   }
 
-  createQueue(queueName: string, attributes: object, tag: object): Promise<Queue> {
+  createQueue(queueName: string, attributes: { [key: string]: any }, tag: { [key: string]: any }): Promise<Queue> {
     this._createQueue(queueName, attributes, tag);
     return Promise.resolve(this._db[queueName].queue);
   }
@@ -84,7 +88,7 @@ class InMemoryAdapter implements StorageAdapter {
     return Promise.resolve();
   }
 
-  private _createQueue(queueName: string, attributes: object, tags: object): any {
+  private _createQueue(queueName: string, attributes: { [key: string]: any }, tags: { [key: string]: any }): any {
     if (!this._db[queueName]) {
       const queue = new Queue({ id: uuid(), attributes, name: queueName, tags });
       this._db[queueName] = { list: [], queue };

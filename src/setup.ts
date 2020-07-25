@@ -1,6 +1,6 @@
 import bodyParser from 'body-parser';
 import debug from 'debug';
-import express from 'express';
+import express, { Express } from 'express';
 import http from 'http';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 // import morgan from 'morgan';
@@ -11,13 +11,13 @@ import { Env } from './test-env';
 
 const log = debug('ms-queue:TestServer');
 
-const app: any = express();
+const app: Express = express();
 // app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.json());
 
-let queueConfig: any;
+let queueConfig: { [key: string]: any, config: { uri?: string} };
 
 if (process.env.TEST_DB === 'mongoDB') {
   const mongoDB = new MongoMemoryServer({ instance: { dbName: 'msQueue', port: 27020 } });
@@ -44,7 +44,7 @@ server.listen(Env.PORT, '0.0.0.0', () => {
 });
 
 function delay(): Promise<any> {
-  return new Promise((resolve: Function) => setTimeout(resolve, 100));
+  return new Promise((resolve: () => void) => setTimeout(resolve, 100));
 }
 
 async function dropDatabase(): Promise<void> {
@@ -52,12 +52,11 @@ async function dropDatabase(): Promise<void> {
   await simpleQueueServer.resetAll();
 }
 
-function waitForServerToBoot(): Promise<any> {
-  return rp(`http://localhost:${Env.PORT}/api/queue/health`)
-    // eslint-disable-next-line promise/no-nesting
-    .catch(() => new Promise((resolve: Function, reject: Function) => {
-      waitForServerToBoot().then(() => resolve()).catch(() => reject());
-    }));
+async function waitForServerToBoot(): Promise<void> {
+  await rp(`http://localhost:${Env.PORT}/api/queue/health`).catch(async () => {
+    await delay();
+    return waitForServerToBoot();
+  });
 }
 
 before(async () => {

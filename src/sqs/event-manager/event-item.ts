@@ -11,7 +11,7 @@ declare interface EventItemType {
   MessageSystemAttribute?: { [key: string]: { DataType: string; StringValue: any } };
   queueId?: string;
   MessageDeduplicationId?: string;
-  data?: object;
+  data?: { [key: string]: any };
   receiveCount?: number;
   maxReceiveCount: number;
   id?: string;
@@ -53,7 +53,7 @@ class EventItem {
 
   firstSentTime: Date;
 
-  data: object;
+  data: { [key: string]: any };
 
   eventTime: Date;
 
@@ -91,9 +91,11 @@ class EventItem {
     }
   }
 
-  toJSON(): object {
+  toJSON(): { [key: string]: any } {
     const json = {};
-    Object.getOwnPropertyNames(this).forEach((property: string) => json[property] = this[property]);
+    Object.getOwnPropertyNames(this).forEach((property: string) => {
+      json[property] = this[property];
+    });
     return json;
   }
 

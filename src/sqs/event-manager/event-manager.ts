@@ -19,8 +19,8 @@ class EventManager {
 
   private storageToQueueWorker: StorageToQueueWorker;
 
-  get eventStats(): object {
-    const priorityStats = JSON.parse(JSON.stringify(EventManager.DEFAULT_PRIORITIES));
+  get eventStats(): { [key: string]: any } {
+    const priorityStats = JSON.parse(JSON.stringify(EventManager.DEFAULT_PRIORITIES)) as { [key: string]: any };
     const queueNames = this._eventQueue.queueNames();
     queueNames.forEach((queueName: string) => {
       Object.values(this._eventQueue.eventIds(queueName)).forEach((event: EventItem) => {
@@ -34,8 +34,10 @@ class EventManager {
         }
         EventManager.DEFAULT_PRIORITIES[queueName][statKey] = 0;
 
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         priorityStats[queueName][statKey] = (priorityStats[queueName][statKey] || 0) + 1;
         priorityStats[queueName].PRIORITY_TOTAL += 1;
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         priorityStats[statKey] = (priorityStats[statKey] || 0) + 1;
         priorityStats.PRIORITY_TOTAL += 1;
       });
@@ -49,12 +51,13 @@ class EventManager {
     const priorityStats = this.eventStats;
     Object.keys(priorityStats).forEach((queueName: string) => {
       if (typeof priorityStats[queueName] === 'object') {
-        Object.keys(priorityStats[queueName]).forEach((key: string) => {
-          prometheusRows.push(`${queueName}_queue_priority{label="${key}"} ${priorityStats[queueName][key]} ${unixTimeStamp}`);
+        const priorityStatsQueueName = priorityStats[queueName] as { [key: string]: number };
+        Object.keys(priorityStatsQueueName).forEach((key: string) => {
+          prometheusRows.push(`${queueName}_queue_priority{label="${key}"} ${priorityStatsQueueName[key]} ${unixTimeStamp}`);
         });
         return;
       }
-      prometheusRows.push(`queue_priority{label="${queueName}"} ${priorityStats[queueName]} ${unixTimeStamp}`);
+      prometheusRows.push(`queue_priority{label="${queueName}"} ${priorityStats[queueName] as number} ${unixTimeStamp}`);
     });
     return `${prometheusRows.sort().join('\n')}\n`;
   }
@@ -110,7 +113,7 @@ class EventManager {
     return this._storageEngine.listQueues(queueNamePrefix);
   }
 
-  createQueue(queueName: string, attributes: object, tag: object): Promise<any> {
+  createQueue(queueName: string, attributes: { [key: string]: any }, tag: { [key: string]: any }): Promise<any> {
     return this._storageEngine.createQueue(queueName, attributes, tag);
   }
 
@@ -127,7 +130,8 @@ class EventManager {
     }
   }
 
-  async sendMessage(queueName: string, MessageBody: string, MessageAttribute: any, MessageSystemAttribute: any, DelaySeconds: string = '0',
+  async sendMessage(queueName: string, MessageBody: string, MessageAttribute: { [key: string]: any },
+    MessageSystemAttribute: { [key: string]: any }, DelaySeconds: string = '0',
     MessageDeduplicationId?: string): Promise<EventItem> {
     this.storageToQueueWorker.setUpIntervalForQueue(queueName);
     const queue = await this._storageEngine.getQueue(queueName);

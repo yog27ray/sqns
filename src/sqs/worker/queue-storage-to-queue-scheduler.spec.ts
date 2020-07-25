@@ -10,7 +10,7 @@ describe('QueueStorageToQueueSchedulerSpec', () => {
     });
 
     it('should re-attempt to check if server is ready.', async () => {
-      await new Promise((resolve: Function, reject: Function) => {
+      await new Promise((resolve: () => void, reject: (message: string) => void) => {
         let attempt = 2;
         const timeout = setTimeout(() => reject('should not reach here.'), 6000);
         queueStorageToQueueScheduler = new QueueStorageToQueueScheduler(

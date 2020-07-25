@@ -13,7 +13,9 @@ function generateRoutes(eventManager: EventManager): express.Router {
 
   const router = express.Router();
 
-  router.get('/queue/health', (req: any, res: any) => res.end());
+  router.get('/queue/health', (request: express.Request, response: express.Response) => {
+    response.send('success');
+  });
   router.get('/queues/events/stats', controller.eventStats());
   router.post('/sqs/queue/:queueName/event/:eventId/success', awsAuthentication(getSecretKey),
     AwsToServerTransformer.transformRequestBody(), controller.eventSuccess());

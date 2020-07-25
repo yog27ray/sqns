@@ -11,13 +11,5 @@
     "no-useless-constructor": 0,
     "no-empty-function": 0,
     "@typescript-eslint/type-annotation-spacing": 0
-  },
-  "overrides": [
-    {
-      "files": ["**/*.spec.ts", "./src/components/test/*.ts"],
-      "rules": {
-        "prefer-promise-reject-errors": 0
-      }
-    }
-  ]
+  }
 }

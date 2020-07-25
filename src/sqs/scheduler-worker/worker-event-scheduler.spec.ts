@@ -29,7 +29,7 @@ describe('SlaveEventSchedulerSpec', () => {
 
     it('should add job events in the queue', async () => {
       const result: Array<ResponseItem> = [];
-      await new Promise((resolve: Function) => {
+      await new Promise((resolve: () => void) => {
         let itemCheck = 2;
         slaveScheduler = new WorkerEventScheduler(
           {
@@ -90,7 +90,7 @@ describe('SlaveEventSchedulerSpec', () => {
     });
 
     it('should process 100 events in the queue', async () => {
-      await new Promise((resolve: Function) => {
+      await new Promise((resolve: () => void) => {
         let itemCheck = ITEM_COUNT;
         slaveScheduler = new WorkerEventScheduler(
           {
@@ -102,7 +102,7 @@ describe('SlaveEventSchedulerSpec', () => {
           },
           'queue1',
           // eslint-disable-next-line promise/param-names
-          () => new Promise((resolve1: Function) => setTimeout(() => {
+          () => new Promise((resolve1: () => void) => setTimeout(() => {
             resolve1();
             itemCheck -= 1;
             if (!itemCheck) {
@@ -147,7 +147,7 @@ describe('SlaveEventSchedulerSpec', () => {
     });
 
     it('should re-attempt to check if server is ready.', async () => {
-      await new Promise((resolve: Function) => {
+      await new Promise((resolve: () => void) => {
         const timeout = setTimeout(resolve, 6000);
         slaveScheduler = new WorkerEventScheduler(
           {
@@ -172,7 +172,7 @@ describe('SlaveEventSchedulerSpec', () => {
     });
 
     it('should call failure api when request fails.', async () => {
-      await new Promise((resolve: Function) => {
+      await new Promise((resolve: () => void) => {
         let count = 0;
         slaveScheduler = new WorkerEventScheduler(
           {

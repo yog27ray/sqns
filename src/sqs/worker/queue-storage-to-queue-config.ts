@@ -1,9 +1,9 @@
 class QueueStorageToQueueConfig {
   private _sending: boolean = false;
 
-  private _baseParams: any;
+  private _baseParams: { [key: string]: any };
 
-  private _listener: (queueName: string, nextItemListParams: object) => Promise<[object, boolean]>;
+  private _listener: (queueName: string, nextItemListParams: { [key: string]: any }) => Promise<[{ [key: string]: any }, boolean]>;
 
   private _queueName: string;
 
@@ -15,19 +15,19 @@ class QueueStorageToQueueConfig {
     this._sending = value;
   }
 
-  get baseParams(): any {
+  get baseParams(): { [key: string]: any } {
     return this._baseParams;
   }
 
-  set baseParams(value: any) {
+  set baseParams(value: { [key: string]: any }) {
     this._baseParams = value;
   }
 
-  get listener(): (queueName: string, nextItemListParams: object) => Promise<[object, boolean]> {
+  get listener(): (queueName: string, nextItemListParams: { [key: string]: any }) => Promise<[{ [key: string]: any }, boolean]> {
     return this._listener;
   }
 
-  set listener(value: (queueName: string, nextItemListParams: object) => Promise<[object, boolean]>) {
+  set listener(value: (queueName: string, nextItemListParams: { [key: string]: any }) => Promise<[{ [key: string]: any }, boolean]>) {
     this._listener = value;
   }
 

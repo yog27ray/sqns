@@ -4,7 +4,7 @@ import { ExpressMiddleware } from '../routes/master/express-helper';
 
 class AwsToServerTransformer {
   static transformRequestBody(): ExpressMiddleware {
-    return (req: Request & { serverBody: object; sqsBaseURL: string }, res: Response, next: NextFunction): void => {
+    return (req: Request & { serverBody: { [key: string]: any }; sqsBaseURL: string }, res: Response, next: NextFunction): void => {
       req.serverBody = AwsToServerTransformer.transformPlainJSONToNestedJSON(req.body);
       req.sqsBaseURL = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
       Object.assign(req.serverBody, { requestId: uuid() });
@@ -20,7 +20,9 @@ class AwsToServerTransformer {
     if (!itemArray) {
       return undefined;
     }
-    itemArray.forEach((row: any) => keyJSON[row.Name] = row.Value);
+    itemArray.forEach((row: any) => {
+      keyJSON[row.Name] = row.Value;
+    });
     return keyJSON;
   }
 
@@ -34,7 +36,7 @@ class AwsToServerTransformer {
     const processedKeys = [];
     const isArray = !isNaN(Number(jsonArray[0][0]));
     if (isArray) {
-      const result = [];
+      const result: Array<{ [key: string]: any }> = [];
       let index = 1;
       while (index > 0) {
         const subJSONArray = AwsToServerTransformer.extractNestedJSON(jsonArray, `${index}`);
@@ -62,14 +64,14 @@ class AwsToServerTransformer {
     return json;
   }
 
-  private static transformPlainJSONToNestedJSON(json: object): object {
+  private static transformPlainJSONToNestedJSON(json: { [key: string]: any }): { [key: string]: any } {
     const plainJSONInArray: Array<Array<string>> = Object.keys(json)
       .map((each: string): Array<string> => each.split('.').concat(json[each]));
-    return AwsToServerTransformer.transformJSONArrayToNestedJSON(plainJSONInArray);
+    return AwsToServerTransformer.transformJSONArrayToNestedJSON(plainJSONInArray) as { [key: string]: any };
   }
 
-  private static subArray(array: Array<any>, startIndex: number, endIndex: number): Array<any> {
-    return array.map((each: any) => each).slice(startIndex, endIndex);
+  private static subArray(array: Array<string>, startIndex: number, endIndex: number): Array<string> {
+    return array.map((each: string) => each.slice(startIndex, endIndex));
   }
 }
 

@@ -31,7 +31,9 @@ class Queue {
 
   toJSON(): { [key: string]: any } {
     const json = {};
-    Object.getOwnPropertyNames(this).forEach((property: string) => json[property] = this[property]);
+    Object.getOwnPropertyNames(this).forEach((property: string) => {
+      json[property] = this[property];
+    });
     return json;
   }
 

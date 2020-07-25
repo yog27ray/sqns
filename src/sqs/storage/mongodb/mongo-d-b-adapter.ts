@@ -9,12 +9,12 @@ class MongoDBAdapter implements StorageAdapter {
 
   private readonly connection: MongoDBConnection;
 
-  constructor(config: any) {
+  constructor(config: { [key: string]: any, uri?: string }) {
     const option = { ...config };
     if (!option.uri) {
       throw Error('Database URI is missing');
     }
-    const { uri }: { uri: string } = option;
+    const { uri }: { uri?: string } = option;
     delete option.uri;
     this.connection = new MongoDBConnection(uri, option);
   }
@@ -29,11 +29,12 @@ class MongoDBAdapter implements StorageAdapter {
       createdAt: currentTime,
     };
     delete mongoDocument.id;
-    let insertedMongoDocument;
+    let insertedMongoDocument: { [key: string]: any };
     const eventTableName = this.getTableName('Event');
     try {
       await this.connection.insert(eventTableName, mongoDocument);
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code !== 11000) {
         await Promise.reject(error);
       }
@@ -44,7 +45,7 @@ class MongoDBAdapter implements StorageAdapter {
     return new EventItem(this.dbToSystemItem(insertedMongoDocument));
   }
 
-  async findEventsToProcess(queue: Queue, time: Date): Promise<Array<any>> {
+  async findEventsToProcess(queue: Queue, time: Date): Promise<Array<{ [key: string]: any }>> {
     const mongoDocuments = await this.connection.find(
       this.getTableName('Event'),
       {
@@ -54,7 +55,7 @@ class MongoDBAdapter implements StorageAdapter {
         $expr: { $lt: ['$receiveCount', '$maxReceiveCount'] },
       },
       { eventTime: 1 });
-    return mongoDocuments.map((mongoDocument: any) => this.dbToSystemItem(mongoDocument));
+    return mongoDocuments.map((mongoDocument: any) => this.dbToSystemItem(mongoDocument) as { [key: string]: any });
   }
 
   async getQueues(queueNamePrefix: string = ''): Promise<Array<Queue>> {
@@ -65,7 +66,7 @@ class MongoDBAdapter implements StorageAdapter {
     return queues.map((queue: any) => new Queue(this.dbToSystemItem(queue)));
   }
 
-  async updateEvent(id: string, data: object): Promise<any> {
+  async updateEvent(id: string, data: { [key: string]: any }): Promise<any> {
     await this.connection.update(this.getTableName('Event'), id, { ...data, updatedAt: new Date() });
   }
 
@@ -74,7 +75,7 @@ class MongoDBAdapter implements StorageAdapter {
     return new EventItem(this.dbToSystemItem(event));
   }
 
-  async createQueue(queueName: string, attributes: object): Promise<Queue> {
+  async createQueue(queueName: string, attributes: { [key: string]: any }): Promise<Queue> {
     const queueTableName = this.getTableName('Queues');
     let queue = await this.getQueue(queueName);
     if (!queue) {
@@ -102,9 +103,9 @@ class MongoDBAdapter implements StorageAdapter {
     await this.connection.deleteMany(eventTableName, { queueId: queue.id });
   }
 
-  private dbToSystemItem(row: any): any {
+  private dbToSystemItem(row: { [key: string]: any, id?: string }): any {
     const document = { ...row };
-    document.id = document._id;
+    document.id = document._id as string;
     delete document._id;
     return document;
   }

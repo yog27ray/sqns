@@ -1,9 +1,12 @@
+import debug from 'debug';
 import { EventItem } from '../../../index';
 import { StorageEngine } from '../storage';
 import { QueueStorageToQueueScheduler } from './queue-storage-to-queue-scheduler';
 
+const log = debug('sqns:TestServer');
+
 class StorageToQueueWorker {
-  private _listener: (queueName: string, nextItemListParams: any) => Promise<[object, boolean]>;
+  private _listener: (queueName: string, nextItemListParams: any) => Promise<[{ [key: string]: any }, boolean]>;
 
   private _workerInterval: { [key: string]: QueueStorageToQueueScheduler } = {};
 
@@ -15,7 +18,7 @@ class StorageToQueueWorker {
     this._storageEngine = storageEngine;
     this._addEventToQueueListener = addEventToQueueListener;
     this.setUpListener();
-    this.setUpInterval();
+    this.setUpInterval().catch((error: any) => log(error));
   }
 
   setUpIntervalForQueue(queueName: string): void {
@@ -33,12 +36,12 @@ class StorageToQueueWorker {
     queueNames.forEach((queueName: string) => this.setUpIntervalForQueue(queueName));
   }
 
-  private baseParams(): () => object {
-    return (): object => ({ time: new Date() });
+  private baseParams(): () => { [key: string]: any } {
+    return (): { [key: string]: any } => ({ time: new Date() });
   }
 
   private setUpListener(): void {
-    this._listener = async (queueName: string, { time }: { time: Date }): Promise<[object, boolean]> => {
+    this._listener = async (queueName: string, { time }: { time: Date }): Promise<[{ [key: string]: any }, boolean]> => {
       const items = await this._storageEngine.findEventsToProcess(queueName, time);
       if (!items.length) {
         return [{}, false];

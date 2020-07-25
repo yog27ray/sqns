@@ -23,7 +23,7 @@ describe('CollectorEventSchedulerSpec', () => {
     });
 
     it('should add job events in the queue', async () => {
-      await new Promise((resolve: Function) => {
+      await new Promise((resolve: () => void) => {
         masterScheduler = new ManagerEventScheduler(
           {
             region: Env.region,
@@ -55,7 +55,7 @@ describe('CollectorEventSchedulerSpec', () => {
     });
 
     it('should add job events in the queue when base params is function', async () => {
-      await new Promise((resolve: Function) => {
+      await new Promise((resolve: () => void) => {
         masterScheduler = new ManagerEventScheduler(
           {
             region: Env.region,
@@ -109,7 +109,7 @@ describe('CollectorEventSchedulerSpec', () => {
     });
 
     it('should re-attempt to check if server is ready.', async () => {
-      await new Promise((resolve: Function) => {
+      await new Promise((resolve: () => void) => {
         let maxAttemptCount = 2;
         masterScheduler = new ManagerEventScheduler(
           {

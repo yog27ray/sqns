@@ -85,6 +85,7 @@ class WorkerEventScheduler {
         }
       } catch (error) {
         log(error);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
         if (!error.code && error.message && error.message.startsWith('Error: connect ECONNREFUSED')) {
           this.config.hasMore = false;
         }
@@ -99,6 +100,7 @@ class WorkerEventScheduler {
       const response = await this.config.listener(responseItem);
       return [true, response];
     } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       return [false, error.message];
     }
   }

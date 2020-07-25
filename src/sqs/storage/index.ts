@@ -17,7 +17,7 @@ class StorageEngine {
 
   private _storageAdapter: StorageAdapter;
 
-  constructor(database: Database, config: any) {
+  constructor(database: Database, config: { [key: string]: any }) {
     this.setDatabaseAdapter(database, config);
   }
 
@@ -59,7 +59,7 @@ class StorageEngine {
       });
   }
 
-  async updateEventState(queueName: string, id: string, state: EventState, message: any): Promise<any> {
+  async updateEventState(queueName: string, id: string, state: EventState, message: { [key: string]: any }): Promise<any> {
     const queue = await this._storageAdapter.getQueue(queueName);
     const event = await this._storageAdapter.findById(id);
     if (!event || !queue || event.queueId !== queue.id) {
@@ -72,7 +72,7 @@ class StorageEngine {
     return this._storageAdapter.getQueues(queueNamePrefix);
   }
 
-  createQueue(queueName: string, attributes: object, tag: object): Promise<any> {
+  createQueue(queueName: string, attributes: { [key: string]: any }, tag: { [key: string]: any }): Promise<any> {
     return this._storageAdapter.createQueue(queueName, attributes, tag);
   }
 
@@ -89,7 +89,7 @@ class StorageEngine {
     return this._storageAdapter.deleteQueue(queue);
   }
 
-  setDatabaseAdapter(database: Database, config: any): void {
+  setDatabaseAdapter(database: Database, config: { [key: string]: any }): void {
     switch (database) {
       case StorageEngine.Database.MONGO_DB: {
         this._storageAdapter = new MongoDBAdapter(config);
