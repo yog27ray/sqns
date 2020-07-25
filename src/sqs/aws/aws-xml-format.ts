@@ -127,12 +127,12 @@ class AwsXmlFormat {
     return result;
   }
 
-  private static md5HashJSON(json: { [key: string]: any } = {}): string {
+  private static md5HashJSON(json: { [key: string]: any }): string {
     const message = Object.keys(json).sort().map((key: string) => `${key}=${encodeURIComponent(json[key])}`).join('&');
     return AwsXmlFormat.md5Hash(message);
   }
 
-  private static md5Hash(message: string = ''): string {
+  private static md5Hash(message: string): string {
     return crypto.createHash('md5').update(message).digest('hex');
   }
 

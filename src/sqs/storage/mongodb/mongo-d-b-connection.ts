@@ -87,12 +87,12 @@ class MongoDBConnection {
     await this.getDB().collection(collectionName).updateOne({ _id: documentId }, { $set: document });
   }
 
-  async deleteOne(collectionName: string, filter: any = {}): Promise<void> {
+  async deleteOne(collectionName: string, filter: { [key: string]: any }): Promise<void> {
     await this.connect();
     await this.getDB().collection(collectionName).deleteOne(filter);
   }
 
-  async deleteMany(collectionName: string, filter: any = {}): Promise<void> {
+  async deleteMany(collectionName: string, filter: { [key: string]: any }): Promise<void> {
     await this.connect();
     await this.getDB().collection(collectionName).deleteMany(filter);
   }

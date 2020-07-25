@@ -8,7 +8,7 @@ class SimpleQueueServer {
   private readonly eventManager: EventManager;
 
   constructor({ requestTasks, database = Database.IN_MEMORY, config }
-  : { requestTasks?: Array<string>; database?: Database; config?: any } = {}) {
+  : { requestTasks?: Array<string>; database?: Database; config?: any }) {
     this.eventManager = new EventManager();
     this.eventManager.initialize(requestTasks);
     this.eventManager.setStorageEngine(database, config);

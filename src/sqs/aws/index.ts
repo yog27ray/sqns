@@ -18,7 +18,7 @@ import { AwsError } from './aws-error';
 class SimpleQueueServerClient {
   private sqs: AWS.SQS;
 
-  constructor(options: ClientConfiguration = {}) {
+  constructor(options: ClientConfiguration) {
     if (options.endpoint) {
       Object.assign(options, { endpoint: `${options.endpoint}/sqs` });
     }

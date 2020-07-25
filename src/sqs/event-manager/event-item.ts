@@ -67,7 +67,7 @@ class EventItem {
     this.queueId = item.queueId;
     this.maxReceiveCount = item.maxReceiveCount;
     this.data = item.data || {};
-    this.MessageBody = item.MessageBody || '';
+    this.MessageBody = item.MessageBody;
     if (item.MessageDeduplicationId) {
       this.MessageDeduplicationId = item.MessageDeduplicationId;
     }
@@ -77,7 +77,7 @@ class EventItem {
     this.state = item.state || EventState.PENDING;
 
     this.createdAt = item.createdAt || new Date();
-    this.eventTime = item.eventTime || new Date();
+    this.eventTime = item.eventTime;
     this.originalEventTime = item.originalEventTime || this.eventTime;
     this.sentTime = item.sentTime;
     this.firstSentTime = item.firstSentTime || this.sentTime;
