@@ -82,7 +82,9 @@ class EventManager {
   async poll(queue: Queue, visibilityTimeout: number): Promise<EventItem> {
     if (!this._eventQueue.size(queue.name)) {
       await Promise.all(this._eventQueue.notifyNeedTaskURLS
-        .map((url: string) => rp({ uri: url, method: 'POST', body: { queueName: queue.name } })))
+        .map(async (url: string) => {
+          await rp({ uri: url, method: 'POST', body: { queueName: queue.name } })
+        }))
         .catch((error: any) => log(error));
       return undefined;
     }

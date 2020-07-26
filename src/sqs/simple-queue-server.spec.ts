@@ -392,10 +392,10 @@ describe('SQNS', () => {
     beforeEach(async () => {
       eventManager = new EventManager();
       eventManager.setStorageEngine(Database.IN_MEMORY, {});
-      eventManager.initialize(['https://xyz.abc/success', 'https://xyz.abc/failure'])
+      eventManager.initialize(['https://xyz.abc/success', 'https://xyz.abc/failure']);
       queue = await eventManager.createQueue('queue1', {}, {});
       await eventManager.sendMessage('queue1', 'messageBody', {}, {});
-      await eventManager.resetAll(true);
+      eventManager.resetAll(true);
     });
 
     it('should return current status in prometheus format', async () => {
