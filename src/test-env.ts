@@ -13,7 +13,7 @@ async function deleteQueues(client: SimpleQueueServerClient): Promise<any> {
   await Promise.all(QueueUrls.map((QueueUrl: string) => client.deleteQueue({ QueueUrl }).catch(() => 0)));
 }
 
-function deleteDynamicDataOfResults(items_: any): void {
+function deleteDynamicDataOfResults(items_: { [key: string]: any }): void {
   const items = items_;
   delete items.ResponseMetadata;
   items.Messages.forEach((each_: any) => {

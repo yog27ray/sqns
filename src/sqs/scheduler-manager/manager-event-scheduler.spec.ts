@@ -24,7 +24,7 @@ describe('CollectorEventSchedulerSpec', () => {
         {},
         'queue1',
         { page: 0 },
-        async () =>  [{ page: 1 }, []]);
+        async () => [{ page: 1 }, []]);
       masterScheduler.cancel();
     });
 

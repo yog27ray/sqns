@@ -13,8 +13,8 @@ describe('EventHelperSpec', () => {
             json: (message: string) => {
               responseMessage = message;
             },
-          }
-        }
+          };
+        },
       };
       let error: Error & { code?: number } = new Error('Test error 1');
       error.code = 100;
