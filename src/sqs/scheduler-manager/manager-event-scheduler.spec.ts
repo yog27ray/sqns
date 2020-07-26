@@ -20,6 +20,12 @@ describe('CollectorEventSchedulerSpec', () => {
         maxRetries: 0,
       });
       await deleteQueues(client);
+      masterScheduler = new ManagerEventScheduler(
+        {},
+        'queue1',
+        { page: 0 },
+        async () =>  [{ page: 1 }, []]);
+      masterScheduler.cancel();
     });
 
     it('should add job events in the queue', async () => {

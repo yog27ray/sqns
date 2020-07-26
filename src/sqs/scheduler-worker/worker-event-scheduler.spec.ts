@@ -144,6 +144,11 @@ describe('SlaveEventSchedulerSpec', () => {
         Entries: [{ Id: '123', MessageBody: 'type1' }, { Id: '1234', MessageBody: 'type2' }],
       });
       await delay();
+      slaveScheduler = new WorkerEventScheduler(
+        {},
+        'queue1',
+        () => Promise.resolve('this is success message'));
+      slaveScheduler.cancel();
     });
 
     it('should re-attempt to check if server is ready.', async () => {

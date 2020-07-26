@@ -431,5 +431,17 @@ describe('SQNS', () => {
       const result = await eventManager.poll(queue, 20);
       expect(result).to.not.exist;
     });
+
+    it('should not add event in active processing list while adding event.', async () => {
+      await eventManager.sendMessage('queue1', 'messageBody1', { priority: { StringValue: '2' } }, {}, '100');
+      await eventManager.sendMessage('queue1', 'messageBody2', { priority: { StringValue: '2' } }, {}, '100');
+      await eventManager.sendMessage('queue1', 'messageBody3', { priority: { StringValue: '2' } }, {}, '100');
+      expect(eventManager.eventStats).to.deep.equal({
+        PRIORITY_TOTAL: 1,
+        PRIORITY_2: 0,
+        queue1: { PRIORITY_TOTAL: 1, PRIORITY_2: 0, PRIORITY_999999: 1 },
+        PRIORITY_999999: 1,
+      });
+    });
   });
 });
