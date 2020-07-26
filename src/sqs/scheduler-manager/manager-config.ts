@@ -16,10 +16,7 @@ class ManagerConfig {
   }
 
   get baseParams(): (() => { [key: string]: any }) | { [key: string]: any } {
-    if (typeof this._baseParams === 'function') {
-      return this._baseParams();
-    }
-    return JSON.parse(JSON.stringify(this._baseParams));
+    return this._baseParams;
   }
 
   set baseParams(value: (() => { [key: string]: any }) | { [key: string]: any }) {

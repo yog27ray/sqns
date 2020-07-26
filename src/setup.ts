@@ -17,15 +17,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.json());
 
-let queueConfig: { [key: string]: any, config: { uri?: string} };
+const queueConfig: { [key: string]: any, config: { uri?: string} } = { config: {} };
 
 if (process.env.TEST_DB === 'mongoDB') {
   const mongoDB = new MongoMemoryServer({ instance: { dbName: 'msQueue', port: 27020 } });
   mongoDB.getUri().catch((error: any) => log(error));
-  queueConfig = { database: SimpleQueueServer.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27020/msQueue' } };
-} else {
-  queueConfig = { config: {} };
+  queueConfig.database = SimpleQueueServer.Database.MONGO_DB;
+  queueConfig.config = { uri: 'mongodb://127.0.0.1:27020/msQueue' };
 }
+
 const simpleQueueServer = new SimpleQueueServer(queueConfig);
 simpleQueueServer.cancel();
 const mongoConnection = new MongoDBConnection(queueConfig.config.uri, {});

@@ -486,5 +486,5 @@ describe('SQNS', () => {
     after(() => {
       queueServer.cancel();
     });
-  })
+  });
 });
