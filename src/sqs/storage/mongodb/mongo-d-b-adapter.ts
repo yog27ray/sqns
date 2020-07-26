@@ -29,7 +29,6 @@ class MongoDBAdapter implements StorageAdapter {
       createdAt: currentTime,
     };
     delete mongoDocument.id;
-    let insertedMongoDocument: { [key: string]: any };
     const eventTableName = this.getTableName('Event');
     try {
       await this.connection.insert(eventTableName, mongoDocument);
@@ -39,9 +38,7 @@ class MongoDBAdapter implements StorageAdapter {
         await Promise.reject(error);
       }
     }
-    if (!insertedMongoDocument) {
-      insertedMongoDocument = await this.connection.findOne(eventTableName, { _id: mongoDocument._id });
-    }
+    const insertedMongoDocument: { [key: string]: any } = await this.connection.findOne(eventTableName, { _id: mongoDocument._id });
     return new EventItem(this.dbToSystemItem(insertedMongoDocument));
   }
 
