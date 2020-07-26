@@ -45,8 +45,8 @@ class EventManager {
     return priorityStats;
   }
 
-  get prometheus(): string {
-    const unixTimeStamp = new Date().getTime();
+  prometheus(time: Date = new Date()): string {
+    const unixTimeStamp = time.getTime();
     const prometheusRows = [];
     const priorityStats = this.eventStats;
     Object.keys(priorityStats).forEach((queueName: string) => {
@@ -66,7 +66,7 @@ class EventManager {
     this._eventQueue = new EventQueue();
   }
 
-  setStorageEngine(database: Database, config: any = {}): void {
+  setStorageEngine(database: Database, config: { [key: string]: any }): void {
     this._storageEngine = new StorageEngine(database, config);
     this.storageToQueueWorker = new StorageToQueueWorker(this._storageEngine, this.addEventInQueueListener);
   }
@@ -81,7 +81,8 @@ class EventManager {
 
   async poll(queue: Queue, visibilityTimeout: number): Promise<EventItem> {
     if (!this._eventQueue.size(queue.name)) {
-      this.notifyTaskNeeded(queue.name)
+      await Promise.all(this._eventQueue.notifyNeedTaskURLS
+        .map((url: string) => rp({ uri: url, method: 'POST', body: { queueName: queue.name } })))
         .catch((error: any) => log(error));
       return undefined;
     }
@@ -96,9 +97,12 @@ class EventManager {
     return eventItem;
   }
 
-  resetAll(): void {
+  resetAll(resetOnlyStatistics?: boolean): void {
     EventManager.DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
-    return this._eventQueue.resetAll();
+    if (resetOnlyStatistics) {
+      return;
+    }
+    this._eventQueue.resetAll();
   }
 
   async updateEventStateSuccess(queueName: string, id: string, message: string): Promise<any> {
@@ -113,7 +117,7 @@ class EventManager {
     return this._storageEngine.listQueues(queueNamePrefix);
   }
 
-  createQueue(queueName: string, attributes: { [key: string]: any }, tag: { [key: string]: any }): Promise<any> {
+  createQueue(queueName: string, attributes: { [key: string]: any }, tag: { [key: string]: any }): Promise<Queue> {
     return this._storageEngine.createQueue(queueName, attributes, tag);
   }
 
@@ -183,19 +187,6 @@ class EventManager {
       return;
     }
     this._eventQueue.add(queueName, eventItem);
-  }
-
-  private async notifyTaskNeeded(queueName: string, index: number = 0): Promise<any> {
-    try {
-      const url = this._eventQueue.notifyNeedTaskURLS[index];
-      if (!url) {
-        return;
-      }
-      await rp(url);
-    } catch (error) {
-      log(error);
-    }
-    await this.notifyTaskNeeded(queueName, index + 1);
   }
 
   private addToPriorities(queueName: string, priority: number): void {

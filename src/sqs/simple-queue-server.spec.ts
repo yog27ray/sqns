@@ -3,10 +3,13 @@ import { EventItem } from '../../index';
 import { delay, dropDatabase, simpleQueueServer } from '../setup';
 import { deleteQueues, Env } from '../test-env';
 import { SimpleQueueServerClient } from './aws';
+import { EventManager } from './event-manager';
+import { Queue } from './event-manager/queue';
 import { CreateQueueResult } from './request-response-types';
+import { Database } from './storage';
 
-describe('MSQueue', () => {
-  context('Processing of msQueue with comparator function in descending order', () => {
+describe('SQNS', () => {
+  context('Processing of SQNS with comparator function in descending order', () => {
     let client: SimpleQueueServerClient;
     let queue: CreateQueueResult;
     before(async () => {
@@ -57,7 +60,7 @@ describe('MSQueue', () => {
     });
   });
 
-  context('Processing of msQueue with comparator function in ascending order', () => {
+  context('Processing of SQNS with comparator function in ascending order', () => {
     let client: SimpleQueueServerClient;
     let queue: CreateQueueResult;
     before(async () => {
@@ -108,7 +111,7 @@ describe('MSQueue', () => {
     });
   });
 
-  context('Processing of msQueue with comparator function in descending order for fifo', () => {
+  context('Processing of SQNS with comparator function in descending order for fifo', () => {
     let client: SimpleQueueServerClient;
     let queue: CreateQueueResult;
     before(async () => {
@@ -159,7 +162,7 @@ describe('MSQueue', () => {
     });
   });
 
-  context('Processing of msQueue with comparator function in ascending order for fifo', () => {
+  context('Processing of SQNS with comparator function in ascending order for fifo', () => {
     let client: SimpleQueueServerClient;
     let queue: CreateQueueResult;
     before(async () => {
@@ -379,6 +382,53 @@ describe('MSQueue', () => {
       expect(Messages.length).to.equal(1);
       ({ Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, VisibilityTimeout: 0 }));
       expect(Messages.length).to.equal(0);
+    });
+  });
+
+  context('SQNS current status', () => {
+    let eventManager: EventManager;
+    let queue: Queue;
+
+    beforeEach(async () => {
+      eventManager = new EventManager();
+      eventManager.setStorageEngine(Database.IN_MEMORY, {});
+      eventManager.initialize(['https://xyz.abc/success', 'https://xyz.abc/failure'])
+      queue = await eventManager.createQueue('queue1', {}, {});
+      await eventManager.sendMessage('queue1', 'messageBody', {}, {});
+      await eventManager.resetAll(true);
+    });
+
+    it('should return current status in prometheus format', async () => {
+      const result = eventManager.prometheus(new Date(1000));
+      expect(result).to.equal('queue1_queue_priority{label="PRIORITY_999999"} 1 1000\n'
+        + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 1 1000\n'
+        + 'queue_priority{label="PRIORITY_999999"} 1 1000\n'
+        + 'queue_priority{label="PRIORITY_TOTAL"} 1 1000\n');
+    });
+
+    it('should delete the queue and reset the status to initial', async () => {
+      await eventManager.createQueue('queue2', {}, {});
+      await eventManager.sendMessage('queue2', 'messageBody', { priority: { StringValue: '1' } }, {});
+      expect(eventManager.prometheus(new Date(1000))).to.equal('queue1_queue_priority{label="PRIORITY_999999"} 1 1000\n'
+        + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 1 1000\n'
+        + 'queue2_queue_priority{label="PRIORITY_1"} 1 1000\n'
+        + 'queue2_queue_priority{label="PRIORITY_TOTAL"} 1 1000\n'
+        + 'queue_priority{label="PRIORITY_1"} 1 1000\n'
+        + 'queue_priority{label="PRIORITY_999999"} 1 1000\n'
+        + 'queue_priority{label="PRIORITY_TOTAL"} 2 1000\n');
+      await eventManager.deleteQueue('queue2');
+      expect(eventManager.prometheus(new Date(1000))).to.equal('queue1_queue_priority{label="PRIORITY_999999"} 1 1000\n'
+        + 'queue1_queue_priority{label="PRIORITY_TOTAL"} 1 1000\n'
+        + 'queue_priority{label="PRIORITY_1"} 0 1000\n'
+        + 'queue_priority{label="PRIORITY_999999"} 1 1000\n'
+        + 'queue_priority{label="PRIORITY_TOTAL"} 1 1000\n');
+      await eventManager.deleteQueue('queue1');
+      expect(eventManager.prometheus(new Date(1000))).to.equal('queue_priority{label="PRIORITY_TOTAL"} 0 1000\n');
+    });
+
+    it('should send request to given url for notify no events to process.', async () => {
+      await eventManager.poll(queue, 20);
+      await eventManager.poll(queue, 20);
     });
   });
 });

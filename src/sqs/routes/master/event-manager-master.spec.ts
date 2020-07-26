@@ -10,6 +10,7 @@ describe('EventManagerMasterSpec', () => {
     let client: SimpleQueueServerClient;
     before(async () => {
       await dropDatabase();
+      client = new SimpleQueueServerClient({});
       client = new SimpleQueueServerClient({
         region: Env.region,
         endpoint: `${Env.URL}/api`,

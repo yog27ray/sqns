@@ -72,7 +72,7 @@ class StorageEngine {
     return this._storageAdapter.getQueues(queueNamePrefix);
   }
 
-  createQueue(queueName: string, attributes: { [key: string]: any }, tag: { [key: string]: any }): Promise<any> {
+  createQueue(queueName: string, attributes: { [key: string]: any }, tag: { [key: string]: any }): Promise<Queue> {
     return this._storageAdapter.createQueue(queueName, attributes, tag);
   }
 

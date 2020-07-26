@@ -82,7 +82,7 @@ class EventManagerMaster {
   eventStats(): ExpressMiddleware {
     return ExpressHelper.requestHandler((req, res): Promise<any> => {
       if (req.query.format === 'prometheus') {
-        res.send(this.eventManager.prometheus);
+        res.send(this.eventManager.prometheus());
         return;
       }
       res.json(this.eventManager.eventStats);
