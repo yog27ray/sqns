@@ -83,7 +83,7 @@ class EventManager {
     if (!this._eventQueue.size(queue.name)) {
       await Promise.all(this._eventQueue.notifyNeedTaskURLS
         .map(async (url: string) => {
-          await rp({ uri: url, method: 'POST', body: { queueName: queue.name } });
+          await rp({ uri: url, method: 'POST', body: { queueName: queue.name }, json: true });
         }))
         .catch((error: any) => log(error));
       return undefined;

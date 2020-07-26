@@ -428,7 +428,8 @@ describe('SQNS', () => {
 
     it('should send request to given url for notify no events to process.', async () => {
       await eventManager.poll(queue, 20);
-      await eventManager.poll(queue, 20);
+      const result = await eventManager.poll(queue, 20);
+      expect(result).to.not.exist;
     });
   });
 });
