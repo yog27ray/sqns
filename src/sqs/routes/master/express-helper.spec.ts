@@ -7,10 +7,10 @@ describe('EventHelperSpec', () => {
       let responseCode: number;
       let responseMessage: string;
       const response: any = {
-        status: (code: number) => {
+        status: (code: number): { [key: string]: any } => {
           responseCode = code;
           return {
-            json: (message: string) => {
+            json: (message: string): void => {
               responseMessage = message;
             },
           };
