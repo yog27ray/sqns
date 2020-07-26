@@ -193,13 +193,13 @@ class EventManager {
 
   private addToPriorities(queueName: string, priority: number): void {
     const statKey = `PRIORITY_${priority}`;
-    if (!EventManager.DEFAULT_PRIORITIES[statKey]) {
+    if (isNaN(EventManager.DEFAULT_PRIORITIES[statKey])) {
       EventManager.DEFAULT_PRIORITIES[statKey] = 0;
     }
     if (!EventManager.DEFAULT_PRIORITIES[queueName]) {
       EventManager.DEFAULT_PRIORITIES[queueName] = { PRIORITY_TOTAL: 0 };
     }
-    if (!EventManager.DEFAULT_PRIORITIES[queueName][statKey]) {
+    if (isNaN(EventManager.DEFAULT_PRIORITIES[queueName][statKey])) {
       EventManager.DEFAULT_PRIORITIES[queueName][statKey] = 0;
     }
   }

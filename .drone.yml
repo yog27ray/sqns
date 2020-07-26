@@ -37,7 +37,7 @@ steps:
     image: node:12.13.0
     privileged: true
     commands:
-      - PORT=9001 npm run coverage:inmemory
+      - npm run coverage:inmemory
       - node_modules/.bin/nyc report --reporter=text-lcov > coverage1.lcov;
     depends_on: [ eslint-server, tslint ]
 

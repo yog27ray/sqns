@@ -436,6 +436,8 @@ describe('SQNS', () => {
       await eventManager.sendMessage('queue1', 'messageBody1', { priority: { StringValue: '2' } }, {}, '100');
       await eventManager.sendMessage('queue1', 'messageBody2', { priority: { StringValue: '2' } }, {}, '100');
       await eventManager.sendMessage('queue1', 'messageBody3', { priority: { StringValue: '2' } }, {}, '100');
+      await eventManager.sendMessage('queue1', 'messageBody4', {}, {}, '100');
+      await eventManager.sendMessage('queue1', 'messageBody5', {}, {}, '100');
       expect(eventManager.eventStats).to.deep.equal({
         PRIORITY_TOTAL: 1,
         PRIORITY_2: 0,
