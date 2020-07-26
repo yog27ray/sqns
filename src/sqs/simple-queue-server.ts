@@ -7,11 +7,11 @@ class SimpleQueueServer {
 
   private readonly eventManager: EventManager;
 
-  constructor({ requestTasks, database = Database.IN_MEMORY, config }
-  : { requestTasks?: Array<string>; database?: Database; config?: any }) {
+  constructor({ requestTasks, database = Database.IN_MEMORY, config, cronInterval }
+  : { requestTasks?: Array<string>; database?: Database; config?: any; cronInterval?: string }) {
     this.eventManager = new EventManager();
     this.eventManager.initialize(requestTasks);
-    this.eventManager.setStorageEngine(database, config);
+    this.eventManager.setStorageEngine(database, config, cronInterval);
   }
 
   generateRoutes(): any {
@@ -24,6 +24,10 @@ class SimpleQueueServer {
 
   resetAll(): any {
     this.eventManager.resetAll();
+  }
+
+  cancel(): void {
+    this.eventManager.cancel();
   }
 }
 

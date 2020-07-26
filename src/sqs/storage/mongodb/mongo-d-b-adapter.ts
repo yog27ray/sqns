@@ -54,7 +54,8 @@ class MongoDBAdapter implements StorageAdapter {
         state: { $in: [EventItem.State.PENDING, EventItem.State.PROCESSING, EventItem.State.FAILURE] },
         $expr: { $lt: ['$receiveCount', '$maxReceiveCount'] },
       },
-      { eventTime: 1 });
+      { eventTime: -1 },
+      20);
     return mongoDocuments.map((mongoDocument: any) => this.dbToSystemItem(mongoDocument) as { [key: string]: any });
   }
 

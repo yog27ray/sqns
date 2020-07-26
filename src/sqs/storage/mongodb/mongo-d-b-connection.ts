@@ -50,9 +50,9 @@ class MongoDBConnection {
     this.client = await client.connect();
   }
 
-  async find(tableName: string, query: any = {}, sort: { [key: string]: number } = {}): Promise<Array<any>> {
+  async find(tableName: string, query: any = {}, sort: { [key: string]: number } = {}, limit?: number): Promise<Array<any>> {
     await this.connect();
-    return this.getDB().collection(tableName).find(query, { sort }).toArray();
+    return this.getDB().collection(tableName).find(query, { sort, limit }).toArray();
   }
 
   async findOne(tableName: string, filter: any = {}): Promise<{ [key: string]: any }> {

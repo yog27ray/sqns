@@ -29,23 +29,23 @@ class InMemoryAdapter implements StorageAdapter {
   findEventsToProcess(queue: Queue, time: Date): Promise<Array<any>> {
     const eventsToProcess = [];
     const queueList = this.getDBQueue(queue.name);
-    for (let i = queueList.length - 1; i >= 0; i -= 1) {
-      if (queueList[i].eventTime.getTime() <= time.getTime()) {
-        eventsToProcess.push(queueList[i]);
-      }
-    }
-    return Promise.resolve(eventsToProcess.sort((item1: { [key: string]: any, eventTime: Date },
-      item2: { [key: string]: any, eventTime: Date }) => {
+    queueList.sort((item1: { eventTime: Date }, item2: { eventTime: Date }) => {
       const value1 = item1.eventTime.getTime();
       const value2 = item2.eventTime.getTime();
       if (value1 === value2) {
         return 0;
       }
       if (value1 > value2) {
-        return 1;
+        return -1;
       }
-      return -1;
-    }));
+      return 1;
+    });
+    queueList.forEach((eventItem: EventItem) => {
+      if (eventItem.eventTime.getTime() < time.getTime()) {
+        eventsToProcess.push(eventItem);
+      }
+    });
+    return Promise.resolve(eventsToProcess);
   }
 
   getQueues(queueNamePrefix: string = ''): Promise<Array<Queue>> {

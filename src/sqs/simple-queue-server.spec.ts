@@ -1,6 +1,7 @@
 import { expect } from 'chai';
-import { EventItem } from '../../index';
-import { delay, dropDatabase, simpleQueueServer } from '../setup';
+import rp from 'request-promise';
+import { EventItem, SimpleQueueServer } from '../../index';
+import { app, delay, dropDatabase, queueConfig, simpleQueueServer } from '../setup';
 import { deleteQueues, Env } from '../test-env';
 import { SimpleQueueServerClient } from './aws';
 import { EventManager } from './event-manager';
@@ -446,4 +447,44 @@ describe('SQNS', () => {
       });
     });
   });
+
+  context('Queue processing flow', () => {
+    let queueServer: SimpleQueueServer;
+    let client: SimpleQueueServerClient;
+    let queue: CreateQueueResult;
+
+    beforeEach(async () => {
+      await dropDatabase();
+      queueServer = new SimpleQueueServer({ ...queueConfig, cronInterval: '*/2 * * * * *' });
+      app.use('/api-queue-processing-flow', queueServer.generateRoutes());
+      client = new SimpleQueueServerClient({
+        region: Env.region,
+        endpoint: `${Env.URL}/api-queue-processing-flow`,
+        accessKeyId: Env.accessKeyId,
+        secretAccessKey: Env.secretAccessKey,
+        maxRetries: 0,
+      });
+      await deleteQueues(client);
+      queue = await client.createQueue({ QueueName: 'processingFlow' });
+      await client.sendMessageBatch({
+        QueueUrl: queue.QueueUrl,
+        Entries: new Array(100).fill(0)
+          .map((item: number, index: number) => ({ Id: `${index}`, MessageBody: `Message ${index}`, DelaySeconds: 2 })),
+      });
+      await delay(5 * 1000);
+    });
+
+    it('should add items from storage to queue', async () => {
+      const stats = await rp({ uri: `${Env.URL}/api-queue-processing-flow/queues/events/stats`, json: true });
+      expect(stats).to.deep.equal({
+        PRIORITY_TOTAL: 100,
+        PRIORITY_999999: 100,
+        processingFlow: { PRIORITY_TOTAL: 100, PRIORITY_999999: 100 },
+      });
+    });
+
+    after(() => {
+      queueServer.cancel();
+    });
+  })
 });

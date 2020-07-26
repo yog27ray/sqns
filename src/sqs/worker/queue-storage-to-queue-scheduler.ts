@@ -32,7 +32,10 @@ class QueueStorageToQueueScheduler {
   }
 
   private get cloneBaseParams(): { [key: string]: any } {
-    return this.config.baseParams;
+    if (typeof this.config.baseParams === 'function') {
+      return this.config.baseParams();
+    }
+    return JSON.parse(JSON.stringify(this.config.baseParams))
   }
 
   private findEventsToAddInQueue(itemListParams: { [key: string]: any }): void {

@@ -66,9 +66,9 @@ class EventManager {
     this._eventQueue = new EventQueue();
   }
 
-  setStorageEngine(database: Database, config: { [key: string]: any }): void {
+  setStorageEngine(database: Database, config: { [key: string]: any }, cronInterval?: string): void {
     this._storageEngine = new StorageEngine(database, config);
-    this.storageToQueueWorker = new StorageToQueueWorker(this._storageEngine, this.addEventInQueueListener);
+    this.storageToQueueWorker = new StorageToQueueWorker(this._storageEngine, this.addEventInQueueListener, cronInterval);
   }
 
   initialize(notifyNeedTaskURLS: Array<string> = []): void {
@@ -165,6 +165,10 @@ class EventManager {
 
   receiveMessage(queue: Queue, VisibilityTimeout: string = '30', MaxNumberOfMessages: string = '1'): Promise<Array<EventItem>> {
     return this.pollN(queue, Number(VisibilityTimeout), Number(MaxNumberOfMessages));
+  }
+
+  cancel(): void {
+    this.storageToQueueWorker.cancel();
   }
 
   private async pollN(queue: Queue, visibilityTimeout: number, size: number): Promise<Array<EventItem>> {

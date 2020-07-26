@@ -27,7 +27,7 @@ if (process.env.TEST_DB === 'mongoDB') {
   queueConfig = { config: {} };
 }
 const simpleQueueServer = new SimpleQueueServer(queueConfig);
-
+simpleQueueServer.cancel();
 const mongoConnection = new MongoDBConnection(queueConfig.config.uri, {});
 
 app.use('/api', simpleQueueServer.generateRoutes());
@@ -43,8 +43,8 @@ server.listen(Env.PORT, '0.0.0.0', () => {
   log('Express server listening on %d, in test mode', Env.PORT);
 });
 
-function delay(): Promise<any> {
-  return new Promise((resolve: () => void) => setTimeout(resolve, 100));
+function delay(milliSeconds: number = 100): Promise<any> {
+  return new Promise((resolve: () => void) => setTimeout(resolve, milliSeconds));
 }
 
 async function dropDatabase(): Promise<void> {
@@ -64,4 +64,4 @@ before(async () => {
 });
 
 // Expose app
-export { app, simpleQueueServer, dropDatabase, mongoConnection, delay };
+export { app, simpleQueueServer, dropDatabase, mongoConnection, delay, queueConfig };
