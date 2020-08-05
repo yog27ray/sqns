@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "coverage": "npm run test:inmemory && npm run test:mongodb",
+    "coverage": "npm run coverage:inmemory && npm run coverage:mongodb",
     "coverage:inmemory": "nyc mocha src/setup.ts '**/*.spec.ts' --exit",
     "coverage:mongodb": "TEST_DB=mongoDB nyc mocha src/setup.ts '**/*.spec.ts'",
     "test": "npm run test:inmemory && npm run test:mongodb",
