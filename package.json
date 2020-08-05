@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "coverage": "npm run test:inmemory && npm run test:mongodb",
-    "coverage:inmemory": "nyc mocha src/setup.ts '**/*.spec.ts' --exit",
-    "coverage:mongodb": "TEST_DB=mongoDB nyc mocha src/setup.ts '**/*.spec.ts'",
+    "coverage": "npm run coverage:inmemory && npm run coverage:mongodb",
+    "coverage:inmemory": "nyc mocha src/setup.ts '**/*.spec.ts' && nyc report --reporter=text-lcov > coverage1.lcov",
+    "coverage:mongodb": "TEST_DB=mongoDB nyc mocha src/setup.ts '**/*.spec.ts' && nyc report --reporter=text-lcov > coverage2.lcov",
     "test": "npm run test:inmemory && npm run test:mongodb",
     "test:inmemory": "mocha src/setup.ts '**/*.spec.ts' --exit",
     "test:mongodb": "TEST_DB=mongoDB mocha src/setup.ts '**/*.spec.ts'"
