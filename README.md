@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/yog27ray/sqns/branch/master/graph/badge.svg)](https://codecov.io/gh/yog27ray/sqns)
+
 #SQNS (Simple Queue And Notification Server)
 SQNS is combination of two part SQS (Simple Queue Server) and SNS (Simple Notification Server).
 I took inspiration from AWS SQS (Simple Queue Service) and AWS SNS (Simple Notification Service), for creating this library.
