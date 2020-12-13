@@ -26,11 +26,11 @@ There can be only one Manager but many Workers in this systems.
 
 1. Register routes of Express Server.
     ```
-    import { SimpleQueueServer } from 'sqns';
+    import { SQS } from 'sqns';
     
     ....
     
-    const simpleQueueServer = new SimpleQueueServer();
+    const simpleQueueServer = new SQS();
     app.use('/api', simpleQueueServer.generateRoutes()); 
     ```
    This will enable the api support for the Collector server.
@@ -200,5 +200,5 @@ Default it uses in-memory management of queue, i.e. if service is re-started all
 If you want to preserve queue even after re-start you can change the storage engine to MongoDB.
  
 ```
-const simpleQueueServer = new SimpleQueueServer({ database: SimpleQueueServer.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27017/sqns' } });
+const simpleQueueServer = new SQS({ database: SQS.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27017/sqns' } });
 ```

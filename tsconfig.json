@@ -27,7 +27,6 @@
   },
   "exclude": [
     "node_modules",
-    "typings",
     "server/setup.ts",
     "**/*.js"
   ],
