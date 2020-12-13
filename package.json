@@ -6,8 +6,7 @@
   "types": "typings/index.d.ts",
   "scripts": {
     "tunnel": "ssh -R 80:localhost:9000 serveo.net",
-    "coverage": "npm run coverage:inmemory && npm run coverage:mongodb",
-    "coverage:inmemory": "nyc mocha src/setup.ts '**/*.spec.ts' && nyc report --reporter=text-lcov > coverage1.lcov",
+    "coverage": "npm run coverage:mongodb",
     "coverage:mongodb": "TEST_DB=mongoDB nyc mocha src/setup.ts '**/*.spec.ts' && nyc report --reporter=text-lcov > coverage2.lcov",
     "test": "npm run test:inmemory && npm run test:mongodb",
     "test:inmemory": "mocha src/setup.ts '**/*.spec.ts' --exit",
