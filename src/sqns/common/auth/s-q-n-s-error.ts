@@ -3,7 +3,7 @@ import { SQNSErrorType } from '../../../../typings/sqns-error-type';
 class SQNSError extends Error {
   code: string;
 
-  detail: string;
+  detail?: string;
 
   static invalidQueueName(queueName: string): void {
     throw new SQNSError({

@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { sqsConfig } from '../../../setup';
-import { Database } from '../database';
+import { setupConfig } from '../../../setup';
 import { AccessKey } from '../model/access-key';
 import { BaseStorageEngine } from '../model/base-storage-engine';
 import { getSecretKey } from './authentication';
@@ -19,7 +18,7 @@ describe('Authentication', () => {
 
     it('should handle error while fetching key from database.', async () => {
       try {
-        await getSecretKey(new TempStorageEngine(Database.MONGO_DB, sqsConfig.config, []))('dbAccessErrorKey');
+        await getSecretKey(new TempStorageEngine(setupConfig.sqnsConfig.db, []))('dbAccessErrorKey');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
       } catch (error) {
         const { code, message } = error;

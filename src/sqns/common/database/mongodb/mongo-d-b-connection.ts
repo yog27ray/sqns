@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { Db, MongoClient } from 'mongodb';
 import { KeyValue } from '../../../../../typings';
 
@@ -10,10 +9,6 @@ class MongoDBConnection {
   private readonly _dBName: string;
 
   private client: MongoClient;
-
-  private static isFilePath(sslCA: unknown): boolean {
-    return typeof sslCA === 'string';
-  }
 
   constructor(uri: string, config: { [key: string]: unknown }) {
     this._uri = uri;
@@ -33,22 +28,9 @@ class MongoDBConnection {
     }
     let client: MongoClient;
     if (!this.client) {
-      const options: { [key: string]: any } = {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        ...this._option,
-      };
-
-      if (MongoDBConnection.isFilePath(options.sslCA)) {
-        options.sslCA = fs.readFileSync(options.sslCA);
-      }
-      if (MongoDBConnection.isFilePath(this._option.sslCert)) {
-        options.sslCert = fs.readFileSync(options.sslCert);
-      }
-      if (MongoDBConnection.isFilePath(this._option.sslKey)) {
-        options.sslKey = fs.readFileSync(options.sslKey);
-      }
-      client = new MongoClient(this._uri, options);
+      // useNewUrlParser: true,
+      // useUnifiedTopology: true,
+      client = new MongoClient(this._uri, this._option);
     } else {
       ({ client } = this);
     }

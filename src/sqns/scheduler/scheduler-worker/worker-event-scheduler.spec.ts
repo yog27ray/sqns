@@ -7,8 +7,7 @@ import { delay, dropDatabase } from '../../../setup';
 import { deleteDynamicDataOfResults, Env } from '../../../test-env';
 import { SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { RequestClient } from '../../common/request-client/request-client';
-import { SNSClient } from '../../sns/s-n-s-client';
-import { SQSClient } from '../../sqs/s-q-s-client';
+import { SQNSClient } from '../../s-q-n-s-client';
 import { WorkerEventScheduler } from './worker-event-scheduler';
 
 describe('WorkerEventSchedulerSpec', () => {
@@ -17,12 +16,10 @@ describe('WorkerEventSchedulerSpec', () => {
 
     beforeEach(async () => {
       await dropDatabase();
-      const client = new SQSClient({
-        region: Env.region,
+      const client = new SQNSClient({
         endpoint: `${Env.URL}/api`,
         accessKeyId: Env.accessKeyId,
         secretAccessKey: Env.secretAccessKey,
-        maxRetries: 0,
       });
       const queue = await client.createQueue({ QueueName: 'queue1' });
       await client.sendMessageBatch({
@@ -37,11 +34,9 @@ describe('WorkerEventSchedulerSpec', () => {
         let itemCheck = 2;
         workerEventScheduler = new WorkerEventScheduler(
           {
-            region: Env.region,
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
-            maxRetries: 0,
           },
           ['queue1'],
           async (queueName: string, item: ResponseItem) => {
@@ -57,7 +52,7 @@ describe('WorkerEventSchedulerSpec', () => {
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 0,
         PRIORITY_999999: 0,
-        'arn:sqns:sqs:testRegion:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
+        'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
       });
       deleteDynamicDataOfResults({ Messages: result });
       expect(result).to.deep.equal([
@@ -77,12 +72,10 @@ describe('WorkerEventSchedulerSpec', () => {
 
     beforeEach(async () => {
       await dropDatabase();
-      const client = new SQSClient({
-        region: Env.region,
+      const client = new SQNSClient({
         endpoint: `${Env.URL}/api`,
         accessKeyId: Env.accessKeyId,
         secretAccessKey: Env.secretAccessKey,
-        maxRetries: 0,
       });
       const queue = await client.createQueue({ QueueName: 'queue1' });
       await client.sendMessageBatch({
@@ -97,11 +90,9 @@ describe('WorkerEventSchedulerSpec', () => {
         let itemCheck = ITEM_COUNT;
         workerEventScheduler = new WorkerEventScheduler(
           {
-            region: Env.region,
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
-            maxRetries: 0,
           },
           ['queue1'],
           // eslint-disable-next-line promise/param-names
@@ -119,7 +110,7 @@ describe('WorkerEventSchedulerSpec', () => {
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 0,
         PRIORITY_999999: 0,
-        'arn:sqns:sqs:testRegion:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
+        'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
       });
     });
 
@@ -133,12 +124,10 @@ describe('WorkerEventSchedulerSpec', () => {
 
     beforeEach(async () => {
       await dropDatabase();
-      const client = new SQSClient({
-        region: Env.region,
+      const client = new SQNSClient({
         endpoint: `${Env.URL}/api`,
         accessKeyId: Env.accessKeyId,
         secretAccessKey: Env.secretAccessKey,
-        maxRetries: 0,
       });
       const queue = await client.createQueue({ QueueName: 'queue1' });
       await client.sendMessageBatch({
@@ -153,11 +142,9 @@ describe('WorkerEventSchedulerSpec', () => {
         const timeout = setTimeout(resolve, 6000);
         workerEventScheduler = new WorkerEventScheduler(
           {
-            region: Env.region,
             endpoint: `${Env.URL}/api/wrong`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
-            maxRetries: 0,
           },
           ['queue1'],
           async () => {
@@ -168,7 +155,7 @@ describe('WorkerEventSchedulerSpec', () => {
       const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 2,
-        'arn:sqns:sqs:testRegion:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
+        'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
         PRIORITY_999999: 2,
       });
     });
@@ -178,11 +165,9 @@ describe('WorkerEventSchedulerSpec', () => {
         let count = 0;
         workerEventScheduler = new WorkerEventScheduler(
           {
-            region: Env.region,
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
-            maxRetries: 0,
           },
           ['queue1'],
           () => {
@@ -198,7 +183,7 @@ describe('WorkerEventSchedulerSpec', () => {
       const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 0,
-        'arn:sqns:sqs:testRegion:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
+        'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
         PRIORITY_999999: 0,
       });
     });
@@ -211,19 +196,17 @@ describe('WorkerEventSchedulerSpec', () => {
   context('processing of sns scheduler', () => {
     let workerEventScheduler: WorkerEventScheduler;
     let interval: NodeJS.Timeout;
-    let client: SNSClient;
+    let client: SQNSClient;
     let PublishId: string;
     let SubscriptionArn: ARN;
     let topic: CreateTopicResponse;
 
     beforeEach(async () => {
       await dropDatabase();
-      client = new SNSClient({
-        region: Env.region,
+      client = new SQNSClient({
         endpoint: `${Env.URL}/api`,
         accessKeyId: Env.accessKeyId,
         secretAccessKey: Env.secretAccessKey,
-        maxRetries: 0,
       });
       topic = await client.createTopic({
         Name: 'Topic1',
@@ -245,11 +228,9 @@ describe('WorkerEventSchedulerSpec', () => {
       });
       workerEventScheduler = new WorkerEventScheduler(
         {
-          region: Env.region,
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
-          maxRetries: 0,
         },
         [SYSTEM_QUEUE_NAME.SNS],
         undefined,
@@ -280,7 +261,7 @@ describe('WorkerEventSchedulerSpec', () => {
           }
           expect(body.Type).to.equal('Notification');
           expect(body.MessageId).to.equal(PublishId);
-          expect(body.TopicArn).to.equal('arn:sqns:sns:testRegion:1:Topic1');
+          expect(body.TopicArn).to.equal('arn:sqns:sns:sqns:1:Topic1');
           expect(body.Subject).to.equal('Subject');
           expect(body.Message).to.equal('This is message');
           expect(body.SubscriptionArn).to.equal(SubscriptionArn);
@@ -309,11 +290,9 @@ describe('WorkerEventSchedulerSpec', () => {
       }));
       workerEventScheduler = new WorkerEventScheduler(
         {
-          region: Env.region,
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
-          maxRetries: 0,
         },
         [SYSTEM_QUEUE_NAME.SNS],
         undefined,

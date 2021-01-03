@@ -1,12 +1,12 @@
 import * as schedule from 'node-schedule';
-import { ClientConfiguration, MessageAttributeEntry } from '../../../../typings';
+import { MessageAttributeEntry } from '../../../../typings';
+import { SQNSClientConfig } from '../../../../typings/client-confriguation';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { ResponseItem } from '../../../../typings/response-item';
 import { SNS_QUEUE_EVENT_TYPES, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { logger } from '../../common/logger/logger';
-import { SNSClient } from '../../sns/s-n-s-client';
-import { SQSClient } from '../../sqs/s-q-s-client';
+import { SQNSClient } from '../../s-q-n-s-client';
 import { WorkerQueueConfig } from './worker-queue-config';
 
 const log = logger.instance('WorkerEventScheduler');
@@ -14,25 +14,22 @@ const log = logger.instance('WorkerEventScheduler');
 class WorkerEventScheduler {
   private readonly queueNames: Array<string>;
 
-  private sqsClient: SQSClient;
-
-  private snsClient: SNSClient;
+  private sqnsClient: SQNSClient;
 
   private readonly queueConfigs: { [key: string]: WorkerQueueConfig };
 
   private job: schedule.Job;
 
-  constructor(options: ClientConfiguration, queueNames: Array<string>, listener: (queueName: string, item: ResponseItem) => Promise<string>,
+  constructor(options: SQNSClientConfig, queueNames: Array<string>, listener: (queueName: string, item: ResponseItem) => Promise<string>,
     cronInterval?: string) {
     this.queueNames = queueNames.map((each: string) => each);
-    this.snsClient = new SNSClient(options);
     this.queueConfigs = Object.fromEntries(this.queueNames.map((queueName: string) => {
       const workerQueueConfig = new WorkerQueueConfig(queueName);
       workerQueueConfig.listener = listener;
       workerQueueConfig.config.MAX_COUNT = 1;
       return [queueName, workerQueueConfig];
     }));
-    this.sqsClient = new SQSClient(options);
+    this.sqnsClient = new SQNSClient(options);
     this.initialize(cronInterval);
   }
 
@@ -59,16 +56,16 @@ class WorkerEventScheduler {
     const destinationArn = responseItem.MessageAttributes.destinationArn.StringValue;
     const messageId = responseItem.MessageAttributes.messageId.StringValue;
     const deliveryPolicy: DeliveryPolicy = JSON.parse(responseItem.MessageAttributes.deliveryPolicy.StringValue) as DeliveryPolicy;
-    const { Subscriptions, NextToken } = await this.snsClient.listSubscriptionsByTopic({ TopicArn: destinationArn, NextToken: nextToken });
+    const { Subscriptions, NextToken } = await this.sqnsClient.listSubscriptionsByTopic({ TopicArn: destinationArn, NextToken: nextToken });
     if (!Subscriptions.length) {
-      await this.snsClient.markPublished({ MessageId: messageId });
+      await this.sqnsClient.markPublished({ MessageId: messageId });
       return 'no-subscription-found';
     }
     await Promise.all(Subscriptions.map(async ({ SubscriptionArn }) => {
-      const subscription = await this.snsClient.getSubscription({ SubscriptionArn });
+      const subscription = await this.sqnsClient.getSubscription({ SubscriptionArn });
       const effectiveDeliveryPolicy = DeliveryPolicyHelper.getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription);
       const uniqueId = `process_publish_${messageId}_subscription_${subscription.ARN}`;
-      await this.sqsClient.sendMessage({
+      await this.sqnsClient.sendMessage({
         QueueUrl: workerQueueConfig.queue.QueueUrl,
         MessageBody: uniqueId,
         MessageAttributes: {
@@ -82,7 +79,7 @@ class WorkerEventScheduler {
     }));
     if (NextToken) {
       const uniqueId = `scan_publish_${messageId}_nextToken_${NextToken}`;
-      await this.sqsClient.sendMessage({
+      await this.sqnsClient.sendMessage({
         QueueUrl: workerQueueConfig.queue.QueueUrl,
         MessageBody: uniqueId,
         MessageAttributes: {
@@ -96,15 +93,15 @@ class WorkerEventScheduler {
       });
       return 'created-new-scan-event';
     }
-    await this.snsClient.markPublished({ MessageId: messageId });
+    await this.sqnsClient.markPublished({ MessageId: messageId });
     return 'created-all-subscription-event';
   }
 
   async snsQueueEventProcessSubscription(responseItem: ResponseItem): Promise<string> {
     const subscriptionArn = responseItem.MessageAttributes.subscriptionArn.StringValue;
     const messageId = responseItem.MessageAttributes.messageId.StringValue;
-    const published = await this.snsClient.getPublish({ MessageId: messageId });
-    const subscription = await this.snsClient.getSubscription({ SubscriptionArn: subscriptionArn });
+    const published = await this.sqnsClient.getPublish({ MessageId: messageId });
+    const subscription = await this.sqnsClient.getSubscription({ SubscriptionArn: subscriptionArn });
     switch (subscription.Protocol) {
       case 'http':
       case 'https': {
@@ -112,7 +109,7 @@ class WorkerEventScheduler {
         published.MessageAttributes.forEach(({ Name, Value }: MessageAttributeEntry) => {
           MessageAttributes[Name] = { Type: Value.DataType, Value: Value.StringValue };
         });
-        const response = await this.snsClient.post(subscription.EndPoint, {
+        const response = await this.sqnsClient.post(subscription.EndPoint, {
           body: JSON.stringify({
             Type: 'Notification',
             MessageId: messageId,
@@ -166,7 +163,7 @@ class WorkerEventScheduler {
     if (workerQueueConfig.queue) {
       return;
     }
-    workerQueueConfig.queue = await this.sqsClient.createQueue({ QueueName: workerQueueConfig.queueName });
+    workerQueueConfig.queue = await this.sqnsClient.createQueue({ QueueName: workerQueueConfig.queueName });
   }
 
   private requestEventToProcessAsynchronous(workerQueueConfig_: WorkerQueueConfig): void {
@@ -188,16 +185,16 @@ class WorkerEventScheduler {
   private async requestEventToProcess(workerQueueConfig_: WorkerQueueConfig): Promise<void> {
     const workerQueueConfig = workerQueueConfig_;
     await this.findOrCreateQueue(workerQueueConfig);
-    const result = await this.sqsClient.receiveMessage({ QueueUrl: workerQueueConfig.queue.QueueUrl, MessageAttributeNames: ['ALL'] });
+    const result = await this.sqnsClient.receiveMessage({ QueueUrl: workerQueueConfig.queue.QueueUrl, MessageAttributeNames: ['ALL'] });
     const { Messages: [eventItem] } = result;
     if (!eventItem) {
       workerQueueConfig.hasMore = false;
     } else {
       const [isSuccess, response] = await this.processEvent(workerQueueConfig, eventItem);
       if (isSuccess) {
-        await this.sqsClient.markEventSuccess(eventItem.MessageId, workerQueueConfig.queue.QueueUrl, response);
+        await this.sqnsClient.markEventSuccess(eventItem.MessageId, workerQueueConfig.queue.QueueUrl, response);
       } else {
-        await this.sqsClient.markEventFailure(eventItem.MessageId, workerQueueConfig.queue.QueueUrl, response);
+        await this.sqnsClient.markEventFailure(eventItem.MessageId, workerQueueConfig.queue.QueueUrl, response);
       }
     }
   }

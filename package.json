@@ -57,7 +57,7 @@
     "aws-sdk": "^2.809.0",
     "express": "^4.17.1",
     "fastpriorityqueue": "^0.6.3",
-    "logger4node": "0.0.13",
+    "logger4node": "0.0.17",
     "moment": "^2.29.1",
     "mongodb": "^3.6.3",
     "node-fetch": "^2.6.1",
@@ -67,5 +67,17 @@
     "request-promise": "^4.2.6",
     "uuid": "^8.3.2",
     "xml2js": "^0.4.23"
+  },
+  "mocha": {
+    "color": true,
+    "ui": "bdd",
+    "recursive": true,
+    "timeout": 20000,
+    "require": [
+      "ts-node/register/transpile-only",
+      "mocha.conf.js"
+    ],
+    "reporter": "dot",
+    "exit": true
   }
 }

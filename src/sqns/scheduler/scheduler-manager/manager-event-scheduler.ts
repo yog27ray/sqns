@@ -1,8 +1,9 @@
 import * as schedule from 'node-schedule';
-import { BASE_CONFIG, ClientConfiguration, KeyValue, RequestItem } from '../../../../typings';
+import { BASE_CONFIG, KeyValue, RequestItem } from '../../../../typings';
+import { SQNSClientConfig } from '../../../../typings/client-confriguation';
 import { ManagerQueueConfigListener } from '../../../../typings/config';
 import { logger } from '../../common/logger/logger';
-import { SQSClient } from '../../sqs/s-q-s-client';
+import { SQNSClient } from '../../s-q-n-s-client';
 import { ManagerQueueConfig } from './manager-queue-config';
 
 const log = logger.instance('sqns:ManagerEventScheduler');
@@ -14,9 +15,9 @@ export class ManagerEventScheduler {
 
   private readonly queueConfigs: { [key: string]: ManagerQueueConfig };
 
-  private client: SQSClient;
+  private client: SQNSClient;
 
-  constructor(options: ClientConfiguration, queueBaseParams: { [key: string]: BASE_CONFIG },
+  constructor(options: SQNSClientConfig, queueBaseParams: { [key: string]: BASE_CONFIG },
     listener: ManagerQueueConfigListener, cronInterval?: string) {
     this.queueNames = Object.keys(queueBaseParams);
     this.queueConfigs = Object.fromEntries(this.queueNames.map((queueName: string) => {
@@ -25,7 +26,7 @@ export class ManagerEventScheduler {
       mangerConfig.queryBaseParams = queueBaseParams[queueName];
       return [queueName, mangerConfig];
     }));
-    this.client = new SQSClient(options);
+    this.client = new SQNSClient(options);
     this.initialize(cronInterval);
   }
 
@@ -61,7 +62,7 @@ export class ManagerEventScheduler {
 
   private async requestEventsToAddInQueue(queueConfig_: ManagerQueueConfig, itemListParams: KeyValue): Promise<void> {
     const queueConfig = queueConfig_;
-    const [nextItemListParams, items] = await queueConfig.listener(itemListParams);
+    const [nextItemListParams, items] = await queueConfig.listener(queueConfig.queueName, itemListParams);
     if (!items.length) {
       queueConfig.sending = false;
       return;

@@ -5,7 +5,7 @@ describe('BaseStorageEngine', () => {
   context('Error Handler', () => {
     it('should return undefined when unknown resource arn is provided', async () => {
       try {
-        const baseStorageEngine = new BaseStorageEngine(undefined, undefined, undefined);
+        const baseStorageEngine = new BaseStorageEngine({ database: undefined, config: undefined, uri: undefined }, undefined);
         await Promise.reject({ code: 99, message: 'Should not be here.', baseStorageEngine });
       } catch (error) {
         const { code, message } = error;

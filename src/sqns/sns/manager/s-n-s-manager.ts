@@ -7,13 +7,12 @@ import {
   SUPPORTED_CHANNEL_TYPE,
 } from '../../../../typings';
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
+import { SQNSClientConfig } from '../../../../typings/client-confriguation';
 import { AdminSecretKeys, SNSConfig } from '../../../../typings/config';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../typings/subscription';
-import { Env } from '../../../test-env';
 import { Encryption } from '../../common/auth/encryption';
 import { SQNSError } from '../../common/auth/s-q-n-s-error';
-import { Database } from '../../common/database';
 import { ARNHelper } from '../../common/helper/a-r-n-helper';
 import { SNS_QUEUE_EVENT_TYPES, SUPPORTED_CHANNEL, SUPPORTED_PROTOCOL, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { logger } from '../../common/logger/logger';
@@ -25,7 +24,8 @@ import { SubscriptionVerificationToken } from '../../common/model/subscription-v
 import { Topic } from '../../common/model/topic';
 import { User } from '../../common/model/user';
 import { RequestClient } from '../../common/request-client/request-client';
-import { SQSManager } from '../../sqs/manager/s-q-s-manager';
+import { SQNSClient } from '../../s-q-n-s-client';
+import { WorkerEventScheduler } from '../../scheduler/scheduler-worker/worker-event-scheduler';
 import { SNSStorageEngine } from './s-n-s-storage-engine';
 
 const log = logger.instance('SNSManager');
@@ -35,12 +35,22 @@ class SNSManager extends BaseManager {
 
   private readonly sNSStorageEngine: SNSStorageEngine;
 
-  private sqsManager: SQSManager;
+  private sqnsClient: SQNSClient;
 
-  constructor(snsConfig: SNSConfig, sqsManager: SQSManager, adminSecretKeys: Array<AdminSecretKeys>, database: Database) {
+  private readonly workerEventScheduler: WorkerEventScheduler;
+
+  constructor(snsConfig: SNSConfig, adminSecretKeys: Array<AdminSecretKeys>) {
     super();
-    this.sqsManager = sqsManager;
-    this.sNSStorageEngine = new SNSStorageEngine(database, snsConfig.config, adminSecretKeys);
+    const sqnsClientConfig: SQNSClientConfig = {
+      endpoint: snsConfig.queueEndpoint || snsConfig.endpoint,
+      accessKeyId: snsConfig.queueAccessKey || adminSecretKeys[0].accessKey,
+      secretAccessKey: snsConfig.queueSecretAccessKey || adminSecretKeys[0].secretAccessKey,
+    };
+    this.sNSStorageEngine = new SNSStorageEngine(snsConfig.db, adminSecretKeys);
+    this.sqnsClient = new SQNSClient(sqnsClientConfig);
+    if (!snsConfig.disableWorker) {
+      this.workerEventScheduler = new WorkerEventScheduler(sqnsClientConfig, [SYSTEM_QUEUE_NAME.SNS], undefined);
+    }
   }
 
   createTopic(name: string, displayName: string, region: string, deliveryPolicy: DeliveryPolicy, user: User,
@@ -91,26 +101,19 @@ class SNSManager extends BaseManager {
       messageStructure,
       this.generatePublishMessageStructure(messageStructure, Message));
     const deliveryPolicy = await this.findDeliveryPolicyOfArn(published.destinationArn);
-    const queue = await this.sqsManager.createQueue(
-      new User({ id: '1', organizationId: Env.companyId }),
-      SYSTEM_QUEUE_NAME.SNS,
-      'testRegion',
-      {},
-      {});
-    await this.sqsManager.sendMessage(
-      queue,
-      `scan_publish_${published.id}`,
-      {
+    const queue = await this.sqnsClient.createQueue({ QueueName: SYSTEM_QUEUE_NAME.SNS });
+    await this.sqnsClient.sendMessage({
+      QueueUrl: queue.QueueUrl,
+      MessageBody: `scan_publish_${published.id}`,
+      MessageAttributes: {
         action: { DataType: 'String', StringValue: SNS_QUEUE_EVENT_TYPES.ScanSubscriptions },
         nextToken: { DataType: 'String', StringValue: Encryption.encodeNextToken({ skip: 0 }) },
         messageId: { DataType: 'String', StringValue: published.id },
         destinationArn: { DataType: 'String', StringValue: published.destinationArn },
         deliveryPolicy: { DataType: 'String', StringValue: JSON.stringify(deliveryPolicy) },
       },
-      {},
-      '0',
-      `sqns_sns_publish_${published.id}`,
-    );
+      MessageDeduplicationId: `sqns_sns_publish_${published.id}`,
+    });
     return published;
   }
 
@@ -210,6 +213,10 @@ class SNSManager extends BaseManager {
 
   getStorageEngine(): BaseStorageEngine {
     return this.sNSStorageEngine;
+  }
+
+  cancel(): void {
+    this.workerEventScheduler?.cancel();
   }
 }
 

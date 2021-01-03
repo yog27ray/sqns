@@ -1,6 +1,6 @@
 // <reference path="./index.d.ts" />
 
-import { ClientConfiguration } from '../../../../dist/src/sqs/request-response-types';
+import { Database } from '../src/sqns/common/database';
 import { Queue } from '../src/sqns/common/model/queue';
 import { KeyValue } from './common';
 import { RequestItem } from './request-item';
@@ -17,20 +17,45 @@ export declare interface AdminSecretKeys {
   accessKey: string;
 }
 
+export declare interface DatabaseConfig {
+  uri: string;
+  config: KeyValue;
+  database?: Database,
+}
+
 export declare interface SQSConfig {
+  endpoint: string;
+  db: DatabaseConfig,
   requestTasks?: Array<string>;
-  config: SQS_DATABASE_CONFIG;
   cronInterval?: string;
   enableSNSQueue?: boolean;
 }
 
 export declare interface SNSConfig {
-  config: SQS_DATABASE_CONFIG;
-  sqsConfig?: SQSConfig;
-  clientConfig: ClientConfiguration;
+  endpoint: string;
+  db: DatabaseConfig;
+  queueEndpoint?: string;
+  queueSecretAccessKey?: string;
+  queueAccessKey?: string;
+  disableWorker?: boolean;
 }
 
-export declare type ManagerQueueConfigListener = (nextItemListParams: KeyValue) => Promise<[KeyValue, Array<RequestItem>]>;
+export declare interface SQNSConfig {
+  endpoint: string;
+  adminSecretKeys: Array<{ accessKey: string; secretAccessKey: string }>;
+  db: DatabaseConfig,
+  sqs?: { cronInterval?: string; disable?: boolean };
+  sns?: {
+    queueEndpoint?: string;
+    queueSecretAccessKey?: string;
+    queueAccessKey?: string;
+    disable?: boolean;
+    disableWorker?: boolean;
+  };
+}
+
+export declare type ManagerQueueConfigListener = (queueName: string, nextItemListParams: KeyValue) => Promise<
+  [KeyValue, Array<RequestItem>]>;
 
 declare type ConfigCount = { count: number, MAX_COUNT: number };
 

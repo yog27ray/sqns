@@ -1,16 +1,14 @@
-import { SNSClient } from './sqns/sns/s-n-s-client';
-import { SQSClient } from './sqns/sqs/s-q-s-client';
+import { SQNSClient } from './sqns/s-q-n-s-client';
 
 const Env = {
   URL: 'http://127.0.0.1:1234',
   PORT: 1234,
   companyId: '12345',
-  region: 'testRegion',
   accessKeyId: 'accessKeyIdTest',
   secretAccessKey: 'secretAccessKeyTest',
 };
 
-async function findAllTopics(client: SNSClient, nextToken?: string): Promise<Array<string>> {
+async function findAllTopics(client: SQNSClient, nextToken?: string): Promise<Array<string>> {
   const listTopicsResponse = await client.listTopics({ NextToken: nextToken });
   const topics = listTopicsResponse.Topics.map(({ TopicArn }: { TopicArn: string }) => TopicArn);
   if (listTopicsResponse.NextToken) {
@@ -20,7 +18,7 @@ async function findAllTopics(client: SNSClient, nextToken?: string): Promise<Arr
   return topics;
 }
 
-async function findAllQueues(client: SQSClient, nextToken?: string): Promise<Array<string>> {
+async function findAllQueues(client: SQNSClient, nextToken?: string): Promise<Array<string>> {
   const listQueuesResponse = await client.listQueues({ NextToken: nextToken });
   const queueUrls = listQueuesResponse.QueueUrls;
   if (listQueuesResponse.NextToken) {
@@ -30,12 +28,12 @@ async function findAllQueues(client: SQSClient, nextToken?: string): Promise<Arr
   return queueUrls;
 }
 
-async function deleteTopics(client: SNSClient): Promise<void> {
+async function deleteTopics(client: SQNSClient): Promise<void> {
   const topicARNs = await findAllTopics(client);
   await Promise.all(topicARNs.map((topicARN: string) => client.deleteTopic({ TopicArn: topicARN })));
 }
 
-async function deleteAllQueues(client: SQSClient): Promise<void> {
+async function deleteAllQueues(client: SQNSClient): Promise<void> {
   const queueURLs = await findAllQueues(client);
   await Promise.all(queueURLs.map((queueURL: string) => client.deleteQueue({ QueueUrl: queueURL })));
 }

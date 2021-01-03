@@ -20,6 +20,10 @@ export interface SubscribeInput {
   ReturnSubscriptionArn?: boolean;
 }
 
+export interface SubscribeResponse {
+  SubscriptionArn?: ARN;
+}
+
 export interface ConfirmSubscriptionInput {
   TopicArn: ARN;
   Token: string;

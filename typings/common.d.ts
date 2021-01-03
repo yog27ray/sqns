@@ -9,7 +9,7 @@ export type SupportedProtocol = 'http' | 'https';
 export declare type SUPPORTED_CHANNEL_TYPE = SupportedProtocol | 'default';
 // <reference path="./index.d.ts" />
 
-export declare interface KeyValue { [key: string]: unknown; }
+export declare interface KeyValue<T = unknown> { [key: string]: T; }
 
 export declare interface KeyValueString { [key: string]: string; }
 

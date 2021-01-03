@@ -1,5 +1,5 @@
 import { KeyValue } from '../../../../typings';
-import { AdminSecretKeys, SQS_DATABASE_CONFIG } from '../../../../typings/config';
+import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
 import { SQNSError } from '../auth/s-q-n-s-error';
 import { Database } from '../database';
 import { MongoDBAdapter } from '../database/mongodb/mongo-d-b-adapter';
@@ -15,10 +15,10 @@ export class BaseStorageEngine {
 
   protected readonly _storageAdapter: StorageAdapter;
 
-  constructor(database: Database, config: SQS_DATABASE_CONFIG, adminSecretKeys: Array<AdminSecretKeys>) {
-    switch (database) {
+  constructor(databaseConfig: DatabaseConfig, adminSecretKeys: Array<AdminSecretKeys>) {
+    switch (databaseConfig.database) {
       case Database.MONGO_DB: {
-        this._storageAdapter = new MongoDBAdapter(config);
+        this._storageAdapter = new MongoDBAdapter({ uri: databaseConfig.uri, ...databaseConfig.config });
         break;
       }
       default: {
@@ -29,9 +29,7 @@ export class BaseStorageEngine {
       }
     }
     this.initialize(adminSecretKeys.map((each: AdminSecretKeys) => each))
-      .catch((error: Error) => {
-        log.error(error);
-      });
+      .catch((error: Error) => log.error(error));
   }
 
   async initialize(adminSecretKeys: Array<AdminSecretKeys>): Promise<void> {

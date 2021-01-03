@@ -50,9 +50,6 @@ class SQSController {
           const { QueueName, region, Attribute, Tag, requestId } = req.serverBody;
           let queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName)).catch(() => undefined);
           if (!queue) {
-            if (RESERVED_QUEUE_NAME.includes(QueueName)) {
-              SQNSError.reservedQueueNames();
-            }
             queue = await this.eventManager.createQueue(
               req.user,
               QueueName,

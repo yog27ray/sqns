@@ -5,6 +5,7 @@ import { KeyValueString } from '../../../../../typings/common';
 import { MongoDBConfig } from '../../../../../typings/config';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../../typings/subscription';
+import { logger } from '../../logger/logger';
 import { AccessKey } from '../../model/access-key';
 import { EventItem } from '../../model/event-item';
 import { Publish } from '../../model/publish';
@@ -15,6 +16,8 @@ import { Topic } from '../../model/topic';
 import { User } from '../../model/user';
 import { StorageAdapter } from '../storage-adapter';
 import { MongoDBConnection } from './mongo-d-b-connection';
+
+const log = logger.instance('MongoDBAdapter');
 
 class MongoDBAdapter implements StorageAdapter {
   private static readonly QUEUE_TABLE_PREFIX = '_Queue_';
@@ -54,6 +57,7 @@ class MongoDBAdapter implements StorageAdapter {
 
   constructor(config: MongoDBConfig) {
     const option = { ...config };
+    log.info('DatabaseConfig', option);
     if (!option.uri) {
       throw Error('Database URI is missing');
     }

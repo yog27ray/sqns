@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import rp from 'request-promise';
+import { KeyValue, RequestItem } from '../../../../typings';
 import { dropDatabase } from '../../../setup';
 import { Env } from '../../../test-env';
-import { KeyValue, RequestItem } from '../../../../typings';
 import { ManagerEventScheduler } from './manager-event-scheduler';
 
 describe('ManagerEventSchedulerSpec', () => {
@@ -15,14 +15,12 @@ describe('ManagerEventSchedulerSpec', () => {
       await new Promise((resolve: (value?: unknown) => void) => {
         masterScheduler = new ManagerEventScheduler(
           {
-            region: Env.region,
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
-            maxRetries: 0,
           },
           { queue1: { page: 0 } },
-          async ({ page }: { page: number }) => {
+          async (queueName: string, { page }: { page: number }) => {
             const results: Array<RequestItem> = [];
             if (!page) {
               results.push({ MessageBody: '123' });
@@ -37,7 +35,7 @@ describe('ManagerEventSchedulerSpec', () => {
       const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 2,
-        'arn:sqns:sqs:testRegion:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
+        'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
         PRIORITY_999999: 2,
       });
     });
@@ -46,14 +44,12 @@ describe('ManagerEventSchedulerSpec', () => {
       await new Promise((resolve: (value?: unknown) => void) => {
         masterScheduler = new ManagerEventScheduler(
           {
-            region: Env.region,
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
-            maxRetries: 0,
           },
           { queue1: (): KeyValue => ({ page: 0 }) },
-          async ({ page }: { page: number }) => {
+          async (queueName: string, { page }: { page: number }) => {
             const result: Array<RequestItem> = [];
             if (!page) {
               result.push({ MessageBody: 'type1' });
@@ -68,7 +64,7 @@ describe('ManagerEventSchedulerSpec', () => {
       const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 2,
-        'arn:sqns:sqs:testRegion:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
+        'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
         PRIORITY_999999: 2,
       });
     });
@@ -90,14 +86,12 @@ describe('ManagerEventSchedulerSpec', () => {
         let maxAttemptCount = 2;
         masterScheduler = new ManagerEventScheduler(
           {
-            region: Env.region,
             endpoint: `${Env.URL}/api/wrong`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
-            maxRetries: 0,
           },
           { queue1: { page: 0 } },
-          async ({ page }: { page: number }) => {
+          async (queueName: string, { page }: { page: number }) => {
             if (!maxAttemptCount) {
               resolve();
             }

@@ -1,3 +1,5 @@
+import SNS from 'aws-sdk/clients/sns';
+import SQS from 'aws-sdk/clients/sqs';
 import moment from 'moment';
 import xml2js from 'xml2js';
 import { ClientConfiguration, KeyValue } from '../../../../typings';
@@ -6,19 +8,21 @@ import { SQNSError } from '../auth/s-q-n-s-error';
 import { RequestClient } from '../request-client/request-client';
 
 export class BaseClient extends RequestClient {
+  static readonly REGION: string = 'sqns';
+
   protected readonly _config: ClientConfiguration;
+
+  protected readonly _sqs: SQS;
+
+  protected readonly _sns: SNS;
 
   private _arrayFields = ['MessageAttributes', 'member'];
 
-  private readonly _service: string;
-
   constructor(service: string, config: ClientConfiguration) {
     super();
-    this._service = service;
-    this._config = { ...config };
-    if (this._config.endpoint) {
-      Object.assign(this._config, { endpoint: `${this._config.endpoint as string}/${this._service}` });
-    }
+    this._config = { ...config, region: BaseClient.REGION };
+    this._sqs = new SQS({ ...this._config, endpoint: `${config.endpoint}/sqs` });
+    this._sns = new SNS({ ...this._config, endpoint: `${config.endpoint}/sns` });
   }
 
   protected request(request: { uri: string, method: string, body: KeyValue, headers?: KeyValue }): Promise<any> {
@@ -27,7 +31,7 @@ export class BaseClient extends RequestClient {
       host: request.uri.split('/')[2],
     };
     const authorization = generateAuthenticationHash({
-      service: this._service,
+      service: request.uri.split('/').pop(),
       accessKeyId: this._config.accessKeyId,
       secretAccessKey: this._config.secretAccessKey,
       region: this._config.region,

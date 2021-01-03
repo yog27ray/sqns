@@ -1,11 +1,9 @@
 import { Express } from 'express';
-// tslint:disable-next-line:ordered-imports
 import { WorkerEventScheduler } from '../../index';
 import { ARN } from '../../typings';
-import { AdminSecretKeys, SNSConfig, SQSConfig } from '../../typings/config';
+import { SQNSConfig } from '../../typings/config';
 import { SQNSError } from './common/auth/s-q-n-s-error';
-import { Database } from './common/database';
-import { RESERVED_QUEUE_NAME, SYSTEM_QUEUE_NAME } from './common/helper/common';
+import { RESERVED_QUEUE_NAME } from './common/helper/common';
 import { logger } from './common/logger/logger';
 import { EventItem } from './common/model/event-item';
 import { Queue } from './common/model/queue';
@@ -17,30 +15,33 @@ import { generateRoutes as sqsRoutes } from './sqs/routes';
 
 const log = logger.instance('SQNS');
 
-class SQNS {
+export class SQNS {
+  private readonly _url: { host: string; basePath: string; endpoint: string };
+
   private readonly region: string;
 
   private readonly sqsManager: SQSManager;
 
   private readonly snsManager: SNSManager;
 
-  private readonly workerEventScheduler: WorkerEventScheduler;
-
-  constructor(data: { region: string, sns?: SNSConfig, sqs?: SQSConfig, adminSecretKeys: Array<AdminSecretKeys> }) {
+  constructor(config: SQNSConfig) {
     log.info('Setting SQNS');
-    if (!data.adminSecretKeys || !data.adminSecretKeys.length) {
+    if (!config.adminSecretKeys || !config.adminSecretKeys.length) {
       SQNSError.minAdminSecretKeys();
     }
-    this.region = data.region;
-    log.info('Enable SQS');
-    this.sqsManager = new SQSManager(data.sqs, data.adminSecretKeys, Database.MONGO_DB);
-    if (data.sns) {
+    this._url = {
+      host: config.endpoint.split('/').splice(0, 3).join('/'),
+      basePath: `/${config.endpoint.split('/').splice(3, 100).join('/')}`,
+      endpoint: config.endpoint,
+    };
+    this.region = 'sqns';
+    if (!config.sqs?.disable) {
+      log.info('Enable SQS');
+      this.sqsManager = new SQSManager({ endpoint: config.endpoint, db: config.db, ...(config.sqs || {}) }, config.adminSecretKeys);
+    }
+    if (!config.sns?.disable) {
       log.info('Enable SNS');
-      this.snsManager = new SNSManager(data.sns, this.sqsManager, data.adminSecretKeys, Database.MONGO_DB);
-      this.workerEventScheduler = new WorkerEventScheduler(
-        { region: data.region, ...data.sns.clientConfig },
-        [SYSTEM_QUEUE_NAME.SNS],
-        undefined);
+      this.snsManager = new SNSManager({ endpoint: config.endpoint, db: config.db, ...(config.sns || {}) }, config.adminSecretKeys);
     }
   }
 
@@ -48,11 +49,13 @@ class SQNS {
     this.sqsManager.comparatorFunction(queueARN, value);
   }
 
-  generateExpressRoutes(host: string, basePath: string, app: Express): void {
-    app.use(basePath, sqnsRoutes());
-    app.use(basePath, sqsRoutes(this.sqsManager));
+  registerExpressRoutes(app: Express): void {
+    app.use(this._url.basePath, sqnsRoutes());
+    if (this.sqsManager) {
+      app.use(this._url.basePath, sqsRoutes(this.sqsManager));
+    }
     if (this.snsManager) {
-      app.use(basePath, snsRoutes(`${host}${basePath}`, this.snsManager));
+      app.use(this._url.basePath, snsRoutes(`${this._url.host}${this._url.basePath}`, this.snsManager));
     }
   }
 
@@ -69,8 +72,6 @@ class SQNS {
   }
 
   cancel(): void {
-    this.workerEventScheduler?.cancel();
+    this.snsManager?.cancel();
   }
 }
-
-export { SQNS };

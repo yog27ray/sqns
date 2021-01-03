@@ -1,13 +1,12 @@
 import { expect } from 'chai';
-import { sqsConfig } from '../setup';
-import { Env } from '../test-env';
-import { SQNS } from './index';
+import { setupConfig } from '../setup';
+import { SQNS } from './s-q-n-s';
 
 describe('SQNS', () => {
   context('error handling', () => {
     it('should give error when admin accessKey and secretKey is not provided', async () => {
       try {
-        const sqns = new SQNS({ adminSecretKeys: [], region: Env.region, sqs: sqsConfig });
+        const sqns = new SQNS({ ...setupConfig.sqnsConfig, adminSecretKeys: [] });
         await Promise.reject({ code: 99, message: 'should not reach here.', sqns });
       } catch (error) {
         const { code, message } = error;

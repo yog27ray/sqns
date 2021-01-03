@@ -1,6 +1,14 @@
 // <reference path="./index.d.ts" />
 
-import { ClientApiVersions } from 'aws-sdk/clients/sqs';
-import { ServiceConfigurationOptions } from 'aws-sdk/lib/service';
+export type ClientConfiguration = {
+  endpoint: string;
+  region?: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+};
 
-export type ClientConfiguration = ServiceConfigurationOptions & ClientApiVersions;
+export interface SQNSClientConfig {
+  endpoint: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+}
