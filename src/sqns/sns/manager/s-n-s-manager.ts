@@ -66,7 +66,7 @@ class SNSManager extends BaseManager {
     return this.sNSStorageEngine.findTopics(skip);
   }
 
-  findSubscriptions(where: { [key: string]: unknown } = {}, skip?: number, limit?: number): Promise<Array<Subscription>> {
+  findSubscriptions(where: { [key: string]: unknown }, skip?: number, limit?: number): Promise<Array<Subscription>> {
     return this.sNSStorageEngine.findSubscriptions(where, skip, limit);
   }
 
@@ -91,7 +91,7 @@ class SNSManager extends BaseManager {
   }
 
   async publish(topicArn: ARN, targetArn: ARN, Message: string, PhoneNumber: string, Subject: string,
-    messageAttributes: MessageAttributes = { entry: [] }, messageStructure: string): Promise<Publish> {
+    messageAttributes: MessageAttributes, messageStructure: string): Promise<Publish> {
     const published = await this.sNSStorageEngine.publish(topicArn,
       targetArn,
       Message,
