@@ -8,5 +8,5 @@ export declare interface RequestItem {
   MessageAttributes?: MessageAttributeMap;
   MessageSystemAttributes?: MessageAttributeMap;
   MessageDeduplicationId?: string;
-  // MessageGroupId?: string;
+  MessageGroupId?: string;
 }

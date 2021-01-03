@@ -20,12 +20,13 @@ export class ManagerEventScheduler {
   constructor(options: SQNSClientConfig, queueBaseParams: { [key: string]: BASE_CONFIG },
     listener: ManagerQueueConfigListener, cronInterval?: string) {
     this.queueNames = Object.keys(queueBaseParams);
-    this.queueConfigs = Object.fromEntries(this.queueNames.map((queueName: string) => {
+    this.queueConfigs = {};
+    this.queueNames.forEach((queueName: string) => {
       const mangerConfig = new ManagerQueueConfig(queueName);
       mangerConfig.listener = listener;
       mangerConfig.queryBaseParams = queueBaseParams[queueName];
-      return [queueName, mangerConfig];
-    }));
+      this.queueConfigs[queueName] = mangerConfig;
+    });
     this.client = new SQNSClient(options);
     this.initialize(cronInterval);
   }
