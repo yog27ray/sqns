@@ -853,7 +853,7 @@ describe('SQNSClient', () => {
           Entries: new Array(100).fill(0)
             .map((item: number, index: number) => ({ Id: `${index}`, MessageBody: `Message ${index}`, DelaySeconds: 2 })),
         });
-        await delay(5 * 1000);
+        await delay(6 * 1000);
       });
 
       it('should add items from storage to queue', async () => {
