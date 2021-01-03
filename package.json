@@ -7,7 +7,7 @@
   "scripts": {
     "tunnel": "ssh -R 80:localhost:9000 serveo.net",
     "coverage": "npm run coverage:mongodb",
-    "coverage:mongodb": "TEST_DB=mongoDB nyc mocha src/setup.ts '**/*.spec.ts' && nyc report --reporter=text-lcov > coverage1.lcov",
+    "coverage:mongodb": "DEBUG=no TEST_DB=mongoDB nyc mocha src/setup.ts '**/*.spec.ts' && nyc report --reporter=text-lcov > coverage1.lcov",
     "test": "npm run test:inmemory && npm run test:mongodb",
     "test:inmemory": "mocha src/setup.ts '**/*.spec.ts' --exit",
     "test:mongodb": "TEST_DB=mongoDB mocha src/setup.ts '**/*.spec.ts'"
