@@ -6,13 +6,14 @@ and subscriptions in distributed system. This service can be divided into follow
 1. Queue Management
 2. Notification Management
 
-SQNS is combination of two part SQS (Simple Queue Server) and SNS (Simple Notification Server).
-I took inspiration from AWS SQS (Simple Queue Service) and AWS SNS (Simple Notification Service), for creating this library.
+This project has been inspired from AWS SQS and AWS SNS.
+This is an extension of the existing AWS SQS and AWS SNS with some more functionality add that we felt were lagging.
 
-### Prerequisites
+# Prerequisites
 - Express app
 - MongoDB Server
-### Installation
+
+# Installation
 - npm install sqns --save
 
 ## Queue Management
@@ -22,52 +23,55 @@ Manager collects all the events sent via different channels.
 Worker requests events from Manager to process them.
 There can be only one Manager, but many Workers.
 
-#### Queue Manager
+### Queue Manager
 1. Initialize queue manager
-```js
-import { SQNS } from 'sqns';
-
-const dataBaseConnectionConfig = {};
-const sqns = new SQNS({
-    endpoint: 'http://your.server.url/api',
-    adminSecretKeys: [{ accessKey: 'yourKey', secretAccessKey: 'yourSecretKey' }],
-    db: { uri: 'DatabaseUri', config: dataBaseConnectionConfig },
-});
-```
+    ```js
+    import { SQNS } from 'sqns';
+    
+    const dataBaseConnectionConfig = {};
+    const sqns = new SQNS({
+        endpoint: 'http://your.server.url/api',
+        adminSecretKeys: [{ accessKey: 'yourKey', secretAccessKey: 'yourSecretKey' }],
+        db: { uri: 'DatabaseUri', config: dataBaseConnectionConfig },
+        sns: { // optional
+          disabled: true // disable SNS service initialization.
+        },
+    });
+    ```
 2. Register routes with Express Server.
-```js
-sqns.registerExpressRoutes(app);
-```
+    ```js
+    sqns.registerExpressRoutes(app);
+    ```
 
-#### Queue Worker
+### Queue Worker
 
 1. Initialize Worker
-```js
-import { SQNSClient } from 'sqns';
-
-const sqnsClient = new new SQNSClient({
- endpoint: 'http://your.server.url/api',
- accessKeyId: 'yourKey',
- secretAccessKey: 'yourSecretKey',
-});
-```
+    ```js
+    import { SQNSClient } from 'sqns';
+    
+    const sqnsClient = new new SQNSClient({
+     endpoint: 'http://your.server.url/api',
+     accessKeyId: 'yourKey',
+     secretAccessKey: 'yourSecretKey',
+    });
+    ```
 2. Create Queue
-```js
-sqnsClient.createQueue({ QueueName: 'queueName' }).then(queue => {});
-```
+    ```js
+    sqnsClient.createQueue({ QueueName: 'queueName' }).then(queue => {});
+    ```
 3. Send a Message to the queue
-```js
-sqnsClient.sendMessage({ QueueUrl: queue.QueueUrl, MessageBody: '123' });
-```
+    ```js
+    sqnsClient.sendMessage({ QueueUrl: queue.QueueUrl, MessageBody: '123' });
+    ```
 4. Receive a Message form queue
-```js
-client.receiveMessage({  QueueUrl: queue.QueueUrl, MaxNumberOfMessages: 1 })
-.then(response => {
-  const message = response.Messages[0]
-});
-```
+    ```js
+    client.receiveMessage({  QueueUrl: queue.QueueUrl, MaxNumberOfMessages: 1 })
+    .then(response => {
+      const message = response.Messages[0]
+    });
+    ```
 
-#### Manager Scheduler
+### Manager Scheduler
 
 Either you can use the SQNSClient support to add the event in the queue or use ManagerEventScheduler to
  fetch events and add them into the queue periodically. ManagerEventScheduler constructor requires below parameters.
@@ -134,8 +138,54 @@ new WorkerEventScheduler(
       '0 * * * *');
 ```
 
-## SNS (Simple Notification Server)
-This feature is yet to be added.
+## Notification Management
+Notification Management deals with passing one published event to many subscribed links.
+This uses the Queue Management module for passing published events to its subscribers. 
+
+### Notification Manager
+
+1. Initialize queue manager
+    ```js
+    import { SQNS } from 'sqns';
+    
+    const dataBaseConnectionConfig = {};
+    const sqns = new SQNS({
+        endpoint: 'http://your.server.url/api',
+        adminSecretKeys: [{ accessKey: 'yourKey', secretAccessKey: 'yourSecretKey' }],
+        db: { uri: 'DatabaseUri', config: dataBaseConnectionConfig },
+    });
+    ```
+2. Register routes with Express Server
+    ```js
+    sqns.registerExpressRoutes(app);
+    ```
+3. Notification Scheduler
+    ```js
+    import { WorkerEventScheduler } from 'sqns';
+    
+    ...
+    
+    new WorkerEventScheduler(
+        {
+            endpoint: 'http://xyz.abz/api', // Master Server address
+            accessKeyId: 'accessKey',
+            secretAccessKey: 'secretKey',
+        },
+        ["sqns"], // SNS queue name
+          (queueName, item) => {
+            // process eventItem
+          },
+          '0 * * * *');
+    ```
+4. Create Topic
+    ```js
+    client.createTopic({ Name: 'Topic1' })
+    .then(topic => {})
+    ```
+5. Publish Message
+    ```js
+    client.publish({ Message: 'This is message' })
+    ```
 
 ## SQNSClient
 
@@ -172,7 +222,6 @@ client.sendMessage({
   MessageBody: 'This is message body',
 });
 ```
-
 ### sendMessageBatch
 ```js
 client.sendMessageBatch({
@@ -198,7 +247,6 @@ client.sendMessageBatch({
   ],
 });
 ```
-
 ### receiveMessage
 ```js
 client.receiveMessage({
@@ -211,7 +259,6 @@ client.receiveMessage({
   const MessageId = response.Messages[0].MessageId;
 });
 ```
-
 ### listQueues
 ```js
 client.listQueues({
@@ -219,27 +266,22 @@ client.listQueues({
   NextToken: 'nextQuestToken', // optional: token from previous listQueue request.
 })
 ```
-
 ### deleteQueue
 ```js
 client.deleteQueue({ QueueUrl: queue.QueueUrl });
 ```
-
 ### getQueueUrl
 ```js
 client.getQueueUrl({ QueueName: 'queueName' });
 ```
-
 ### markEventSuccess
 ```js
 client.markEventSuccess(MessageId, queue.QueueUrl, 'success message');
 ```
-
 ### markEventFailure
 ```js
 client.markEventFailure(MessageId, queue.QueueUrl, 'success message');
 ```
-
 ### createTopic
 ```js
 client.createTopic({
@@ -248,19 +290,16 @@ client.createTopic({
   Tags: [{ Key: 'tag1', Value: 'value1' }], // optional
 }).then(topic => {});
 ```
-
 ### listTopics
 ```js
 client.listTopics({
   NextToken: 'nextToken' // optinal
 })
 ```
-
 ### getTopicAttributes
 ```js
 client.getTopicAttributes({ TopicArn: topic.TopicArn })
 ```
-
 ### setTopicAttributes
 ```js
 client.setTopicAttributes({
@@ -269,12 +308,10 @@ client.setTopicAttributes({
   AttributeValue: 'Updated Topic One',
 })
 ```
-
 ### deleteTopic
 ```js
 client.deleteTopic({ TopicArn: topic.TopicArn });
 ```
-
 ### publish
 ```js
 client.publish({
@@ -284,7 +321,6 @@ client.publish({
   MessageAttributes: { key1: { DataType: 'String', StringValue: 'value' } }, // optional
 })
 ```
-
 ### subscribe
 ```js
 client.subscribe({
@@ -297,14 +333,12 @@ client.subscribe({
   const SubscriptionArn = result.SubscriptionArn;
 })
 ```
-
 ### listSubscriptions
 ```js
 client.listSubscriptions({
   NextToken: 'NextToken' // optional
 })
 ```
-
 ### listSubscriptionsByTopic
 ```js
 client.listSubscriptionsByTopic({
@@ -312,7 +346,6 @@ client.listSubscriptionsByTopic({
  NextToken: 'NextToken' // optional
 });
 ```
-
 ### confirmSubscription
 ```js
 client.confirmSubscription({
@@ -320,22 +353,18 @@ client.confirmSubscription({
  Token: 'verificationToken',
 });
 ```
-
 ### unsubscribe
 ```js
 client.unsubscribe({ SubscriptionArn: 'subscriptionArn' });
 ```
-
 ### getPublish
 ```js
 client.getPublish({ MessageId: 'MessageId' })
 ```
-
 ### getSubscription
 ```js
 client.getSubscription({ SubscriptionArn: 'subscriptionArn' })
 ```
-
 ### markPublished
 ```js
 client.markPublished({ MessageId: 'MessageId' })

@@ -1,8 +1,8 @@
 import { Express } from 'express';
-import { WorkerEventScheduler } from '../../index';
 import { ARN } from '../../typings';
 import { SQNSConfig } from '../../typings/config';
 import { SQNSError } from './common/auth/s-q-n-s-error';
+import { BaseClient } from './common/client/base-client';
 import { RESERVED_QUEUE_NAME } from './common/helper/common';
 import { logger } from './common/logger/logger';
 import { EventItem } from './common/model/event-item';
@@ -34,7 +34,7 @@ export class SQNS {
       basePath: `/${config.endpoint.split('/').splice(3, 100).join('/')}`,
       endpoint: config.endpoint,
     };
-    this.region = 'sqns';
+    this.region = BaseClient.REGION;
     if (!config.sqs?.disable) {
       log.info('Enable SQS');
       this.sqsManager = new SQSManager({ endpoint: config.endpoint, db: config.db, ...(config.sqs || {}) }, config.adminSecretKeys);
