@@ -78,4 +78,8 @@ export class BaseStorageEngine {
     }
     return user;
   }
+
+  getDBTableName(tableName: string): string {
+    return this._storageAdapter.getDBTableName(tableName);
+  }
 }

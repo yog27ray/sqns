@@ -20,7 +20,7 @@ import { MongoDBConnection } from './mongo-d-b-connection';
 const log = logger.instance('MongoDBAdapter');
 
 class MongoDBAdapter implements StorageAdapter {
-  private static readonly QUEUE_TABLE_PREFIX = '_Queue_';
+  private static readonly QUEUE_TABLE_PREFIX = '';
 
   private static readonly Table: {
     Event: string;
@@ -51,8 +51,12 @@ class MongoDBAdapter implements StorageAdapter {
     return document;
   }
 
-  private static getTableName(queueName: string): string {
-    return `${MongoDBAdapter.QUEUE_TABLE_PREFIX}${queueName}`;
+  private static getTableName(tableName: string): string {
+    return `${MongoDBAdapter.QUEUE_TABLE_PREFIX}${tableName}`;
+  }
+
+  getDBTableName(tableName: string): string {
+    return MongoDBAdapter.getTableName(tableName);
   }
 
   constructor(config: MongoDBConfig) {

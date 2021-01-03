@@ -17,6 +17,7 @@ import { generateAuthenticationHash } from './common/auth/authentication';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
 import { SYSTEM_QUEUE_NAME } from './common/helper/common';
+import { BaseStorageEngine } from './common/model/base-storage-engine';
 import { EventItem } from './common/model/event-item';
 import { Queue } from './common/model/queue';
 import { User } from './common/model/user';
@@ -479,10 +480,12 @@ describe('SQNSClient', () => {
 
     context('markEventSuccess', () => {
       let client: SQNSClient;
+      let storageAdapter: BaseStorageEngine;
       let MessageId: string;
       let queue: SQS.Types.CreateQueueResult;
       before(async () => {
         await dropDatabase();
+        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
@@ -499,7 +502,7 @@ describe('SQNSClient', () => {
 
       it('should mark event success', async () => {
         await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
-        const event = await setupConfig.mongoConnection.findOne('_Queue_Event');
+        const event = await setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Event'));
         expect(event.state).to.equal('SUCCESS');
         expect(event.successResponse).to.equal('test success message');
       });
@@ -507,10 +510,12 @@ describe('SQNSClient', () => {
 
     context('markEventFailure', () => {
       let client: SQNSClient;
+      let storageAdapter: BaseStorageEngine;
       let MessageId: string;
       let queue: SQS.Types.CreateQueueResult;
       before(async () => {
         await dropDatabase();
+        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
@@ -527,7 +532,7 @@ describe('SQNSClient', () => {
 
       it('should mark event failure', async () => {
         await client.markEventFailure(MessageId, queue.QueueUrl, 'test failure message');
-        const event = await setupConfig.mongoConnection.findOne('_Queue_Event');
+        const event = await setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Event'));
         expect(event.state).to.equal('FAILURE');
         expect(event.failureResponse).to.equal('test failure message');
       });
@@ -1414,11 +1419,13 @@ describe('SQNSClient', () => {
     });
 
     context('markPublished', () => {
+      let storageAdapter: BaseStorageEngine;
       let client: SQNSClient;
       let MessageId: string;
 
       beforeEach(async () => {
         await dropDatabase();
+        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
@@ -1438,7 +1445,7 @@ describe('SQNSClient', () => {
 
       it('should mark published when all subscriptions are processed.', async () => {
         await client.markPublished({ MessageId });
-        const result = await setupConfig.mongoConnection.findOne('_Queue_Publish');
+        const result = await setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Publish'));
         expect(result.Status).to.equal('Published');
       });
     });

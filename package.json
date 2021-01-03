@@ -77,5 +77,8 @@
     ],
     "reporter": "dot",
     "exit": true
+  },
+  "nyc": {
+    "exclude": "**/*.spec.ts"
   }
 }

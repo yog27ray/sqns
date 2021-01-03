@@ -7,17 +7,20 @@ import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
 import { SQNSClient } from '../../../s-q-n-s-client';
 import { WorkerEventScheduler } from '../../../scheduler/scheduler-worker/worker-event-scheduler';
+import { BaseStorageEngine } from '../../model/base-storage-engine';
 import { RequestClient } from '../../request-client/request-client';
 import { MongoDBAdapter } from './mongo-d-b-adapter';
 
 describe('mongoDB test cases', () => {
   context('SlaveEventSchedulerSpec', () => {
+    let storageAdapter: BaseStorageEngine;
     let slaveScheduler: WorkerEventScheduler;
     let queue: SQS.Types.CreateQueueResult;
     let client: SQNSClient;
 
     beforeEach(async () => {
       await dropDatabase();
+      storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
       client = new SQNSClient({
         endpoint: `${Env.URL}/api`,
         accessKeyId: Env.accessKeyId,
@@ -65,7 +68,7 @@ describe('mongoDB test cases', () => {
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
         PRIORITY_999999: 0,
       });
-      const items = await setupConfig.mongoConnection.find('_Queue_Event', {}, { originalEventTime: 1 });
+      const items = await setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
       expect(moment(items[0].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:00');
       expect(moment(items[1].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:01');
       expect(moment(items[2].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:02');
@@ -197,7 +200,7 @@ describe('mongoDB test cases', () => {
           '*/2 * * * * *');
       });
       await delay();
-      const items = await setupConfig.mongoConnection.find('_Queue_Event', {}, { originalEventTime: 1 });
+      const items = await setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
       items.forEach((item: any) => {
         expect(moment(item.eventTime).diff(moment(), 'seconds'), 'delay in event min time').to.be.at.least(598);
         expect(moment(item.eventTime).diff(moment(), 'seconds'), 'delay in event max time').to.be.at.most(600);
@@ -211,12 +214,14 @@ describe('mongoDB test cases', () => {
   });
 
   context('retry of failed events', () => {
+    let storageAdapter: BaseStorageEngine;
     let slaveScheduler: WorkerEventScheduler;
     let queue: SQS.Types.CreateQueueResult;
     let client: SQNSClient;
 
     beforeEach(async () => {
       await dropDatabase();
+      storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
       client = new SQNSClient({
         endpoint: `${Env.URL}/api`,
         accessKeyId: Env.accessKeyId,
@@ -252,8 +257,7 @@ describe('mongoDB test cases', () => {
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
         PRIORITY_999999: 0,
       });
-      const queueItem = await setupConfig.mongoConnection.findOne('_Queue_Queues', { name: 'queue1' });
-      const items = await setupConfig.mongoConnection.find('_Queue_Event', {}, { eventTime: -1 });
+      const items = await setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { eventTime: -1 });
       items.forEach((item_: any) => {
         const item = item_;
         delete item.createdAt;

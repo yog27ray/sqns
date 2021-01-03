@@ -117,7 +117,6 @@ export class SQNSClient extends BaseClient {
 
   async markEventSuccess(MessageId: string, QueueUrl: string, successMessage: string = ''): Promise<void> {
     const request = {
-      method: 'POST',
       uri: `${QueueUrl}/event/${MessageId}/success`,
       body: { successMessage },
     };
@@ -126,7 +125,6 @@ export class SQNSClient extends BaseClient {
 
   async markEventFailure(MessageId: string, QueueUrl: string, failureMessage: string = ''): Promise<void> {
     const request = {
-      method: 'POST',
       uri: `${QueueUrl}/event/${MessageId}/failure`,
       body: { failureMessage },
     };
@@ -269,7 +267,6 @@ export class SQNSClient extends BaseClient {
 
   async getPublish(params: GetPublishInput): Promise<GetPublishResponse> {
     const request = {
-      method: 'POST',
       uri: this._sns.endpoint.href,
       body: { Action: 'GetPublish', ...params },
     };
@@ -279,7 +276,6 @@ export class SQNSClient extends BaseClient {
 
   async getSubscription(params: GetSubscriptionInput): Promise<GetSubscriptionResponse> {
     const request = {
-      method: 'POST',
       uri: this._sns.endpoint.href,
       body: { Action: 'GetSubscription', ...params },
     };
@@ -289,7 +285,6 @@ export class SQNSClient extends BaseClient {
 
   async markPublished(params: MarkPublishedInput): Promise<void> {
     const request = {
-      method: 'POST',
       uri: this._sns.endpoint.href,
       body: { Action: 'MarkPublished', ...params },
     };

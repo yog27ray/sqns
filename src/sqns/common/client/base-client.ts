@@ -25,7 +25,7 @@ export class BaseClient extends RequestClient {
     this._sns = new SNS({ ...this._config, endpoint: `${config.endpoint}/sns` });
   }
 
-  protected request(request: { uri: string, method: string, body: KeyValue, headers?: KeyValue<string> }): Promise<any> {
+  protected request(request: { uri: string, body: KeyValue, headers?: KeyValue<string> }): Promise<any> {
     const headers = {
       'x-amz-date': moment().utc().format('YYYYMMDDTHHmmss'),
       host: request.uri.split('/')[2],
@@ -38,20 +38,11 @@ export class BaseClient extends RequestClient {
       date: headers['x-amz-date'],
       originalUrl: request.uri.split(headers.host)[1],
       host: headers.host,
-      method: request.method,
+      method: 'POST',
       body: request.body,
     });
     request.headers = { ...(request.headers || {}), ...headers, authorization };
-    let requestPromise: Promise<unknown>;
-    switch (request.method) {
-      case 'POST': {
-        requestPromise = this.post(request.uri, { body: JSON.stringify(request.body), headers: request.headers, jsonBody: true });
-        break;
-      }
-      default:
-        requestPromise = this.get(request.uri);
-    }
-    return requestPromise
+    return this.post(request.uri, { body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
       .then((serverResponse: string) => new Promise((resolve: (result: KeyValue) => void, reject: (error: unknown) => void) => {
         xml2js.parseString(serverResponse, (parserError: Error, result: KeyValue) => {
           if (parserError) {

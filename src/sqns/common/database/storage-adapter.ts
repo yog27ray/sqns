@@ -13,6 +13,7 @@ import { Topic } from '../model/topic';
 import { User } from '../model/user';
 
 interface StorageAdapter {
+  getDBTableName(tableName: string): string;
   createUser(organizationId: string): Promise<User>;
   accessKey(accessKey: string, secretAccessKey: string, userId: string): Promise<AccessKey>;
   updateAccessKey(accessKey: AccessKey): Promise<AccessKey>;
