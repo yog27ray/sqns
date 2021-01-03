@@ -120,7 +120,6 @@ export class SQNSClient extends BaseClient {
       method: 'POST',
       uri: `${QueueUrl}/event/${MessageId}/success`,
       body: { successMessage },
-      json: true,
     };
     await this.request(request);
   }
@@ -130,7 +129,6 @@ export class SQNSClient extends BaseClient {
       method: 'POST',
       uri: `${QueueUrl}/event/${MessageId}/failure`,
       body: { failureMessage },
-      json: true,
     };
     await this.request(request);
   }
@@ -274,7 +272,6 @@ export class SQNSClient extends BaseClient {
       method: 'POST',
       uri: this._sns.endpoint.href,
       body: { Action: 'GetPublish', ...params },
-      json: true,
     };
     const response = await this.request(request);
     return response?.GetPublishResponse?.GetPublish as GetPublishResponse;
@@ -285,7 +282,6 @@ export class SQNSClient extends BaseClient {
       method: 'POST',
       uri: this._sns.endpoint.href,
       body: { Action: 'GetSubscription', ...params },
-      json: true,
     };
     const response = await this.request(request);
     return response?.GetSubscriptionResponse?.GetSubscriptionResult as GetSubscriptionResponse;
@@ -296,7 +292,6 @@ export class SQNSClient extends BaseClient {
       method: 'POST',
       uri: this._sns.endpoint.href,
       body: { Action: 'MarkPublished', ...params },
-      json: true,
     };
     await this.request(request);
   }

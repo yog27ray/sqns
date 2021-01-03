@@ -127,7 +127,7 @@ class WorkerEventScheduler {
             'x-sqns-sns-topic-arn': subscription.TopicARN,
             'x-sqns-sns-subscription-arn': subscriptionArn,
           },
-          json: true,
+          jsonBody: true,
         });
         return response as string;
       }

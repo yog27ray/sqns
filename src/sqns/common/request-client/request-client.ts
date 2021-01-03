@@ -1,17 +1,13 @@
 import fetch, { BodyInit, HeaderInit, Response } from 'node-fetch';
-import rp from 'request-promise';
 import { SQNSError } from '../auth/s-q-n-s-error';
 
 class RequestClient {
-  requestPromise(request: unknown): Promise<unknown> {
-    return rp(request) as Promise<unknown>;
-  }
-
   async post(
     url: string,
-    { body, headers: headers_ = {}, json }: { body?: BodyInit; headers?: HeaderInit; json?: boolean } = {}): Promise<unknown> {
+    { body, headers: headers_ = {}, json, jsonBody }: { body?: BodyInit; headers?: HeaderInit; json?: boolean; jsonBody?: boolean } = {})
+    : Promise<unknown> {
     const headers = headers_;
-    if (json) {
+    if (jsonBody) {
       headers['Content-Type'] = 'application/json';
     }
     const response = await fetch(url, { method: 'POST', body, headers });

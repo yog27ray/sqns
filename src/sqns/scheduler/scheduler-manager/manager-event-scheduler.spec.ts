@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import rp from 'request-promise';
 import { KeyValue, RequestItem } from '../../../../typings';
 import { dropDatabase } from '../../../setup';
 import { Env } from '../../../test-env';
+import { RequestClient } from '../../common/request-client/request-client';
 import { ManagerEventScheduler } from './manager-event-scheduler';
 
 describe('ManagerEventSchedulerSpec', () => {
@@ -32,7 +32,7 @@ describe('ManagerEventSchedulerSpec', () => {
             return [{ page: page + 1 }, results];
           }, '*/10 * * * * *');
       });
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 2,
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
@@ -61,7 +61,7 @@ describe('ManagerEventSchedulerSpec', () => {
             return [{ page: page + 1 }, result];
           }, '*/10 * * * * *');
       });
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 2,
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
@@ -99,7 +99,7 @@ describe('ManagerEventSchedulerSpec', () => {
             return [{ page: page + 1 }, [{ MessageBody: 'type1' }]];
           }, '*/2 * * * * *');
       });
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({ PRIORITY_TOTAL: 0 });
     });
 

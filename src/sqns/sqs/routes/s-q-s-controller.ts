@@ -28,7 +28,7 @@ class SQSController {
       const failureResponse = req.serverBody.failureMessage || 'Event marked failed without response.';
       const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
       await this.eventManager.updateEventStateFailure(queue, eventId, failureResponse);
-      res.status(200).json(AwsXmlFormat.jsonToXML('Response', { message: 'updated' }));
+      res.status(200).send(AwsXmlFormat.jsonToXML('Response', { message: 'updated' }));
     });
   }
 
@@ -38,7 +38,7 @@ class SQSController {
       const successResponse = req.serverBody.successMessage || 'Event marked success without response.';
       const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
       await this.eventManager.updateEventStateSuccess(queue, eventId, successResponse);
-      res.status(200).json(AwsXmlFormat.jsonToXML('Response', { message: 'updated' }));
+      res.status(200).send(AwsXmlFormat.jsonToXML('Response', { message: 'updated' }));
     });
   }
 

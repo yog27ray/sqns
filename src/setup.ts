@@ -2,7 +2,7 @@ import bodyParser from 'body-parser';
 import express, { Express } from 'express';
 import http from 'http';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import morgan from 'morgan';
+// import morgan from 'morgan';
 import { SQNS, SQNSClient } from '../index';
 import { DatabaseConfig, SQNSConfig } from '../typings/config';
 import { Database } from './sqns/common/database';
@@ -15,7 +15,7 @@ import { deleteAllQueues, deleteTopics, Env } from './test-env';
 const log = logger.instance('TestServer');
 
 const app: Express = express();
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.json());
@@ -59,8 +59,7 @@ function waitForServerToBoot(): Promise<unknown> {
 
 before(async () => {
   const mongoDB = new MongoMemoryServer({ instance: { dbName: 'sqns' } });
-  // const uri = await mongoDB.getUri();
-  const uri = 'mongodb://127.0.0.1:27017/sqns?';
+  const uri = await mongoDB.getUri();
   log.info('TestDB URI:', uri);
   databaseConfig = { database: Database.MONGO_DB, uri, config: { useUnifiedTopology: true } };
   setupConfig.mongoConnection = new MongoDBConnection(databaseConfig.uri, databaseConfig.config);

@@ -1517,7 +1517,7 @@ describe('SQNSClient', () => {
           const { code, message } = error;
           expect({ code, message }).to.deep.equal({
             code: 'Error',
-            message: 'Non-whitespace before first tag.\nLine: 0\nColumn: 1\nChar: [',
+            message: 'Non-whitespace before first tag.\nLine: 0\nColumn: 1\nChar: {',
           });
         }
       });

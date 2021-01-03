@@ -25,7 +25,7 @@ export class BaseClient extends RequestClient {
     this._sns = new SNS({ ...this._config, endpoint: `${config.endpoint}/sns` });
   }
 
-  protected request(request: { uri: string, method: string, body: KeyValue, headers?: KeyValue }): Promise<any> {
+  protected request(request: { uri: string, method: string, body: KeyValue, headers?: KeyValue<string> }): Promise<any> {
     const headers = {
       'x-amz-date': moment().utc().format('YYYYMMDDTHHmmss'),
       host: request.uri.split('/')[2],
@@ -42,7 +42,16 @@ export class BaseClient extends RequestClient {
       body: request.body,
     });
     request.headers = { ...(request.headers || {}), ...headers, authorization };
-    return this.requestPromise(request)
+    let requestPromise: Promise<unknown>;
+    switch (request.method) {
+      case 'POST': {
+        requestPromise = this.post(request.uri, { body: JSON.stringify(request.body), headers: request.headers, jsonBody: true });
+        break;
+      }
+      default:
+        requestPromise = this.get(request.uri);
+    }
+    return requestPromise
       .then((serverResponse: string) => new Promise((resolve: (result: KeyValue) => void, reject: (error: unknown) => void) => {
         xml2js.parseString(serverResponse, (parserError: Error, result: KeyValue) => {
           if (parserError) {
@@ -52,13 +61,13 @@ export class BaseClient extends RequestClient {
             reject(error);
             return;
           }
-          resolve(this.transformResponse(result) as KeyValue);
+          resolve(this.transformServerResponse(result) as KeyValue);
         });
       }))
       .catch((error: any) => new Promise((resolve: (value: unknown) => void, reject: (error: unknown) => void) => {
-        xml2js.parseString(error.error, (parserError: any, result: any) => {
+        xml2js.parseString(error.error || error.message, (parserError: any, result: any) => {
           if (parserError) {
-            reject(new SQNSError({ code: error.statusCode, message: error.error }));
+            reject(new SQNSError({ code: error.code, message: error.message }));
             return;
           }
           const { Code: [code], Message: [message] } = result.ErrorResponse.Error[0];
@@ -67,7 +76,7 @@ export class BaseClient extends RequestClient {
       }));
   }
 
-  private transformResponse(input: unknown): unknown {
+  private transformServerResponse(input: unknown): unknown {
     if (typeof input !== 'object') {
       return input;
     }
@@ -77,12 +86,12 @@ export class BaseClient extends RequestClient {
         const inputValue = input[key] as Array<unknown>;
         // tslint:disable-next-line:prefer-conditional-expression
         if (!this._arrayFields.includes(key) && inputValue.length === 1) {
-          output[key] = inputValue[0] === '' ? [] : this.transformResponse(inputValue[0]);
+          output[key] = inputValue[0] === '' ? [] : this.transformServerResponse(inputValue[0]);
         } else {
-          output[key] = inputValue.map((each: unknown) => this.transformResponse(each));
+          output[key] = inputValue.map((each: unknown) => this.transformServerResponse(each));
         }
       } else {
-        output[key] = this.transformResponse(input[key]);
+        output[key] = this.transformServerResponse(input[key]);
       }
     });
     return output;

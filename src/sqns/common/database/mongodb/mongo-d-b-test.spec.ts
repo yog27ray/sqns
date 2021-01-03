@@ -1,13 +1,13 @@
 import SQS from 'aws-sdk/clients/sqs';
 import { expect } from 'chai';
 import moment from 'moment';
-import rp from 'request-promise';
 import { MessageAttributeMap } from '../../../../../typings';
 import { ChannelDeliveryPolicy } from '../../../../../typings/delivery-policy';
 import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
 import { SQNSClient } from '../../../s-q-n-s-client';
 import { WorkerEventScheduler } from '../../../scheduler/scheduler-worker/worker-event-scheduler';
+import { RequestClient } from '../../request-client/request-client';
 import { MongoDBAdapter } from './mongo-d-b-adapter';
 
 describe('mongoDB test cases', () => {
@@ -59,7 +59,7 @@ describe('mongoDB test cases', () => {
           '*/2 * * * * *');
       });
       await delay();
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 0,
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
@@ -246,7 +246,7 @@ describe('mongoDB test cases', () => {
           '*/2 * * * * *');
       });
       await delay();
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 0,
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
@@ -333,7 +333,7 @@ describe('mongoDB test cases', () => {
       } catch (error) {
         const { code, message } = error;
         expect({ code, message }).to.deep.equal({
-          code: 404,
+          code: '404',
           message: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Error</title>\n</head>\n'
               + '<body>\n<pre>Cannot POST /api/wrong/sqs/queue/queue1/event/eventId/success</pre>\n</body>\n</html>\n',
         });

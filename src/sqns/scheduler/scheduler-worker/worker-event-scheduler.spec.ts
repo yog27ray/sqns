@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import nock from 'nock';
-import rp from 'request-promise';
 import { ARN, CreateTopicResponse, KeyValue } from '../../../../typings';
 import { ResponseItem } from '../../../../typings/response-item';
 import { delay, dropDatabase } from '../../../setup';
@@ -48,7 +47,7 @@ describe('WorkerEventSchedulerSpec', () => {
             return 'response';
           }, '*/2 * * * * *');
       });
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 0,
         PRIORITY_999999: 0,
@@ -106,7 +105,7 @@ describe('WorkerEventSchedulerSpec', () => {
           '*/2 * * * * *');
       });
       await delay();
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 0,
         PRIORITY_999999: 0,
@@ -152,7 +151,7 @@ describe('WorkerEventSchedulerSpec', () => {
             return 'response';
           }, '*/2 * * * * *');
       });
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 2,
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
@@ -180,7 +179,7 @@ describe('WorkerEventSchedulerSpec', () => {
           },
           '*/2 * * * * *');
       });
-      const stats = await rp({ uri: `${Env.URL}/api/queues/events/stats`, json: true });
+      const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
         PRIORITY_TOTAL: 0,
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
