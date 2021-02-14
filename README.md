@@ -1,170 +1,114 @@
 [![codecov](https://codecov.io/gh/yog27ray/sqns/branch/master/graph/badge.svg)](https://codecov.io/gh/yog27ray/sqns)
 
-#SQNS (Simple Queue And Notification Server)
-SQNS is combination of two part SQS (Simple Queue Server) and SNS (Simple Notification Server).
-I took inspiration from AWS SQS (Simple Queue Service) and AWS SNS (Simple Notification Service), for creating this library.
+#Introduction
+SQNS is a Simple Queue and Notification Service. It manages processing of queues and notification due to various events
+and subscriptions in distributed system. This service can be divided into following sections.
+1. Queue Management
+2. Notification Management
 
-## SNS (Simple Notification Server)
-This feature is yet to be added.
+This project has been inspired from AWS SQS and AWS SNS.
+This is an extension of the existing AWS SQS and AWS SNS with some more functionality add that we felt were lagging.
 
-## SQS (Simple Queue Server)
-
-SQS (Simple-Queue-Server) is a distributed multiple priority queue processing system.
-The entire system is divided into two part Manager and Workers.
-Manager collects all the events sent to this system via different servers.
-Worker request Manager for events to process and perform processing of these events.
-There can be only one Manager but many Workers in this systems.
-
-### Getting Started
-
-#### Prerequisites
-
+# Prerequisites
 - Express app
+- MongoDB Server
+
+# Installation
 - npm install sqns --save
 
-#### Manager Simple Queue Server
+## Queue Management
+Queue management is a distributed multiple priority queue processing system.
+This is divided into two part Manager and Workers.
+Manager collects all the events sent via different channels.
+Worker requests events from Manager to process them.
+There can be only one Manager, but many Workers.
 
-1. Register routes of Express Server.
-    ```
-    import { SimpleQueueServer } from 'sqns';
+### Queue Manager
+1. Initialize queue manager
+    ```js
+    import { SQNS } from 'sqns';
     
-    ....
+    const dataBaseConnectionConfig = {};
+    const sqns = new SQNS({
+        endpoint: 'http://your.server.url/api',
+        adminSecretKeys: [{ accessKey: 'yourKey', secretAccessKey: 'yourSecretKey' }],
+        db: { uri: 'DatabaseUri', config: dataBaseConnectionConfig },
+        sns: { // optional
+          disabled: true // disable SNS service initialization.
+        },
+    });
+    ```
+2. Register routes with Express Server.
+    ```js
+    sqns.registerExpressRoutes(app);
+    ```
+
+### Queue Worker
+
+1. Initialize Worker
+    ```js
+    import { SQNSClient } from 'sqns';
     
-    const simpleQueueServer = new SimpleQueueServer();
-    app.use('/api', simpleQueueServer.generateRoutes()); 
-    ```
-   This will enable the api support for the Collector server.
-2. Setting different comparator function for different queues (Note: Not supported for FIFO queues.).
-    ```
-    simpleQueueServer.queueComparator('queueName', (item1, item2) => (item1.priority < item2.priority));
-    ```
-3. Add events in the queue
-    ```
-    import { EventItem, SimpleQueueServerClient } from 'sqns';
-    ...
-    const items = [];
-    items.push(new EventItem());
-    const sqsClient = new new SimpleQueueServerClient({
-     region: 'serverRegion',
-     endpoint: 'http://xyz.abz/api', // Master Server address
-     accessKeyId: 'accessKey',
-     secretAccessKey: 'secretKey',
-     maxRetries: 2, // default value 3
+    const sqnsClient = new new SQNSClient({
+     endpoint: 'http://your.server.url/api',
+     accessKeyId: 'yourKey',
+     secretAccessKey: 'yourSecretKey',
     });
-    sqsClient.
-   ```
-
-#### Worker Simple Queue Server
-
-1. Create Worker Client.
     ```
-    import { SimpleQueueServerClient } from 'sqns';
-    ...
-    const sqsClient = new new SimpleQueueServerClient({
-     region: 'serverRegion',
-     endpoint: 'http://xyz.abz/api', // Master Server address
-     accessKeyId: 'accessKey',
-     secretAccessKey: 'secretKey',
-     maxRetries: 2, // default value 3
-    });
-   ```
-
 2. Create Queue
     ```js
-    const queue = await client.createQueue({ QueueName: 'queueName' });
+    sqnsClient.createQueue({ QueueName: 'queueName' }).then(queue => {});
     ```
-
-3. Get Queue URL from queue name.
+3. Send a Message to the queue
     ```js
-    const queue = await client.getQueueUrl({ QueueName: 'queueName' });
+    sqnsClient.sendMessage({ QueueUrl: queue.QueueUrl, MessageBody: '123' });
     ```
-
-4. Delete Queue
+4. Receive a Message form queue
     ```js
-    await client.deleteQueue({ QueueUrl: queue.QueueUrl });
-    ```
-
-5. List Queues
-    ```js
-    const list = await client.listQueues();
-    ```
-
-6. Send Message to Queue
-    ```js
-    const messageReceivedAcknowledgement = await client.sendMessage({
-        QueueUrl: queue.QueueUrl,
-        MessageAttributes: {
-         fieldName1: { StringValue: 'fieldValue1', DataType: 'String' },
-         fieldName2: { StringValue: 'fieldValue2', DataType: 'String' },
-        },
-        MessageBody: 'This is message.',
-      });
-    ```
-
-7. Send Message Batch to Queue
-    ```js
-    const messageReceivedAcknowledgements = await client.sendMessageBatch({
-        QueueUrl: queue.QueueUrl,
-        Entries: [
-         { Id: '1', MessageBody: 'This is message 1.' },
-         { Id: '2', MessageBody: 'This is message 2.' },
-       ],
-      });
-    ```
-
-8. Receive message from the queue.
-    ```js
-    const { Messages } = await client.receiveMessage({
-     QueueUrl: queue.QueueUrl,
-     MaxNumberOfMessages: 2, // default value 1
+    client.receiveMessage({  QueueUrl: queue.QueueUrl, MaxNumberOfMessages: 1 })
+    .then(response => {
+      const message = response.Messages[0]
     });
-   ```
-
-9. Mark processing event success
-    ```js
-    const { Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl });
-    await this.client.markEventSuccess(Messages[0].MessageId, this.queue.QueueUrl, 'Success message');
     ```
 
-10. Mark processing event failure
-    ```js
-    const { Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl });
-    await this.client.markEventFailure(Messages[0].MessageId, this.queue.QueueUrl, 'Failure message');
-    ```
+### Manager Scheduler
 
-#### Manager Scheduler
-
-Either you can use the SimpleQueueServerClient support to add the event in the queue or use ManagerEventScheduler to
- fetch events and add them into the queue periodically. ManagerEventScheduler constructor requires below parameters
-1. SimpleQueueServerClient options.
-2. Queue Name to which events will be added.
-3. Initial params to support pagination
-4. Listener function to fetch request related to Events that need to be added in the queue.
+Either you can use the SQNSClient support to add the event in the queue or use ManagerEventScheduler to
+ fetch events and add them into the queue periodically. ManagerEventScheduler constructor requires below parameters.
+1. SQNSClient options.
+2. Queue Name and Initial Params json to which events will be added.
+3. Listener function to fetch request related to Events that need to be added in the queue.
  This function returns array of two elements.
  First is pagination params for next call and second is items that need to be added in the queue.
  If items that need to be added in the queue length is zero then next time listener function will be called wih initial pagination params.
-5. Cron Interval (optional).
-```
-import { EventItem, ManagerEventScheduler } from 'sqns';
+4. Cron Interval (optional).
+```js
+import { ManagerEventScheduler } from 'sqns';
 
 ...
 
 new ManagerEventScheduler(
   {
-    region: 'serverRegion',
     endpoint: 'http://xyz.abz/api', // Master Server address
     accessKeyId: 'accessKey',
     secretAccessKey: 'secretKey',
   },
-  'queueName',
-  { page: 0 },
+  { 'queueName': { page: 0 } },
   (params) => {
-    const items = // request events to be added in the queue
-    const eventItems = items.map(each => new EventItem({ id: each.id, type: each.type, priority: each.priority }));
+    const items = []// request events to be added in the queue
+    const eventItems = items.map(each => {
+      const requestItem = {
+        MessageBody: each.message,
+        DelaySeconds: 10, // optional
+        MessageAttributes: {  attribute1: { StringValue: 'value1', DataType: 'String' } }, // optional
+        MessageSystemAttributes: {  attribute1: { StringValue: 'value1', DataType: 'String' } }, // optional
+        MessageDeduplicationId: each.duplicationId, // optional
+      };
+      return requestItem;
+    });
     return [{ "page": params.page + 1 }, eventItems];
   },
   '*/10 * * * * *');
-})
 ```
 
 #### Processing Scheduler
@@ -173,32 +117,255 @@ Either you can use SimpleQueueServerClient support to fetch the event from Manag
  to fetch events and process them periodically.
 WorkerEventScheduler constructor requires below parameters
 1. SimpleQueueServerClient options.
-2. Queue Name to which events will be added.
+2. Array of Queue Name to which events will be added.
 3. Listener function that will be called with EventItem to be process.
 4. Cron Interval (optional).
-```
-import { EventItem, WorkerEventScheduler } from 'sqns';
+```js
+import { WorkerEventScheduler } from 'sqns';
 
 ...
 
 new WorkerEventScheduler(
     {
-        region: 'serverRegion',
         endpoint: 'http://xyz.abz/api', // Master Server address
         accessKeyId: 'accessKey',
         secretAccessKey: 'secretKey',
     },
-    "queueName",
-      (eventItem) => {
+    ["queueName"],
+      (queueName, item) => {
         // process eventItem
       },
       '0 * * * *');
 ```
 
-#### Storage Engine
-Default it uses in-memory management of queue, i.e. if service is re-started all items will be lost. 
-If you want to preserve queue even after re-start you can change the storage engine to MongoDB.
- 
+## Notification Management
+Notification Management deals with passing one published event to many subscribed links.
+This uses the Queue Management module for passing published events to its subscribers. 
+
+### Notification Manager
+
+1. Initialize queue manager
+    ```js
+    import { SQNS } from 'sqns';
+    
+    const dataBaseConnectionConfig = {};
+    const sqns = new SQNS({
+        endpoint: 'http://your.server.url/api',
+        adminSecretKeys: [{ accessKey: 'yourKey', secretAccessKey: 'yourSecretKey' }],
+        db: { uri: 'DatabaseUri', config: dataBaseConnectionConfig },
+    });
+    ```
+2. Register routes with Express Server
+    ```js
+    sqns.registerExpressRoutes(app);
+    ```
+3. Notification Scheduler
+    ```js
+    import { WorkerEventScheduler } from 'sqns';
+    
+    ...
+    
+    new WorkerEventScheduler(
+        {
+            endpoint: 'http://xyz.abz/api', // Master Server address
+            accessKeyId: 'accessKey',
+            secretAccessKey: 'secretKey',
+        },
+        ["sqns"], // SNS queue name
+          (queueName, item) => {
+            // process eventItem
+          },
+          '0 * * * *');
+    ```
+4. Create Topic
+    ```js
+    client.createTopic({ Name: 'Topic1' })
+    .then(topic => {})
+    ```
+5. Publish Message
+    ```js
+    client.publish({ Message: 'This is message' })
+    ```
+
+## SQNSClient
+
+### createQueue
+```js
+sqnsClient.createQueue({
+  QueueName: 'queueName',
+  Attributes: { attribute1: 'value1' }, // optional
+  tags: { tag1: 'value2'}, // optional
+}).then(queue => {});
 ```
-const simpleQueueServer = new SimpleQueueServer({ database: SimpleQueueServer.Database.MONGO_DB, config: { uri: 'mongodb://127.0.0.1:27017/sqns' } });
+#### CreateQueue Attributes
+1. maxReceiveCount: Maximum number of time any event of the queue will be retried.
+```js
+client.createQueue({ ..., Attributes: { maxReceiveCount: '2' } });
+```
+### sendMessage
+```js
+client.sendMessage({
+  QueueUrl: queue.QueueUrl,
+  MessageAttributes: { // optional
+    attribute1: {
+      StringValue: 'value1',
+      DataType: 'String'
+    } 
+  },
+  MessageSystemAttributes: { // optional
+    attribute1: { 
+      StringValue: 'attributeValue', 
+      DataType: 'String' 
+    } 
+  },
+  MessageDeduplicationId: 'uniqueId1', // optional: message unique Id to avoid duplication of message.
+  MessageBody: 'This is message body',
+});
+```
+### sendMessageBatch
+```js
+client.sendMessageBatch({
+  QueueUrl: queue.QueueUrl,
+  Entries: [
+    {
+      Id: '123',  // Entry id for the request. Should be unique in one call.
+      MessageAttributes: { // optional
+         attribute1: {
+           StringValue: 'value1',
+           DataType: 'String'
+         } 
+       },
+      MessageSystemAttributes: { // optional
+        attribute1: { 
+          StringValue: 'attributeValue', 
+          DataType: 'String' 
+        } 
+      },
+      MessageDeduplicationId: 'uniqueId1', // optional: message unique Id to avoid duplication of message.
+      MessageBody: 'This is message body',
+    }, 
+  ],
+});
+```
+### receiveMessage
+```js
+client.receiveMessage({
+  QueueUrl: queue.QueueUrl,
+  AttributeNames: ['attributeValue'], // optional: Array of attribute name to include. ALL to add all attributes
+  MessageSystemAttributes: ['ALL'], // optional: Array of attribute name to include. ALL to add all attributes
+  MaxNumberOfMessages: 10, // optional: number of messages to fetch in one call
+  VisibilityTimeout: 30, // optional: message not available for next 30 seconds to retry.
+}).then(response => {
+  const MessageId = response.Messages[0].MessageId;
+});
+```
+### listQueues
+```js
+client.listQueues({
+  QueueNamePrefix: 'queuePrefix', // optional: queueName prefix to find list of queues
+  NextToken: 'nextQuestToken', // optional: token from previous listQueue request.
+})
+```
+### deleteQueue
+```js
+client.deleteQueue({ QueueUrl: queue.QueueUrl });
+```
+### getQueueUrl
+```js
+client.getQueueUrl({ QueueName: 'queueName' });
+```
+### markEventSuccess
+```js
+client.markEventSuccess(MessageId, queue.QueueUrl, 'success message');
+```
+### markEventFailure
+```js
+client.markEventFailure(MessageId, queue.QueueUrl, 'success message');
+```
+### createTopic
+```js
+client.createTopic({
+  Name: 'Topic1', // topic name
+  Attributes: { DisplayName: 'Topic One' }, // optional
+  Tags: [{ Key: 'tag1', Value: 'value1' }], // optional
+}).then(topic => {});
+```
+### listTopics
+```js
+client.listTopics({
+  NextToken: 'nextToken' // optinal
+})
+```
+### getTopicAttributes
+```js
+client.getTopicAttributes({ TopicArn: topic.TopicArn })
+```
+### setTopicAttributes
+```js
+client.setTopicAttributes({
+  TopicArn: topic.TopicArn,
+  AttributeName: 'DisplayName',
+  AttributeValue: 'Updated Topic One',
+})
+```
+### deleteTopic
+```js
+client.deleteTopic({ TopicArn: topic.TopicArn });
+```
+### publish
+```js
+client.publish({
+  Message: 'This is message',
+  TopicArn: topic.TopicArn, // TopicArn Or TargetArn is required
+  TargetArn: topic.TopicArn, // TopicArn Or TargetArn is required
+  MessageAttributes: { key1: { DataType: 'String', StringValue: 'value' } }, // optional
+})
+```
+### subscribe
+```js
+client.subscribe({
+ TopicArn: topic.TopicArn,
+ Attributes: { key: 'value' }, // optional
+ Endpoint: 'http://your.server.subscription/url', // subscription url
+ Protocol: 'http', // http or https
+ ReturnSubscriptionArn: true, // optional
+}).then(result => {
+  const SubscriptionArn = result.SubscriptionArn;
+})
+```
+### listSubscriptions
+```js
+client.listSubscriptions({
+  NextToken: 'NextToken' // optional
+})
+```
+### listSubscriptionsByTopic
+```js
+client.listSubscriptionsByTopic({
+ TopicArn: topic.TopicArn,
+ NextToken: 'NextToken' // optional
+});
+```
+### confirmSubscription
+```js
+client.confirmSubscription({
+ TopicArn: 'topicArn',
+ Token: 'verificationToken',
+});
+```
+### unsubscribe
+```js
+client.unsubscribe({ SubscriptionArn: 'subscriptionArn' });
+```
+### getPublish
+```js
+client.getPublish({ MessageId: 'MessageId' })
+```
+### getSubscription
+```js
+client.getSubscription({ SubscriptionArn: 'subscriptionArn' })
+```
+### markPublished
+```js
+client.markPublished({ MessageId: 'MessageId' })
 ```

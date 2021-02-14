@@ -1,15 +1,18 @@
 import bodyParser from 'body-parser';
-import debug from 'debug';
 import express, { Express } from 'express';
 import http from 'http';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 // import morgan from 'morgan';
-import rp from 'request-promise';
-import { SimpleQueueServer } from '../index';
-import { MongoDBConnection } from './sqs/storage/mongodb/mongo-d-b-connection';
-import { Env } from './test-env';
+import { SQNS, SQNSClient } from '../index';
+import { DatabaseConfig, SQNSConfig } from '../typings/config';
+import { Database } from './sqns/common/database';
+import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
+import { logger } from './sqns/common/logger/logger';
+import { BaseStorageEngine } from './sqns/common/model/base-storage-engine';
+import { RequestClient } from './sqns/common/request-client/request-client';
+import { deleteAllQueues, deleteTopics, Env } from './test-env';
 
-const log = debug('ms-queue:TestServer');
+const log = logger.instance('TestServer');
 
 const app: Express = express();
 // app.use(morgan('dev'));
@@ -17,51 +20,63 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.json());
 
-const queueConfig: { [key: string]: any, config: { uri?: string} } = { config: {} };
-
-if (process.env.TEST_DB === 'mongoDB') {
-  const mongoDB = new MongoMemoryServer({ instance: { dbName: 'msQueue', port: 27020 } });
-  mongoDB.getUri().catch((error: any) => log(error));
-  queueConfig.database = SimpleQueueServer.Database.MONGO_DB;
-  queueConfig.config = { uri: 'mongodb://127.0.0.1:27020/msQueue' };
-}
-
-const simpleQueueServer = new SimpleQueueServer(queueConfig);
-simpleQueueServer.cancel();
-const mongoConnection = new MongoDBConnection(queueConfig.config.uri, {});
-
-app.use('/api', simpleQueueServer.generateRoutes());
-
-const server = http.createServer(app);
+let databaseConfig: DatabaseConfig;
+const setupConfig: { sqns?: SQNS; mongoConnection?: MongoDBConnection; sqnsConfig?: SQNSConfig } = {};
 
 if (process.env.PORT) {
   Env.PORT = Number(process.env.PORT);
-  Env.URL = `http://localhost:${Env.PORT}`;
+  Env.URL = `http://127.0.0.1:${Env.PORT}`;
 }
 
-server.listen(Env.PORT, '0.0.0.0', () => {
-  log('Express server listening on %d, in test mode', Env.PORT);
-});
-
 function delay(milliSeconds: number = 100): Promise<any> {
-  return new Promise((resolve: () => void) => setTimeout(resolve, milliSeconds));
+  return new Promise((resolve: (value?: unknown) => void): unknown => setTimeout(resolve, milliSeconds));
 }
 
 async function dropDatabase(): Promise<void> {
-  await mongoConnection.dropDatabase();
-  await simpleQueueServer.resetAll();
+  await setupConfig.mongoConnection.dropDatabase();
+  await setupConfig.sqns.resetAll();
+  const storageAdapter = new BaseStorageEngine(databaseConfig, []);
+  await storageAdapter.initialize([{
+    accessKey: Env.accessKeyId,
+    secretAccessKey: Env.secretAccessKey,
+  }]);
+  const sqnsClient = new SQNSClient({
+    endpoint: `${Env.URL}/api`,
+    accessKeyId: Env.accessKeyId,
+    secretAccessKey: Env.secretAccessKey,
+  });
+  await deleteAllQueues(sqnsClient);
+  await deleteTopics(sqnsClient);
 }
 
-async function waitForServerToBoot(): Promise<void> {
-  await rp(`http://localhost:${Env.PORT}/api/queue/health`).catch(async () => {
+const requestClient = new RequestClient();
+function waitForServerToBoot(): Promise<unknown> {
+  return requestClient.get(`http://127.0.0.1:${Env.PORT}/api/sqns/health`).catch(async () => {
     await delay();
     return waitForServerToBoot();
   });
 }
 
 before(async () => {
+  const mongoDB = new MongoMemoryServer({ instance: { dbName: 'sqns' } });
+  const uri = await mongoDB.getUri();
+  log.info('TestDB URI:', uri);
+  databaseConfig = { database: Database.MONGO_DB, uri, config: { useUnifiedTopology: true } };
+  setupConfig.mongoConnection = new MongoDBConnection(databaseConfig.uri, databaseConfig.config);
+  setupConfig.sqnsConfig = {
+    adminSecretKeys: [{ accessKey: Env.accessKeyId, secretAccessKey: Env.secretAccessKey }],
+    endpoint: `http://127.0.0.1:${Env.PORT}/api`,
+    db: databaseConfig,
+  };
+  setupConfig.sqns = new SQNS(setupConfig.sqnsConfig);
+  setupConfig.sqns.cancel();
+  setupConfig.sqns.registerExpressRoutes(app);
+  const server = http.createServer(app);
+  server.listen(Env.PORT, '0.0.0.0', () => {
+    log.info('Express server listening on %d, in test mode', Env.PORT);
+  });
   await waitForServerToBoot();
 });
 
 // Expose app
-export { app, simpleQueueServer, dropDatabase, mongoConnection, delay, queueConfig };
+export { app, setupConfig, dropDatabase, delay };

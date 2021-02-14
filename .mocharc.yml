@@ -1,6 +1,0 @@
-color: true
-ui: bdd
-recursive: true
-timeout: 15000
-require: 'ts-node/register/transpile-only'
-exit: true
