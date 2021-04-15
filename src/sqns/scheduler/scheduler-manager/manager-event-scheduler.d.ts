@@ -1,4 +1,4 @@
-import { BASE_CONFIG } from '../../../../typings';
+import { BASE_CONFIG } from '../../../../typings/typings';
 import { SQNSClientConfig } from '../../../../typings/client-confriguation';
 import { ManagerQueueConfigListener } from '../../../../typings/config';
 export declare class ManagerEventScheduler {

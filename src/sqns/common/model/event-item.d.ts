@@ -1,4 +1,4 @@
-import { ARN, KeyValue, MessageAttributeMap } from '../../../../typings';
+import { ARN, KeyValue, MessageAttributeMap } from '../../../../typings/typings';
 import { EventItemType } from '../../../../typings/class-types';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
 import { BaseObject } from './base-object';

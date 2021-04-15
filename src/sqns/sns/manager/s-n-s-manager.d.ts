@@ -1,4 +1,4 @@
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings';
+import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
 import { AdminSecretKeys, SNSConfig } from '../../../../typings/config';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';

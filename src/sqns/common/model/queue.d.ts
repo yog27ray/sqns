@@ -1,4 +1,4 @@
-import { ARN } from '../../../../typings';
+import { ARN } from '../../../../typings/typings';
 import { QueueType } from '../../../../typings/class-types';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
 import { BaseObject } from './base-object';

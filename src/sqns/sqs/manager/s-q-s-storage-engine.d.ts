@@ -1,4 +1,4 @@
-import { ARN } from '../../../../typings';
+import { ARN } from '../../../../typings/typings';
 import { KeyValueString } from '../../../../typings/common';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { EventItem, EventState } from '../../common/model/event-item';

@@ -1,4 +1,4 @@
-import { KeyValue } from '../../../../typings';
+import { KeyValue } from '../../../../typings/common';
 import { EventItem } from '../model/event-item';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';

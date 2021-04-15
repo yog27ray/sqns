@@ -1,4 +1,4 @@
-import { SupportedProtocol } from '../../../../typings';
+import { SupportedProtocol } from '../../../../typings/typings';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes, SubscriptionType } from '../../../../typings/subscription';
 import { BaseObject } from './base-object';

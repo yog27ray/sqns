@@ -1,4 +1,4 @@
-import { SupportedProtocol, SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from '../../../../typings';
+import { SupportedProtocol, SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from '../../../../typings/typings';
 declare const SUPPORTED_PROTOCOL: Array<SupportedProtocol>;
 declare const SUPPORTED_CHANNEL: Array<SUPPORTED_CHANNEL_TYPE>;
 declare const SUPPORTED_BACKOFF_FUNCTIONS: Array<SUPPORTED_BACKOFF_FUNCTIONS_TYPE>;

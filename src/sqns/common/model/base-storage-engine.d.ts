@@ -1,4 +1,4 @@
-import { KeyValue } from '../../../../typings';
+import { KeyValue } from '../../../../typings/typings';
 import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
 import { Database } from '../database';
 import { StorageAdapter } from '../database/storage-adapter';

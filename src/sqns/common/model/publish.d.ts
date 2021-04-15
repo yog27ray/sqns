@@ -1,4 +1,4 @@
-import { ARN, MessageAttributes, MessageStructure } from '../../../../typings';
+import { ARN, MessageAttributes, MessageStructure } from '../../../../typings/typings';
 import { PublishType } from '../../../../typings/class-types';
 import { BaseObject } from './base-object';
 declare class Publish extends BaseObject {
