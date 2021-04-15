@@ -171,11 +171,14 @@ class WorkerEventScheduler {
     const workerQueueConfig = workerQueueConfig_;
     workerQueueConfig.config.count += 1;
     this.requestEventToProcess(workerQueueConfig)
+      .then(() => {
+        workerQueueConfig.config.count -= 1;
+        this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
+        return 0;
+      })
       .catch((error: Error) => {
         log.error(error);
         workerQueueConfig.hasMore = false;
-      })
-      .then(() => {
         workerQueueConfig.config.count -= 1;
         this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
       });
