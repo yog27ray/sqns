@@ -1,23 +1,21 @@
-// <reference path="./index.d.ts" />
-
 export interface CreateQueueRequest {
-  QueueName: string;
-  Attributes?: { [key: string]: string };
-  tags?: { [key: string]: string };
+    QueueName: string;
+    Attributes?: {
+        [key: string]: string;
+    };
+    tags?: {
+        [key: string]: string;
+    };
 }
-
 export interface CreateQueueResult {
-  QueueUrl?: string;
+    QueueUrl?: string;
 }
-
 export interface GetQueueUrlRequest {
-  QueueName: string;
+    QueueName: string;
 }
-
 export interface GetQueueUrlResult {
-  QueueUrl?: string;
+    QueueUrl?: string;
 }
-
 export interface DeleteQueueRequest {
-  QueueUrl: string;
+    QueueUrl: string;
 }
