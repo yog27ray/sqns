@@ -1,6 +1,6 @@
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
 import { SQNSClientConfig } from '../../../../typings/client-confriguation';
-import { AdminSecretKeys, SNSConfig } from '../../../../typings/config';
+import { SNSConfig } from '../../../../typings/config';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../typings/subscription';
 import {
