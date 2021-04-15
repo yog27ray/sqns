@@ -1,6 +1,6 @@
 import * as schedule from 'node-schedule';
-import { MessageAttributeEntry } from '../../../../typings/typings';
 import { SQNSClientConfig } from '../../../../typings/client-confriguation';
+import { MessageAttributeEntry } from '../../../../typings/common';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { ResponseItem } from '../../../../typings/response-item';
 import { SNS_QUEUE_EVENT_TYPES, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
@@ -171,15 +171,13 @@ class WorkerEventScheduler {
     const workerQueueConfig = workerQueueConfig_;
     workerQueueConfig.config.count += 1;
     this.requestEventToProcess(workerQueueConfig)
+      .catch((error: Error) => {
+        log.error(error);
+        workerQueueConfig.hasMore = false;
+      })
       .then(() => {
         workerQueueConfig.config.count -= 1;
         this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
-        return 0;
-      })
-      .catch((error: Error) => {
-        workerQueueConfig.config.count -= 1;
-        log.error(error);
-        workerQueueConfig.hasMore = false;
       });
   }
 
