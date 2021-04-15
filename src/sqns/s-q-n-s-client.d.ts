@@ -1,0 +1,31 @@
+import { ConfirmSubscriptionInput, ConfirmSubscriptionResponse, CreateQueueRequest, CreateQueueResult, CreateTopicInput, CreateTopicResponse, DeleteQueueRequest, DeleteTopicInput, GetQueueUrlRequest, GetQueueUrlResult, GetTopicAttributesInput, GetTopicAttributesResponse, ListQueuesRequest, ListQueuesResponse, ListSubscriptionsByTopicInput, ListSubscriptionsByTopicResponse, ListSubscriptionsInput, ListSubscriptionsResponse, ListTopicsInput, ListTopicsResponse, PublishInput, PublishResponse, ReceiveMessageRequest, ReceiveMessageResult, SendMessageBatchRequest, SendMessageBatchResult, SendMessageRequest, SendMessageResult, SetTopicAttributesInput, SubscribeInput, UnsubscribeInput } from '../../typings';
+import { SQNSClientConfig } from '../../typings/client-confriguation';
+import { GetPublishInput, GetPublishResponse, MarkPublishedInput } from '../../typings/publish';
+import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
+import { BaseClient } from './common/client/base-client';
+export declare class SQNSClient extends BaseClient {
+    constructor(options: SQNSClientConfig);
+    createQueue(params: CreateQueueRequest): Promise<CreateQueueResult>;
+    sendMessage(params: SendMessageRequest): Promise<SendMessageResult>;
+    receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult>;
+    listQueues(params?: ListQueuesRequest): Promise<ListQueuesResponse>;
+    deleteQueue(params: DeleteQueueRequest): Promise<any>;
+    sendMessageBatch(params: SendMessageBatchRequest): Promise<SendMessageBatchResult>;
+    getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult>;
+    markEventSuccess(MessageId: string, QueueUrl: string, successMessage?: string): Promise<void>;
+    markEventFailure(MessageId: string, QueueUrl: string, failureMessage?: string): Promise<void>;
+    createTopic(params: CreateTopicInput): Promise<CreateTopicResponse>;
+    listTopics(params: ListTopicsInput): Promise<ListTopicsResponse>;
+    getTopicAttributes(params: GetTopicAttributesInput): Promise<GetTopicAttributesResponse>;
+    setTopicAttributes(params: SetTopicAttributesInput): Promise<Record<string, never>>;
+    deleteTopic(params: DeleteTopicInput): Promise<Record<string, never>>;
+    publish(params: PublishInput): Promise<PublishResponse>;
+    subscribe(params: SubscribeInput): Promise<SubscribeResponse>;
+    listSubscriptions(params: ListSubscriptionsInput): Promise<ListSubscriptionsResponse>;
+    listSubscriptionsByTopic(params: ListSubscriptionsByTopicInput): Promise<ListSubscriptionsByTopicResponse>;
+    confirmSubscription(params: ConfirmSubscriptionInput): Promise<ConfirmSubscriptionResponse>;
+    unsubscribe(params: UnsubscribeInput): Promise<Record<string, never>>;
+    getPublish(params: GetPublishInput): Promise<GetPublishResponse>;
+    getSubscription(params: GetSubscriptionInput): Promise<GetSubscriptionResponse>;
+    markPublished(params: MarkPublishedInput): Promise<void>;
+}

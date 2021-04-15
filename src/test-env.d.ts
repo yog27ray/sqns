@@ -1,13 +1,14 @@
-import { SimpleQueueServerClient } from './sqs/aws';
+import { SQNSClient } from './sqns/s-q-n-s-client';
 declare const Env: {
     URL: string;
     PORT: number;
-    region: string;
+    companyId: string;
     accessKeyId: string;
     secretAccessKey: string;
 };
-declare function deleteQueues(client: SimpleQueueServerClient): Promise<any>;
+declare function deleteTopics(client: SQNSClient): Promise<void>;
+declare function deleteAllQueues(client: SQNSClient): Promise<void>;
 declare function deleteDynamicDataOfResults(items_: {
     [key: string]: any;
 }): void;
-export { Env, deleteQueues, deleteDynamicDataOfResults };
+export { Env, deleteDynamicDataOfResults, deleteTopics, deleteAllQueues };

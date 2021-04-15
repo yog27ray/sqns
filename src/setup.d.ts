@@ -1,15 +1,13 @@
 import { Express } from 'express';
-import { SimpleQueueServer } from '../index';
-import { MongoDBConnection } from './sqs/storage/mongodb/mongo-d-b-connection';
+import { SQNS } from '../index';
+import { SQNSConfig } from '../typings/config';
+import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
 declare const app: Express;
-declare const queueConfig: {
-    [key: string]: any;
-    config: {
-        uri?: string;
-    };
+declare const setupConfig: {
+    sqns?: SQNS;
+    mongoConnection?: MongoDBConnection;
+    sqnsConfig?: SQNSConfig;
 };
-declare const simpleQueueServer: SimpleQueueServer;
-declare const mongoConnection: MongoDBConnection;
 declare function delay(milliSeconds?: number): Promise<any>;
 declare function dropDatabase(): Promise<void>;
-export { app, simpleQueueServer, dropDatabase, mongoConnection, delay, queueConfig };
+export { app, setupConfig, dropDatabase, delay };

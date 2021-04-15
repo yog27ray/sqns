@@ -1,6 +1,5 @@
-import { SimpleQueueServerClient } from './src/sqs/aws';
-import { EventItem } from './src/sqs/event-manager';
-import { ManagerEventScheduler } from './src/sqs/scheduler-manager/manager-event-scheduler';
-import { WorkerEventScheduler } from './src/sqs/scheduler-worker/worker-event-scheduler';
-import { SimpleQueueServer } from './src/sqs/simple-queue-server';
-export { SimpleQueueServer, ManagerEventScheduler, WorkerEventScheduler, EventItem, SimpleQueueServerClient };
+import { SQNS } from './src/sqns/s-q-n-s';
+import { SQNSClient } from './src/sqns/s-q-n-s-client';
+import { ManagerEventScheduler } from './src/sqns/scheduler/scheduler-manager/manager-event-scheduler';
+import { WorkerEventScheduler } from './src/sqns/scheduler/scheduler-worker/worker-event-scheduler';
+export { ManagerEventScheduler, WorkerEventScheduler, SQNSClient, SQNS };
