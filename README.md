@@ -34,7 +34,7 @@ There can be only one Manager, but many Workers.
         adminSecretKeys: [{ accessKey: 'yourKey', secretAccessKey: 'yourSecretKey' }],
         db: { uri: 'DatabaseUri', config: dataBaseConnectionConfig },
         sns: { // optional
-          disabled: true // disable SNS service initialization.
+          disable: true // disable SNS service initialization.
         },
     });
     ```
