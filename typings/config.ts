@@ -1,5 +1,3 @@
-// <reference path="./index.d.ts" />
-
 import { Database } from '../src/sqns/common/database';
 import { Queue } from '../src/sqns/common/model/queue';
 import { KeyValue } from './common';
@@ -57,7 +55,7 @@ export declare interface SQNSConfig {
 export declare type ManagerQueueConfigListener = (queueName: string, nextItemListParams: KeyValue) => Promise<
   [KeyValue, Array<RequestItem>]>;
 
-declare type ConfigCount = { count: number, MAX_COUNT: number };
+export declare type ConfigCount = { count: number, MAX_COUNT: number };
 
 export declare type QueueStorageToQueueConfigListener = (queues: Array<Queue>, nextItemListParams: KeyValue)
   => Promise<[KeyValue, boolean]>;

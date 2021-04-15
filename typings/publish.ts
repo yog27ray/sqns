@@ -9,7 +9,6 @@ export interface PublishInput {
   MessageStructure?: string;
   MessageAttributes?: MessageAttributeMap;
 }
-// <reference path="./index.d.ts" />
 
 export interface GetPublishInput { MessageId: string }
 export interface MarkPublishedInput { MessageId: string }

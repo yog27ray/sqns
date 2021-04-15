@@ -1,5 +1,3 @@
-// <reference path="./index.d.ts" />
-
 import { SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from './common';
 
 export declare interface ChannelDeliveryPolicy {

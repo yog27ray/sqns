@@ -1,5 +1,3 @@
-// <reference path="./index.d.ts" />
-
 import { MessageAttributeMap } from './common';
 
 interface Message {

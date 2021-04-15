@@ -1,5 +1,3 @@
-// <reference path="./index.d.ts" />
-
 import { BaseObjectType } from './class-types';
 import { ARN, SupportedProtocol } from './common';
 import { ChannelDeliveryPolicy } from './delivery-policy';

@@ -7,7 +7,6 @@ export declare type SUPPORTED_BACKOFF_FUNCTIONS_TYPE = 'linear' | 'exponential';
 export type SupportedProtocol = 'http' | 'https';
 
 export declare type SUPPORTED_CHANNEL_TYPE = SupportedProtocol | 'default';
-// <reference path="./index.d.ts" />
 
 export declare interface KeyValue<T = unknown> { [key: string]: T; }
 

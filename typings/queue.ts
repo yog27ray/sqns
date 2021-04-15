@@ -1,5 +1,3 @@
-// <reference path="./index.d.ts" />
-
 export interface CreateQueueRequest {
   QueueName: string;
   Attributes?: { [key: string]: string };

@@ -1,7 +1,7 @@
-// <reference path="./index.d.ts" />
-
-import { ARN, MessageAttributeMap } from './common';
-import { ChannelDeliveryPolicy, DeliveryPolicy } from './event';
+import { ARN, MessageAttributeMap, MessageAttributes } from './common';
+import { EventState } from '../src/sqns/common/model/event-item';
+import { ChannelDeliveryPolicy, DeliveryPolicy } from './delivery-policy';
+import { MessageStructure } from 'typings';
 
 export declare interface BaseObjectType {
   id: string;

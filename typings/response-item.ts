@@ -1,5 +1,3 @@
-// <reference path="./index.d.ts" />
-
 import { KeyValue, MessageAttributeMap } from './common';
 
 export declare interface ResponseItem {

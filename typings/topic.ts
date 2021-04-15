@@ -1,5 +1,3 @@
-// <reference path="./index.d.ts" />
-
 import { ARN, Tag, Topic } from './common';
 
 export interface CreateTopicInput {
