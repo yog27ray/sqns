@@ -49,7 +49,7 @@ There can be only one Manager, but many Workers.
     ```js
     import { SQNSClient } from 'sqns';
     
-    const sqnsClient = new new SQNSClient({
+    const sqnsClient = new SQNSClient({
      endpoint: 'http://your.server.url/api',
      accessKeyId: 'yourKey',
      secretAccessKey: 'yourSecretKey',
