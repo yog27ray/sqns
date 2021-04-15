@@ -11,6 +11,8 @@ npm i
 cp package.json ./dist/package.json
 cp package-lock.json ./dist/package-lock.json
 cp README.md ./dist/README.md
+mkdir -p ./dist/typings
+cp ./typings/*.d.ts ./dist/typings/
 cd dist
 git add *
 git commit -m "$VERSION"
