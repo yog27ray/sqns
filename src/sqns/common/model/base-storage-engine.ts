@@ -1,21 +1,18 @@
-import { KeyValue } from '../../../../typings/typings';
+import { KeyValue } from '../../../../typings/common';
 import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
 import { SQNSError } from '../auth/s-q-n-s-error';
 import { Database } from '../database';
 import { MongoDBAdapter } from '../database/mongodb/mongo-d-b-adapter';
 import { StorageAdapter } from '../database/storage-adapter';
-import { logger } from '../logger/logger';
 import { AccessKey } from './access-key';
 import { User } from './user';
-
-const log = logger.instance('BaseStorageEngine');
 
 export class BaseStorageEngine {
   static Database = Database;
 
   protected readonly _storageAdapter: StorageAdapter;
 
-  constructor(databaseConfig: DatabaseConfig, adminSecretKeys: Array<AdminSecretKeys>) {
+  constructor(databaseConfig: DatabaseConfig) {
     switch (databaseConfig.database) {
       case Database.MONGO_DB: {
         this._storageAdapter = new MongoDBAdapter({ uri: databaseConfig.uri, ...databaseConfig.config });
@@ -28,8 +25,6 @@ export class BaseStorageEngine {
         });
       }
     }
-    this.initialize(adminSecretKeys.map((each: AdminSecretKeys) => each))
-      .catch((error: Error) => log.error(error));
   }
 
   async initialize(adminSecretKeys: Array<AdminSecretKeys>): Promise<void> {

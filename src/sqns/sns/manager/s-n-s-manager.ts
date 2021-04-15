@@ -1,3 +1,8 @@
+import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
+import { SQNSClientConfig } from '../../../../typings/client-confriguation';
+import { AdminSecretKeys, SNSConfig } from '../../../../typings/config';
+import { DeliveryPolicy } from '../../../../typings/delivery-policy';
+import { SubscriptionAttributes } from '../../../../typings/subscription';
 import {
   ARN,
   MessageAttributes,
@@ -6,11 +11,6 @@ import {
   SupportedProtocol,
   SUPPORTED_CHANNEL_TYPE,
 } from '../../../../typings/typings';
-import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
-import { SQNSClientConfig } from '../../../../typings/client-confriguation';
-import { AdminSecretKeys, SNSConfig } from '../../../../typings/config';
-import { DeliveryPolicy } from '../../../../typings/delivery-policy';
-import { SubscriptionAttributes } from '../../../../typings/subscription';
 import { Encryption } from '../../common/auth/encryption';
 import { SQNSError } from '../../common/auth/s-q-n-s-error';
 import { ARNHelper } from '../../common/helper/a-r-n-helper';
@@ -39,14 +39,14 @@ class SNSManager extends BaseManager {
 
   private readonly workerEventScheduler: WorkerEventScheduler;
 
-  constructor(snsConfig: SNSConfig, adminSecretKeys: Array<AdminSecretKeys>) {
+  constructor(snsConfig: SNSConfig) {
     super();
     const sqnsClientConfig: SQNSClientConfig = {
       endpoint: snsConfig.queueEndpoint || snsConfig.endpoint,
-      accessKeyId: snsConfig.queueAccessKey || adminSecretKeys[0].accessKey,
-      secretAccessKey: snsConfig.queueSecretAccessKey || adminSecretKeys[0].secretAccessKey,
+      accessKeyId: snsConfig.queueAccessKey,
+      secretAccessKey: snsConfig.queueSecretAccessKey,
     };
-    this.sNSStorageEngine = new SNSStorageEngine(snsConfig.db, adminSecretKeys);
+    this.sNSStorageEngine = new SNSStorageEngine(snsConfig.db);
     this.sqnsClient = new SQNSClient(sqnsClientConfig);
     if (!snsConfig.disableWorker) {
       this.workerEventScheduler = new WorkerEventScheduler(sqnsClientConfig, [SYSTEM_QUEUE_NAME.SNS], undefined);

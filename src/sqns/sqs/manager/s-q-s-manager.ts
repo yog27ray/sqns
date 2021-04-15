@@ -1,6 +1,5 @@
-import { ARN, MessageAttributeMap } from '../../../../typings/typings';
-import { KeyValueString } from '../../../../typings/common';
-import { AdminSecretKeys, SQSConfig } from '../../../../typings/config';
+import { ARN, KeyValueString, MessageAttributeMap } from '../../../../typings/common';
+import { SQSConfig } from '../../../../typings/config';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { logger } from '../../common/logger/logger';
@@ -89,11 +88,11 @@ export class SQSManager extends BaseManager {
     return `${prometheusRows.sort().join('\n')}\n`;
   }
 
-  constructor(sqsConfig: SQSConfig, adminSecretKeys: Array<AdminSecretKeys>) {
+  constructor(sqsConfig: SQSConfig) {
     super();
     this._eventQueue = new SQSQueue();
     this._eventQueue.notifyNeedTaskURLS = sqsConfig.requestTasks || [];
-    this._sQSStorageEngine = new SQSStorageEngine(sqsConfig.db, adminSecretKeys);
+    this._sQSStorageEngine = new SQSStorageEngine(sqsConfig.db);
     this.storageToQueueWorker = new StorageToQueueWorker(this._sQSStorageEngine, this.addEventInQueueListener, sqsConfig.cronInterval);
   }
 

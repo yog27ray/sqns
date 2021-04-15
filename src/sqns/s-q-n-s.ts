@@ -1,10 +1,11 @@
 import { Express } from 'express';
-import { ARN } from '../../typings/typings';
-import { SQNSConfig } from '../../typings/config';
+import { ARN } from '../../typings/common';
+import { AdminSecretKeys, SQNSConfig } from '../../typings/config';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
 import { RESERVED_QUEUE_NAME } from './common/helper/common';
 import { logger } from './common/logger/logger';
+import { BaseStorageEngine } from './common/model/base-storage-engine';
 import { EventItem } from './common/model/event-item';
 import { Queue } from './common/model/queue';
 import { generateRoutes as sqnsRoutes } from './common/routes';
@@ -37,12 +38,24 @@ export class SQNS {
     this.region = BaseClient.REGION;
     if (!config.sqs?.disable) {
       log.info('Enable SQS');
-      this.sqsManager = new SQSManager({ endpoint: config.endpoint, db: config.db, ...(config.sqs || {}) }, config.adminSecretKeys);
+      this.sqsManager = new SQSManager({ endpoint: config.endpoint, db: config.db, ...(config.sqs || {}) });
     }
     if (!config.sns?.disable) {
       log.info('Enable SNS');
-      this.snsManager = new SNSManager({ endpoint: config.endpoint, db: config.db, ...(config.sns || {}) }, config.adminSecretKeys);
+      this.snsManager = new SNSManager({
+        endpoint: config.endpoint,
+        db: config.db,
+        queueAccessKey: config.adminSecretKeys[0].accessKey,
+        queueSecretAccessKey: config.adminSecretKeys[0].secretAccessKey,
+        ...(config.sns || {}),
+      });
     }
+    new BaseStorageEngine(config.db)
+      .initialize(config.adminSecretKeys.map((each: AdminSecretKeys) => each))
+      .catch((error: Error) => {
+        log.error(error);
+        process.exit(1);
+      });
   }
 
   queueComparator(queueARN: ARN, value: (event1: EventItem, event2: EventItem) => boolean): void {
