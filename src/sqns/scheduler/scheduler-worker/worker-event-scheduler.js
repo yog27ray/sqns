@@ -177,9 +177,10 @@ class WorkerEventScheduler {
             return 0;
         })
             .catch((error) => {
-            workerQueueConfig.config.count -= 1;
             log.error(error);
             workerQueueConfig.hasMore = false;
+            workerQueueConfig.config.count -= 1;
+            this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
         });
     }
     async requestEventToProcess(workerQueueConfig_) {
