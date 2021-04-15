@@ -15,7 +15,7 @@ import {
   SendMessageRequest, SendMessageResult,
   SetTopicAttributesInput,
   SubscribeInput, UnsubscribeInput,
-} from '../../typings';
+} from '../../typings/typings';
 import { SQNSClientConfig } from '../../typings/client-confriguation';
 import { GetPublishInput, GetPublishResponse, MarkPublishedInput } from '../../typings/publish';
 import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';

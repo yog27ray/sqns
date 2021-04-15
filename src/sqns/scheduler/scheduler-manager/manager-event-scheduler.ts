@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import { BASE_CONFIG, KeyValue, RequestItem } from '../../../../typings';
+import { BASE_CONFIG, KeyValue, RequestItem } from '../../../../typings/typings';
 import { SQNSClientConfig } from '../../../../typings/client-confriguation';
 import { ManagerQueueConfigListener } from '../../../../typings/config';
 import { logger } from '../../common/logger/logger';

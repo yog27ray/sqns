@@ -2,7 +2,7 @@ import SNS from 'aws-sdk/clients/sns';
 import SQS from 'aws-sdk/clients/sqs';
 import moment from 'moment';
 import xml2js from 'xml2js';
-import { ClientConfiguration, KeyValue } from '../../../../typings';
+import { ClientConfiguration, KeyValue } from '../../../../typings/typings';
 import { generateAuthenticationHash } from '../auth/authentication';
 import { SQNSError } from '../auth/s-q-n-s-error';
 import { RequestClient } from '../request-client/request-client';

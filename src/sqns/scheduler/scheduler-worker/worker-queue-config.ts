@@ -1,4 +1,4 @@
-import { CreateQueueResult } from '../../../../typings';
+import { CreateQueueResult } from '../../../../typings/typings';
 import { ConfigCount } from '../../../../typings/config';
 import { ResponseItem } from '../../../../typings/response-item';
 

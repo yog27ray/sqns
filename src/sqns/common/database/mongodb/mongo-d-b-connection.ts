@@ -1,5 +1,5 @@
 import { Db, MongoClient } from 'mongodb';
-import { KeyValue } from '../../../../../typings';
+import { KeyValue } from '../../../../../typings/typings';
 
 class MongoDBConnection {
   private readonly _option: { [key: string]: any };

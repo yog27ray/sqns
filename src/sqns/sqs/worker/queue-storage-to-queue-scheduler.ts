@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import { BASE_CONFIG, KeyValue } from '../../../../typings';
+import { BASE_CONFIG, KeyValue } from '../../../../typings/typings';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
 import { logger } from '../../common/logger/logger';
 import { Queue } from '../../common/model/queue';

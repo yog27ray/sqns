@@ -1,5 +1,5 @@
 import * as schedule from 'node-schedule';
-import { MessageAttributeEntry } from '../../../../typings';
+import { MessageAttributeEntry } from '../../../../typings/typings';
 import { SQNSClientConfig } from '../../../../typings/client-confriguation';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { ResponseItem } from '../../../../typings/response-item';

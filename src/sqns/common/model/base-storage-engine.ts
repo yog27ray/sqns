@@ -1,4 +1,4 @@
-import { KeyValue } from '../../../../typings';
+import { KeyValue } from '../../../../typings/typings';
 import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
 import { SQNSError } from '../auth/s-q-n-s-error';
 import { Database } from '../database';

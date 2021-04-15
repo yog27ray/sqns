@@ -1,4 +1,4 @@
-import { KeyValue, SUPPORTED_BACKOFF_FUNCTIONS_TYPE } from '../../../../typings';
+import { KeyValue, SUPPORTED_BACKOFF_FUNCTIONS_TYPE } from '../../../../typings/typings';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { GetSubscriptionResponse } from '../../../../typings/subscription';
 import { SQNSError } from '../auth/s-q-n-s-error';

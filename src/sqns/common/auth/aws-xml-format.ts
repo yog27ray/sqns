@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import xml2js from 'xml2js';
-import { KeyValue } from '../../../../typings';
+import { KeyValue } from '../../../../typings/common';
 import { EventItem } from '../model/event-item';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';

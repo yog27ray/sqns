@@ -10,7 +10,7 @@ import {
   KeyValue,
   SubscriptionConfirmationRequestBody,
   SupportedProtocol,
-} from '../../typings';
+} from '../../typings/typings';
 import { app, delay, dropDatabase, setupConfig } from '../setup';
 import { deleteDynamicDataOfResults, Env } from '../test-env';
 import { generateAuthenticationHash } from './common/auth/authentication';

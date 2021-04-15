@@ -1,4 +1,4 @@
-import { ARN, MessageAttributeMap } from '../../../../typings';
+import { ARN, MessageAttributeMap } from '../../../../typings/typings';
 import { KeyValueString } from '../../../../typings/common';
 import { AdminSecretKeys, SQSConfig } from '../../../../typings/config';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';

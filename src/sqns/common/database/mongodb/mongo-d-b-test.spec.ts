@@ -1,7 +1,7 @@
 import SQS from 'aws-sdk/clients/sqs';
 import { expect } from 'chai';
 import moment from 'moment';
-import { MessageAttributeMap } from '../../../../../typings';
+import { MessageAttributeMap } from '../../../../../typings/typings';
 import { ChannelDeliveryPolicy } from '../../../../../typings/delivery-policy';
 import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';

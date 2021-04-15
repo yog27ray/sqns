@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { ARN } from '../../typings';
+import { ARN } from '../../typings/typings';
 import { SQNSConfig } from '../../typings/config';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';

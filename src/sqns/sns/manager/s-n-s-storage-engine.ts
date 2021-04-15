@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings';
+import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../typings/subscription';

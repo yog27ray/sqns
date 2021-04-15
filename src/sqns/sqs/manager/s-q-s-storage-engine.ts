@@ -1,4 +1,4 @@
-import { ARN } from '../../../../typings';
+import { ARN } from '../../../../typings/typings';
 import { KeyValueString } from '../../../../typings/common';
 import { SQNSError } from '../../common/auth/s-q-n-s-error';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';

@@ -1,4 +1,4 @@
-import { KeyValue } from '../../../../typings';
+import { KeyValue } from '../../../../typings/typings';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
 import { logger } from '../../common/logger/logger';
 import { EventItem } from '../../common/model/event-item';

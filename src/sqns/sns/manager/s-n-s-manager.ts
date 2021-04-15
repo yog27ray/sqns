@@ -5,7 +5,7 @@ import {
   SubscriptionConfirmationRequestBody,
   SupportedProtocol,
   SUPPORTED_CHANNEL_TYPE,
-} from '../../../../typings';
+} from '../../../../typings/typings';
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
 import { SQNSClientConfig } from '../../../../typings/client-confriguation';
 import { AdminSecretKeys, SNSConfig } from '../../../../typings/config';
