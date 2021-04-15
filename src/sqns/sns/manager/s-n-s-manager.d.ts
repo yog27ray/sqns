@@ -1,8 +1,8 @@
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
-import { AdminSecretKeys, SNSConfig } from '../../../../typings/config';
+import { SNSConfig } from '../../../../typings/config';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../typings/subscription';
+import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
 import { BaseManager } from '../../common/model/base-manager';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { Publish } from '../../common/model/publish';
@@ -15,7 +15,7 @@ declare class SNSManager extends BaseManager {
     private readonly sNSStorageEngine;
     private sqnsClient;
     private readonly workerEventScheduler;
-    constructor(snsConfig: SNSConfig, adminSecretKeys: Array<AdminSecretKeys>);
+    constructor(snsConfig: SNSConfig);
     createTopic(name: string, displayName: string, region: string, deliveryPolicy: DeliveryPolicy, user: User, attributes?: TopicAttributes, tags?: TopicTag): Promise<Topic>;
     findTopicByARN(topicARN: string): Promise<Topic>;
     findTopics(skip: number): Promise<Array<Topic>>;

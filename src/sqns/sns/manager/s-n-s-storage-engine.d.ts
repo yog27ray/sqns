@@ -1,7 +1,7 @@
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../typings/subscription';
+import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { Publish } from '../../common/model/publish';
 import { Subscription } from '../../common/model/subscription';

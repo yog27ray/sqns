@@ -13,15 +13,15 @@ const worker_event_scheduler_1 = require("../../scheduler/scheduler-worker/worke
 const s_n_s_storage_engine_1 = require("./s-n-s-storage-engine");
 const log = logger_1.logger.instance('SNSManager');
 class SNSManager extends base_manager_1.BaseManager {
-    constructor(snsConfig, adminSecretKeys) {
+    constructor(snsConfig) {
         super();
         this.requestClient = new request_client_1.RequestClient();
         const sqnsClientConfig = {
             endpoint: snsConfig.queueEndpoint || snsConfig.endpoint,
-            accessKeyId: snsConfig.queueAccessKey || adminSecretKeys[0].accessKey,
-            secretAccessKey: snsConfig.queueSecretAccessKey || adminSecretKeys[0].secretAccessKey,
+            accessKeyId: snsConfig.queueAccessKey,
+            secretAccessKey: snsConfig.queueSecretAccessKey,
         };
-        this.sNSStorageEngine = new s_n_s_storage_engine_1.SNSStorageEngine(snsConfig.db, adminSecretKeys);
+        this.sNSStorageEngine = new s_n_s_storage_engine_1.SNSStorageEngine(snsConfig.db);
         this.sqnsClient = new s_q_n_s_client_1.SQNSClient(sqnsClientConfig);
         if (!snsConfig.disableWorker) {
             this.workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler(sqnsClientConfig, [common_1.SYSTEM_QUEUE_NAME.SNS], undefined);

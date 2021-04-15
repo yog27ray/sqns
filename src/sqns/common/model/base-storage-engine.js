@@ -4,10 +4,8 @@ exports.BaseStorageEngine = void 0;
 const s_q_n_s_error_1 = require("../auth/s-q-n-s-error");
 const database_1 = require("../database");
 const mongo_d_b_adapter_1 = require("../database/mongodb/mongo-d-b-adapter");
-const logger_1 = require("../logger/logger");
-const log = logger_1.logger.instance('BaseStorageEngine');
 class BaseStorageEngine {
-    constructor(databaseConfig, adminSecretKeys) {
+    constructor(databaseConfig) {
         switch (databaseConfig.database) {
             case database_1.Database.MONGO_DB: {
                 this._storageAdapter = new mongo_d_b_adapter_1.MongoDBAdapter({ uri: databaseConfig.uri, ...databaseConfig.config });
@@ -20,8 +18,6 @@ class BaseStorageEngine {
                 });
             }
         }
-        this.initialize(adminSecretKeys.map((each) => each))
-            .catch((error) => log.error(error));
     }
     async initialize(adminSecretKeys) {
         await Promise.all(adminSecretKeys.map(async (adminSecretKey) => {

@@ -1,6 +1,5 @@
-import { ARN, MessageAttributeMap } from '../../../../typings/typings';
-import { KeyValueString } from '../../../../typings/common';
-import { AdminSecretKeys, SQSConfig } from '../../../../typings/config';
+import { ARN, KeyValueString, MessageAttributeMap } from '../../../../typings/common';
+import { SQSConfig } from '../../../../typings/config';
 import { BaseManager } from '../../common/model/base-manager';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { EventItem } from '../../common/model/event-item';
@@ -20,7 +19,7 @@ export declare class SQSManager extends BaseManager {
         [key: string]: any;
     };
     prometheus(time?: Date): string;
-    constructor(sqsConfig: SQSConfig, adminSecretKeys: Array<AdminSecretKeys>);
+    constructor(sqsConfig: SQSConfig);
     comparatorFunction(queueARN: string, value: (event1: EventItem, event2: EventItem) => boolean): void;
     poll(queue: Queue, visibilityTimeout: number): Promise<EventItem>;
     resetAll(resetOnlyStatistics?: boolean): void;

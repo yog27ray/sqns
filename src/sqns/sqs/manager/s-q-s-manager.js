@@ -11,7 +11,7 @@ const s_q_s_queue_1 = require("./s-q-s-queue");
 const s_q_s_storage_engine_1 = require("./s-q-s-storage-engine");
 const log = logger_1.logger.instance('EventManager');
 class SQSManager extends base_manager_1.BaseManager {
-    constructor(sqsConfig, adminSecretKeys) {
+    constructor(sqsConfig) {
         super();
         this.requestClient = new request_client_1.RequestClient();
         this.addEventInQueueListener = (item) => {
@@ -19,7 +19,7 @@ class SQSManager extends base_manager_1.BaseManager {
         };
         this._eventQueue = new s_q_s_queue_1.SQSQueue();
         this._eventQueue.notifyNeedTaskURLS = sqsConfig.requestTasks || [];
-        this._sQSStorageEngine = new s_q_s_storage_engine_1.SQSStorageEngine(sqsConfig.db, adminSecretKeys);
+        this._sQSStorageEngine = new s_q_s_storage_engine_1.SQSStorageEngine(sqsConfig.db);
         this.storageToQueueWorker = new storage_to_queue_worker_1.StorageToQueueWorker(this._sQSStorageEngine, this.addEventInQueueListener, sqsConfig.cronInterval);
     }
     static addToPriorities(queueARN, priority) {

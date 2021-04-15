@@ -5,6 +5,7 @@ const s_q_n_s_error_1 = require("./common/auth/s-q-n-s-error");
 const base_client_1 = require("./common/client/base-client");
 const common_1 = require("./common/helper/common");
 const logger_1 = require("./common/logger/logger");
+const base_storage_engine_1 = require("./common/model/base-storage-engine");
 const queue_1 = require("./common/model/queue");
 const routes_1 = require("./common/routes");
 const s_n_s_manager_1 = require("./sns/manager/s-n-s-manager");
@@ -27,12 +28,24 @@ class SQNS {
         this.region = base_client_1.BaseClient.REGION;
         if (!((_a = config.sqs) === null || _a === void 0 ? void 0 : _a.disable)) {
             log.info('Enable SQS');
-            this.sqsManager = new s_q_s_manager_1.SQSManager({ endpoint: config.endpoint, db: config.db, ...(config.sqs || {}) }, config.adminSecretKeys);
+            this.sqsManager = new s_q_s_manager_1.SQSManager({ endpoint: config.endpoint, db: config.db, ...(config.sqs || {}) });
         }
         if (!((_b = config.sns) === null || _b === void 0 ? void 0 : _b.disable)) {
             log.info('Enable SNS');
-            this.snsManager = new s_n_s_manager_1.SNSManager({ endpoint: config.endpoint, db: config.db, ...(config.sns || {}) }, config.adminSecretKeys);
+            this.snsManager = new s_n_s_manager_1.SNSManager({
+                endpoint: config.endpoint,
+                db: config.db,
+                queueAccessKey: config.adminSecretKeys[0].accessKey,
+                queueSecretAccessKey: config.adminSecretKeys[0].secretAccessKey,
+                ...(config.sns || {}),
+            });
         }
+        new base_storage_engine_1.BaseStorageEngine(config.db)
+            .initialize(config.adminSecretKeys.map((each) => each))
+            .catch((error) => {
+            log.error(error);
+            process.exit(1);
+        });
     }
     queueComparator(queueARN, value) {
         this.sqsManager.comparatorFunction(queueARN, value);

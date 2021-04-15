@@ -1,4 +1,4 @@
-import { KeyValue } from '../../../../typings/typings';
+import { KeyValue } from '../../../../typings/common';
 import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
 import { Database } from '../database';
 import { StorageAdapter } from '../database/storage-adapter';
@@ -7,7 +7,7 @@ import { User } from './user';
 export declare class BaseStorageEngine {
     static Database: typeof Database;
     protected readonly _storageAdapter: StorageAdapter;
-    constructor(databaseConfig: DatabaseConfig, adminSecretKeys: Array<AdminSecretKeys>);
+    constructor(databaseConfig: DatabaseConfig);
     initialize(adminSecretKeys: Array<AdminSecretKeys>): Promise<void>;
     updateAccessKey(accessKey: AccessKey): Promise<AccessKey>;
     createAccessKey(accessKey: string, secretAccessKey: string, userId: string): Promise<AccessKey>;

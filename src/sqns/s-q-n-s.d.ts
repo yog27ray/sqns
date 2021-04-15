@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { ARN } from '../../typings/typings';
+import { ARN } from '../../typings/common';
 import { SQNSConfig } from '../../typings/config';
 import { EventItem } from './common/model/event-item';
 export declare class SQNS {
