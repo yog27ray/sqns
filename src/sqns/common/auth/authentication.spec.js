@@ -17,7 +17,7 @@ describe('Authentication', () => {
         }
         it('should handle error while fetching key from database.', async () => {
             try {
-                await authentication_1.getSecretKey(new TempStorageEngine(setup_1.setupConfig.sqnsConfig.db, []))('dbAccessErrorKey');
+                await authentication_1.getSecretKey(new TempStorageEngine(setup_1.setupConfig.sqnsConfig.db))('dbAccessErrorKey');
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
             catch (error) {

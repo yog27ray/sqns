@@ -1,4 +1,4 @@
-import { KeyValue } from '../../../../../typings/typings';
+import { KeyValue } from '../../../../../typings/common';
 declare class MongoDBConnection {
     private readonly _option;
     private readonly _uri;

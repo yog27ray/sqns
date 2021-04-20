@@ -453,7 +453,7 @@ describe('SQNSClient', () => {
             let queue;
             before(async () => {
                 await setup_1.dropDatabase();
-                storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db, []);
+                storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
                 client = new s_q_n_s_client_1.SQNSClient({
                     endpoint: `${test_env_1.Env.URL}/api`,
                     accessKeyId: test_env_1.Env.accessKeyId,
@@ -481,7 +481,7 @@ describe('SQNSClient', () => {
             let queue;
             before(async () => {
                 await setup_1.dropDatabase();
-                storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db, []);
+                storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
                 client = new s_q_n_s_client_1.SQNSClient({
                     endpoint: `${test_env_1.Env.URL}/api`,
                     accessKeyId: test_env_1.Env.accessKeyId,
@@ -720,7 +720,7 @@ describe('SQNSClient', () => {
                     endpoint: setup_1.setupConfig.sqnsConfig.endpoint,
                     db: setup_1.setupConfig.sqnsConfig.db,
                     requestTasks: ['https://xyz.abc/success', 'https://xyz.abc/failure'],
-                }, []);
+                });
                 queue = await eventManager.createQueue(user, 'queue1', base_client_1.BaseClient.REGION, {}, {});
                 await eventManager.sendMessage(queue, 'messageBody', {}, {});
                 eventManager.resetAll(true);
@@ -1329,7 +1329,7 @@ describe('SQNSClient', () => {
             let MessageId;
             beforeEach(async () => {
                 await setup_1.dropDatabase();
-                storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db, []);
+                storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
                 client = new s_q_n_s_client_1.SQNSClient({
                     endpoint: `${test_env_1.Env.URL}/api`,
                     accessKeyId: test_env_1.Env.accessKeyId,

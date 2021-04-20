@@ -37,7 +37,7 @@ exports.delay = delay;
 async function dropDatabase() {
     await setupConfig.mongoConnection.dropDatabase();
     await setupConfig.sqns.resetAll();
-    const storageAdapter = new base_storage_engine_1.BaseStorageEngine(databaseConfig, []);
+    const storageAdapter = new base_storage_engine_1.BaseStorageEngine(databaseConfig);
     await storageAdapter.initialize([{
             accessKey: test_env_1.Env.accessKeyId,
             secretAccessKey: test_env_1.Env.secretAccessKey,

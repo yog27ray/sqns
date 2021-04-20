@@ -8,7 +8,7 @@ describe('BaseStorageEngine', () => {
     context('Error Handler', () => {
         it('should return undefined when unknown resource arn is provided', async () => {
             try {
-                const baseStorageEngine = new base_storage_engine_1.BaseStorageEngine({ database: undefined, config: undefined, uri: undefined }, undefined);
+                const baseStorageEngine = new base_storage_engine_1.BaseStorageEngine({ database: undefined, config: undefined, uri: undefined });
                 await Promise.reject({ code: 99, message: 'Should not be here.', baseStorageEngine });
             }
             catch (error) {
@@ -23,7 +23,7 @@ describe('BaseStorageEngine', () => {
     context('updating existing admin secret keys', () => {
         let storageAdapter;
         before(() => {
-            storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db, []);
+            storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
         });
         beforeEach(async () => {
             await setup_1.dropDatabase();

@@ -20,7 +20,7 @@ describe('mongoDB test cases', () => {
         let client;
         beforeEach(async () => {
             await setup_1.dropDatabase();
-            storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db, []);
+            storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
             client = new s_q_n_s_client_1.SQNSClient({
                 endpoint: `${test_env_1.Env.URL}/api`,
                 accessKeyId: test_env_1.Env.accessKeyId,
@@ -208,7 +208,7 @@ describe('mongoDB test cases', () => {
         let client;
         beforeEach(async () => {
             await setup_1.dropDatabase();
-            storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db, []);
+            storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
             client = new s_q_n_s_client_1.SQNSClient({
                 endpoint: `${test_env_1.Env.URL}/api`,
                 accessKeyId: test_env_1.Env.accessKeyId,
