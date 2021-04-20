@@ -35,7 +35,7 @@ function delay(milliSeconds: number = 100): Promise<any> {
 async function dropDatabase(): Promise<void> {
   await setupConfig.mongoConnection.dropDatabase();
   await setupConfig.sqns.resetAll();
-  const storageAdapter = new BaseStorageEngine(databaseConfig, []);
+  const storageAdapter = new BaseStorageEngine(databaseConfig);
   await storageAdapter.initialize([{
     accessKey: Env.accessKeyId,
     secretAccessKey: Env.secretAccessKey,

@@ -1,7 +1,7 @@
 import SQS from 'aws-sdk/clients/sqs';
 import { expect } from 'chai';
 import moment from 'moment';
-import { MessageAttributeMap } from '../../../../../typings/typings';
+import { MessageAttributeMap } from '../../../../../typings/common';
 import { ChannelDeliveryPolicy } from '../../../../../typings/delivery-policy';
 import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
@@ -20,7 +20,7 @@ describe('mongoDB test cases', () => {
 
     beforeEach(async () => {
       await dropDatabase();
-      storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
+      storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
       client = new SQNSClient({
         endpoint: `${Env.URL}/api`,
         accessKeyId: Env.accessKeyId,
@@ -221,7 +221,7 @@ describe('mongoDB test cases', () => {
 
     beforeEach(async () => {
       await dropDatabase();
-      storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
+      storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
       client = new SQNSClient({
         endpoint: `${Env.URL}/api`,
         accessKeyId: Env.accessKeyId,

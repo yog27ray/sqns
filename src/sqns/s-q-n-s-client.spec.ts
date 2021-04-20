@@ -485,7 +485,7 @@ describe('SQNSClient', () => {
       let queue: SQS.Types.CreateQueueResult;
       before(async () => {
         await dropDatabase();
-        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
+        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
@@ -515,7 +515,7 @@ describe('SQNSClient', () => {
       let queue: SQS.Types.CreateQueueResult;
       before(async () => {
         await dropDatabase();
-        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
+        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
@@ -771,7 +771,7 @@ describe('SQNSClient', () => {
           endpoint: setupConfig.sqnsConfig.endpoint,
           db: setupConfig.sqnsConfig.db,
           requestTasks: ['https://xyz.abc/success', 'https://xyz.abc/failure'],
-        }, []);
+        });
         queue = await eventManager.createQueue(user, 'queue1', BaseClient.REGION, {}, {});
         await eventManager.sendMessage(queue, 'messageBody', {}, {});
         eventManager.resetAll(true);
@@ -1425,7 +1425,7 @@ describe('SQNSClient', () => {
 
       beforeEach(async () => {
         await dropDatabase();
-        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db, []);
+        storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
