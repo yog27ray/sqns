@@ -1,3 +1,6 @@
+import { SQNSClientConfig } from '../../typings/client-confriguation';
+import { GetPublishInput, GetPublishResponse, MarkPublishedInput } from '../../typings/publish';
+import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
 import {
   ConfirmSubscriptionInput, ConfirmSubscriptionResponse,
   CreateQueueRequest, CreateQueueResult,
@@ -16,9 +19,6 @@ import {
   SetTopicAttributesInput,
   SubscribeInput, UnsubscribeInput,
 } from '../../typings/typings';
-import { SQNSClientConfig } from '../../typings/client-confriguation';
-import { GetPublishInput, GetPublishResponse, MarkPublishedInput } from '../../typings/publish';
-import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
 
