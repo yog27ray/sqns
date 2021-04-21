@@ -107,6 +107,7 @@ class WorkerEventScheduler {
       case 'http':
       case 'https': {
         const MessageAttributes = {};
+        const headers = subscription.Attributes.headers ? JSON.parse(subscription.Attributes.headers) : {};
         published.MessageAttributes.forEach(({ Name, Value }: MessageAttributeEntry) => {
           MessageAttributes[Name] = { Type: Value.DataType, Value: Value.StringValue };
         });
@@ -122,6 +123,7 @@ class WorkerEventScheduler {
             MessageAttributes,
           }),
           headers: {
+            ...headers,
             'x-sqns-sns-message-id': messageId,
             'x-sqns-sns-message-type': 'Notification',
             'x-sqns-sns-topic-arn': subscription.TopicARN,
