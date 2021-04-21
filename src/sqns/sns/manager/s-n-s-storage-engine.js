@@ -43,7 +43,7 @@ class SNSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
     updateTopicAttributes(topic) {
         return this._storageAdapter.updateTopicAttributes(topic);
     }
-    async createSubscription(user, topic, protocol, endPoint, Attributes) {
+    async createSubscription(user, topic, protocol, endPoint, Attributes = { entry: [] }) {
         var _a;
         const subscription = await this.findSubscription(topic, protocol, endPoint);
         if (subscription) {
