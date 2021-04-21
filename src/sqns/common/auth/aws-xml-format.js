@@ -157,7 +157,7 @@ class AwsXmlFormat {
     static getPublish(requestId, publish) {
         const publishJSON = {
             MessageId: publish.id,
-            MessageAttributes: publish.MessageAttributes.entry,
+            MessageAttributes: (publish.MessageAttributes || { entry: [] }).entry,
             PublishArn: publish.destinationArn,
         };
         ['Message', 'PhoneNumber', 'Subject', 'MessageStructure', 'Status'].forEach((key) => {
