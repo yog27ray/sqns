@@ -3,10 +3,6 @@
   "env": {
     "node": true
   },
-  "parserOptions": {
-    "project": "tsconfig.json",
-    "tsconfigRootDir": "./../"
-  },
   "rules": {
     "no-console": "error",
     "no-bitwise": 0,
