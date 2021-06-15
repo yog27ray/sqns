@@ -1,5 +1,4 @@
-import { ARN } from '../../../../typings/typings';
-import { KeyValueString } from '../../../../typings/common';
+import { ARN, KeyValueString } from '../../../../typings/common';
 import { SQNSError } from '../../common/auth/s-q-n-s-error';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
@@ -10,11 +9,6 @@ import { User } from '../../common/model/user';
 class SQSStorageEngine extends BaseStorageEngine {
   addEventItem(queue: Queue, eventItem: EventItem): Promise<EventItem> {
     return this._storageAdapter.addEventItem(queue, eventItem);
-  }
-
-  async getQueueARNs(): Promise<Array<ARN>> {
-    const queues = await this._storageAdapter.getQueues();
-    return queues.map((queue: Queue) => queue.arn);
   }
 
   findEventsToProcess(queues: Array<Queue>, time: Date, limit: number): Promise<Array<EventItem>> {
@@ -70,6 +64,10 @@ class SQSStorageEngine extends BaseStorageEngine {
 
   findEvent(id: string): Promise<EventItem> {
     return this._storageAdapter.findById(id);
+  }
+
+  findQueueEvent(queue: Queue, messageId: string): Promise<EventItem> {
+    return this._storageAdapter.findByIdForQueue(queue, messageId);
   }
 }
 

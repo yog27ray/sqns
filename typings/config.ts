@@ -18,12 +18,12 @@ export declare interface AdminSecretKeys {
 export declare interface DatabaseConfig {
   uri: string;
   config: KeyValue;
-  database?: Database,
+  database?: Database;
 }
 
 export declare interface SQSConfig {
   endpoint: string;
-  db: DatabaseConfig,
+  db: DatabaseConfig;
   requestTasks?: Array<string>;
   cronInterval?: string;
   enableSNSQueue?: boolean;
@@ -41,7 +41,7 @@ export declare interface SNSConfig {
 export declare interface SQNSConfig {
   endpoint: string;
   adminSecretKeys: Array<{ accessKey: string; secretAccessKey: string }>;
-  db: DatabaseConfig,
+  db: DatabaseConfig;
   sqs?: { cronInterval?: string; disable?: boolean };
   sns?: {
     queueEndpoint?: string;
@@ -55,7 +55,7 @@ export declare interface SQNSConfig {
 export declare type ManagerQueueConfigListener = (queueName: string, nextItemListParams: KeyValue) => Promise<
   [KeyValue, Array<RequestItem>]>;
 
-export declare type ConfigCount = { count: number, MAX_COUNT: number };
+export declare interface ConfigCount { count: number; MAX_COUNT: number; }
 
 export declare type QueueStorageToQueueConfigListener = (queues: Array<Queue>, nextItemListParams: KeyValue)
   => Promise<[KeyValue, boolean]>;

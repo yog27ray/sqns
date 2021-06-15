@@ -1,8 +1,8 @@
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
 import { KeyValueString } from '../../../../typings/common';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../typings/subscription';
+import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
 import { AccessKey } from '../model/access-key';
 import { EventItem } from '../model/event-item';
 import { Publish } from '../model/publish';
@@ -20,6 +20,7 @@ interface StorageAdapter {
   findAccessKeys(where: { [key: string]: unknown }, skip?: number, limit?: number): Promise<Array<AccessKey>>;
   findUsers(where: { [key: string]: unknown }, skip?: number, limit?: number): Promise<Array<User>>;
   addEventItem(queue: Queue, item: EventItem): Promise<EventItem>;
+  findByIdForQueue(queue: Queue, id: string): Promise<EventItem>;
   findById(id: string): Promise<EventItem>;
   findEventsToProcess(queues: Array<Queue>, time: Date, limit: number): Promise<Array<EventItem>>;
   updateEvent(id: string, data: { [key: string]: any }): Promise<void>;

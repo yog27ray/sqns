@@ -198,6 +198,10 @@ export class SQSManager extends BaseManager {
     return this._sQSStorageEngine;
   }
 
+  async findMessageById(queue: Queue, messageId: string): Promise<EventItem> {
+    return this._sQSStorageEngine.findQueueEvent(queue, messageId);
+  }
+
   private async pollN(queue: Queue, visibilityTimeout: number, size: number): Promise<Array<EventItem>> {
     if (!size) {
       return [];

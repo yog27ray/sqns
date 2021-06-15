@@ -1,3 +1,4 @@
+![build](https://github.com/yog27ray/sqns/actions/workflows/node.js.yml/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/yog27ray/sqns/branch/master/graph/badge.svg)](https://codecov.io/gh/yog27ray/sqns)
 
 #Introduction
@@ -245,6 +246,15 @@ client.sendMessageBatch({
       MessageBody: 'This is message body',
     }, 
   ],
+});
+```
+### findMessageById
+```js
+client.findMessageById({
+  QueueUrl: queue.QueueUrl,
+  MessageId: 'messageId',
+}).then(response => {
+  const MessageId = response.Messages[0].MessageId;
 });
 ```
 ### receiveMessage

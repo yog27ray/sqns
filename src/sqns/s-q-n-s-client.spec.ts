@@ -3,10 +3,12 @@ import { expect } from 'chai';
 import moment from 'moment';
 import nock from 'nock';
 import { parseString } from 'xml2js';
+import { Message } from '../../typings/recieve-message';
 import {
   ARN,
   ConfirmSubscriptionResponse,
-  CreateQueueResult, CreateTopicResponse,
+  CreateQueueResult,
+  CreateTopicResponse,
   KeyValue,
   SubscriptionConfirmationRequestBody,
   SupportedProtocol,
@@ -18,7 +20,7 @@ import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
 import { SYSTEM_QUEUE_NAME } from './common/helper/common';
 import { BaseStorageEngine } from './common/model/base-storage-engine';
-import { EventItem } from './common/model/event-item';
+import { EventItem, EventState } from './common/model/event-item';
 import { Queue } from './common/model/queue';
 import { User } from './common/model/user';
 import { RequestClient } from './common/request-client/request-client';
@@ -101,7 +103,7 @@ describe('SQNSClient', () => {
       });
 
       it('should not add two message with same uniqueId in queue1', async () => {
-        await client.sendMessage({
+        const result1 = await client.sendMessage({
           QueueUrl: queue.QueueUrl,
           MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
           MessageDeduplicationId: 'uniqueId1',
@@ -113,6 +115,9 @@ describe('SQNSClient', () => {
           MessageDeduplicationId: 'uniqueId1',
           MessageBody: '123',
         });
+        expect(result.MD5OfMessageBody).to.equal(result1.MD5OfMessageBody);
+        expect(result.MD5OfMessageAttributes).to.equal(result1.MD5OfMessageAttributes);
+        expect(result.MessageId).to.equal(result1.MessageId);
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
         expect(result.MD5OfMessageAttributes).to.equal('8bd349963828b39106dd3a35071ccee6');
         expect(result.MessageId).to.exist;
@@ -203,6 +208,66 @@ describe('SQNSClient', () => {
             },
           }],
         });
+      });
+    });
+
+    context('FindMessageById', () => {
+      let client: SQNSClient;
+      let queue: CreateQueueResult;
+      let queue2: CreateQueueResult;
+      let messages: Array<Message>;
+      beforeEach(async () => {
+        await dropDatabase();
+        client = new SQNSClient({
+          endpoint: `${Env.URL}/api`,
+          accessKeyId: Env.accessKeyId,
+          secretAccessKey: Env.secretAccessKey,
+        });
+        queue = await client.createQueue({ QueueName: 'queue1' });
+        queue2 = await client.createQueue({ QueueName: 'queue2' });
+        ({ Successful: messages } = await client.sendMessageBatch({
+          QueueUrl: queue.QueueUrl,
+          Entries: [
+            {
+              Id: '123',
+              MessageBody: '123',
+              MessageAttributes: {
+                type: { StringValue: 'type1', DataType: 'String' },
+                name: { StringValue: 'testUser', DataType: 'String' },
+              },
+              MessageSystemAttributes: { attribute1: { StringValue: 'attributeValue', DataType: 'String' } },
+              MessageDeduplicationId: 'uniqueId1',
+            },
+            { Id: '1234', MessageBody: '1234' },
+            { Id: '1235', MessageBody: '1235' },
+          ],
+        }));
+      });
+
+      it('should find message when messageId is correct.', async () => {
+        const { Message } = await client.findByMessageId({
+          MessageId: messages[1].MessageId,
+          QueueUrl: queue.QueueUrl,
+        });
+        expect(Message.MessageId).to.equal(messages[1].MessageId);
+        expect(Message.Body).to.equal('1234');
+        expect(Message.State).to.equal(EventState.PENDING);
+      });
+
+      it('should not find message when messageId correct and queueUrl is different.', async () => {
+        const { Message } = await client.findByMessageId({
+          MessageId: messages[1].MessageId,
+          QueueUrl: queue2.QueueUrl,
+        });
+        expect(Message).to.not.exist;
+      });
+
+      it('should not find message when messageId is invalid.', async () => {
+        const { Message } = await client.findByMessageId({
+          MessageId: 'invalidMessageId',
+          QueueUrl: queue.QueueUrl,
+        });
+        expect(Message).to.not.exist;
       });
     });
 
@@ -850,7 +915,7 @@ describe('SQNSClient', () => {
         queue = await client.createQueue({ QueueName: 'processingFlow' });
         await client.sendMessageBatch({
           QueueUrl: queue.QueueUrl,
-          Entries: new Array(100).fill(0)
+          Entries: new Array(10).fill(0)
             .map((item: number, index: number) => ({ Id: `${index}`, MessageBody: `Message ${index}`, DelaySeconds: 2 })),
         });
         await delay(6 * 1000);
@@ -859,9 +924,9 @@ describe('SQNSClient', () => {
       it('should add items from storage to queue', async () => {
         const stats = await new RequestClient().get(`${Env.URL}/api-queue-processing-flow/queues/events/stats`, true);
         expect(stats).to.deep.equal({
-          PRIORITY_TOTAL: 100,
-          PRIORITY_999999: 100,
-          'arn:sqns:sqs:sqns:1:processingFlow': { PRIORITY_TOTAL: 100, PRIORITY_999999: 100 },
+          PRIORITY_TOTAL: 10,
+          PRIORITY_999999: 10,
+          'arn:sqns:sqs:sqns:1:processingFlow': { PRIORITY_TOTAL: 10, PRIORITY_999999: 10 },
         });
       });
 

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import nock from 'nock';
-import { ARN, CreateTopicResponse, KeyValue } from '../../../../typings/typings';
 import { ResponseItem } from '../../../../typings/response-item';
+import { ARN, CreateTopicResponse, KeyValue } from '../../../../typings/typings';
 import { delay, dropDatabase } from '../../../setup';
 import { deleteDynamicDataOfResults, Env } from '../../../test-env';
 import { SYSTEM_QUEUE_NAME } from '../../common/helper/common';

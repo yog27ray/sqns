@@ -1,23 +1,39 @@
 import { SQNSClientConfig } from '../../typings/client-confriguation';
-import { GetPublishInput, GetPublishResponse, MarkPublishedInput } from '../../typings/publish';
+import { FindMessageById, GetPublishInput, GetPublishResponse, MarkPublishedInput } from '../../typings/publish';
+import { FindMessageByIdResult } from '../../typings/recieve-message';
 import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
 import {
-  ConfirmSubscriptionInput, ConfirmSubscriptionResponse,
-  CreateQueueRequest, CreateQueueResult,
-  CreateTopicInput, CreateTopicResponse,
-  DeleteQueueRequest, DeleteTopicInput,
-  GetQueueUrlRequest, GetQueueUrlResult,
-  GetTopicAttributesInput, GetTopicAttributesResponse,
-  ListQueuesRequest, ListQueuesResponse,
-  ListSubscriptionsByTopicInput, ListSubscriptionsByTopicResponse,
-  ListSubscriptionsInput, ListSubscriptionsResponse,
-  ListTopicsInput, ListTopicsResponse,
-  PublishInput, PublishResponse,
-  ReceiveMessageRequest, ReceiveMessageResult,
-  SendMessageBatchRequest, SendMessageBatchResult,
-  SendMessageRequest, SendMessageResult,
+  ConfirmSubscriptionInput,
+  ConfirmSubscriptionResponse,
+  CreateQueueRequest,
+  CreateQueueResult,
+  CreateTopicInput,
+  CreateTopicResponse,
+  DeleteQueueRequest,
+  DeleteTopicInput,
+  GetQueueUrlRequest,
+  GetQueueUrlResult,
+  GetTopicAttributesInput,
+  GetTopicAttributesResponse,
+  ListQueuesRequest,
+  ListQueuesResponse,
+  ListSubscriptionsByTopicInput,
+  ListSubscriptionsByTopicResponse,
+  ListSubscriptionsInput,
+  ListSubscriptionsResponse,
+  ListTopicsInput,
+  ListTopicsResponse,
+  PublishInput,
+  PublishResponse,
+  ReceiveMessageRequest,
+  ReceiveMessageResult,
+  SendMessageBatchRequest,
+  SendMessageBatchResult,
+  SendMessageRequest,
+  SendMessageResult,
   SetTopicAttributesInput,
-  SubscribeInput, UnsubscribeInput,
+  SubscribeInput,
+  UnsubscribeInput,
 } from '../../typings/typings';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
@@ -49,6 +65,17 @@ export class SQNSClient extends BaseClient {
         resolve(result);
       });
     });
+  }
+
+  async findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult> {
+    const request = {
+      uri: this._sqs.endpoint.href,
+      body: { Action: 'FindMessageById', ...params },
+    };
+    const { FindMessageByIdResponse: { FindMessageByIdResult } } = await this.request(request) as {
+      FindMessageByIdResponse: { FindMessageByIdResult: FindMessageByIdResult },
+    };
+    return FindMessageByIdResult;
   }
 
   receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult> {
