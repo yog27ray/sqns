@@ -915,7 +915,7 @@ describe('SQNSClient', () => {
         queue = await client.createQueue({ QueueName: 'processingFlow' });
         await client.sendMessageBatch({
           QueueUrl: queue.QueueUrl,
-          Entries: new Array(100).fill(0)
+          Entries: new Array(10).fill(0)
             .map((item: number, index: number) => ({ Id: `${index}`, MessageBody: `Message ${index}`, DelaySeconds: 2 })),
         });
         await delay(6 * 1000);
@@ -924,9 +924,9 @@ describe('SQNSClient', () => {
       it('should add items from storage to queue', async () => {
         const stats = await new RequestClient().get(`${Env.URL}/api-queue-processing-flow/queues/events/stats`, true);
         expect(stats).to.deep.equal({
-          PRIORITY_TOTAL: 100,
-          PRIORITY_999999: 100,
-          'arn:sqns:sqs:sqns:1:processingFlow': { PRIORITY_TOTAL: 100, PRIORITY_999999: 100 },
+          PRIORITY_TOTAL: 10,
+          PRIORITY_999999: 10,
+          'arn:sqns:sqs:sqns:1:processingFlow': { PRIORITY_TOTAL: 10, PRIORITY_999999: 10 },
         });
       });
 

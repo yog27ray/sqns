@@ -178,7 +178,7 @@ export class SQSManager extends BaseManager {
       return inQueueEvent;
     }
     const insertedEventItem = await this._sQSStorageEngine.addEventItem(queue, eventItem);
-    if (insertedEventItem.eventTime.getTime() <= new Date().getTime() + 1000) {
+    if (insertedEventItem.eventTime.getTime() <= new Date().getTime()) {
       this.addItemInQueue(insertedEventItem);
       await this._sQSStorageEngine.findEvent(insertedEventItem.id);
     }
