@@ -90,6 +90,19 @@ class AwsXmlFormat {
         };
         return AwsXmlFormat.jsonToXML('SendMessageBatchResponse', json);
     }
+    static findMessageById(requestId, eventItem) {
+        const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+        if (message) {
+            message.State = eventItem.state;
+        }
+        const json = {
+            ResponseMetadata: { RequestId: requestId },
+            FindMessageByIdResult: {
+                Message: message,
+            },
+        };
+        return AwsXmlFormat.jsonToXML('FindMessageByIdResponse', json);
+    }
     static receiveMessage(requestId, messages, AttributeName, MessageAttributeName) {
         const json = {
             ResponseMetadata: { RequestId: requestId },
@@ -157,7 +170,7 @@ class AwsXmlFormat {
     static getPublish(requestId, publish) {
         const publishJSON = {
             MessageId: publish.id,
-            MessageAttributes: (publish.MessageAttributes || { entry: [] }).entry,
+            MessageAttributes: publish.MessageAttributes.entry,
             PublishArn: publish.destinationArn,
         };
         ['Message', 'PhoneNumber', 'Subject', 'MessageStructure', 'Status'].forEach((key) => {
@@ -234,6 +247,9 @@ class AwsXmlFormat {
         return subscription.confirmed || ReturnSubscriptionArn ? subscription.arn : 'PendingConfirmation';
     }
     static responseMessage(event, AttributeName, MessageAttributeName) {
+        if (!event) {
+            return undefined;
+        }
         const result = {
             MessageId: event.id,
             ReceiptHandle: uuid_1.v4(),
@@ -254,9 +270,9 @@ class AwsXmlFormat {
             const attributes = {
                 ...eventSystemAttribute,
                 SenderId: event.queueARN,
-                ApproximateFirstReceiveTimestamp: `${event.firstSentTime.getTime()}`,
+                ApproximateFirstReceiveTimestamp: event.firstSentTime ? `${event.firstSentTime.getTime()}` : '-1',
                 ApproximateReceiveCount: `${event.receiveCount}`,
-                SentTimestamp: `${event.sentTime.getTime()}`,
+                SentTimestamp: event.sentTime ? `${event.sentTime.getTime()}` : '-1',
             };
             const attributeFields = Object.keys(attributes)
                 .filter((each) => AttributeName.includes('ALL') || AttributeName.includes(each));

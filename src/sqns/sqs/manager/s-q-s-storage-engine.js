@@ -9,10 +9,6 @@ class SQSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
     addEventItem(queue, eventItem) {
         return this._storageAdapter.addEventItem(queue, eventItem);
     }
-    async getQueueARNs() {
-        const queues = await this._storageAdapter.getQueues();
-        return queues.map((queue) => queue.arn);
-    }
     findEventsToProcess(queues, time, limit) {
         return this._storageAdapter.findEventsToProcess(queues, time, limit);
     }
@@ -57,6 +53,9 @@ class SQSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
     }
     findEvent(id) {
         return this._storageAdapter.findById(id);
+    }
+    findQueueEvent(queue, messageId) {
+        return this._storageAdapter.findByIdForQueue(queue, messageId);
     }
 }
 exports.SQSStorageEngine = SQSStorageEngine;

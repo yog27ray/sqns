@@ -17,6 +17,7 @@ declare class AwsXmlFormat {
         [key: string]: any;
     };
     static sendMessageBatch(requestId: string, events: Array<EventItem>, batchIds: Array<string>): string;
+    static findMessageById(requestId: string, eventItem: EventItem): string;
     static receiveMessage(requestId: string, messages: Array<any>, AttributeName: Array<string>, MessageAttributeName: Array<string>): string;
     static createTopic(requestId: string, topic: Topic): string;
     static listTopicsResult(requestId: string, topics: Array<Topic>, skip: number, total: number): string;

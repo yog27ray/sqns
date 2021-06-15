@@ -33,6 +33,7 @@ export declare class SQSManager extends BaseManager {
     receiveMessage(queue: Queue, VisibilityTimeout?: string, MaxNumberOfMessages?: string): Promise<Array<EventItem>>;
     cancel(): void;
     getStorageEngine(): BaseStorageEngine;
+    findMessageById(queue: Queue, messageId: string): Promise<EventItem>;
     private pollN;
     private addEventInQueueListener;
     private addItemInQueue;

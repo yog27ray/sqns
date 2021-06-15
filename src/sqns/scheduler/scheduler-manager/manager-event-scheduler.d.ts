@@ -1,6 +1,6 @@
-import { BASE_CONFIG } from '../../../../typings/typings';
 import { SQNSClientConfig } from '../../../../typings/client-confriguation';
 import { ManagerQueueConfigListener } from '../../../../typings/config';
+import { BASE_CONFIG } from '../../../../typings/typings';
 export declare class ManagerEventScheduler {
     private readonly queueNames;
     private job;

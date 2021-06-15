@@ -70,7 +70,10 @@ class BaseClient extends request_client_1.RequestClient {
                 const inputValue = input[key];
                 // tslint:disable-next-line:prefer-conditional-expression
                 if (!this._arrayFields.includes(key) && inputValue.length === 1) {
-                    output[key] = inputValue[0] === '' ? [] : this.transformServerResponse(inputValue[0]);
+                    output[key] = inputValue[0] === '' ? undefined : this.transformServerResponse(inputValue[0]);
+                }
+                else if (this._arrayFields.includes(key) && inputValue.length === 1 && inputValue[0] === '') {
+                    output[key] = [];
                 }
                 else {
                     output[key] = inputValue.map((each) => this.transformServerResponse(each));

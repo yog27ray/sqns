@@ -1,5 +1,5 @@
-import { ARN, MessageAttributeMap, MessageAttributes } from './common';
 import { EventState } from '../src/sqns/common/model/event-item';
+import { ARN, MessageAttributeMap, MessageAttributes } from './common';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from './delivery-policy';
 import { MessageStructure } from './publish';
 export declare interface BaseObjectType {

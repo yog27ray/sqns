@@ -1,6 +1,6 @@
-import { SupportedProtocol } from '../../../../typings/typings';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes, SubscriptionType } from '../../../../typings/subscription';
+import { SupportedProtocol } from '../../../../typings/typings';
 import { BaseObject } from './base-object';
 declare class Subscription extends BaseObject {
     companyId: string;

@@ -1,9 +1,9 @@
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../../typings/typings';
 import { TopicAttributes, TopicTag } from '../../../../../typings/class-types';
 import { KeyValueString } from '../../../../../typings/common';
 import { MongoDBConfig } from '../../../../../typings/config';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../../typings/subscription';
+import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../../typings/typings';
 import { AccessKey } from '../../model/access-key';
 import { EventItem } from '../../model/event-item';
 import { Publish } from '../../model/publish';
@@ -28,6 +28,7 @@ declare class MongoDBAdapter implements StorageAdapter {
         [key: string]: any;
     }): Promise<any>;
     findById(id: string): Promise<EventItem>;
+    findByIdForQueue(queue: Queue, id: string): Promise<EventItem>;
     createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tags: KeyValueString): Promise<Queue>;
     getQueue(queueArn: ARN): Promise<Queue>;
     deleteQueue(queue: Queue): Promise<void>;

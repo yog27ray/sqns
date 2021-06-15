@@ -14,6 +14,10 @@ export interface GetPublishInput {
 export interface MarkPublishedInput {
     MessageId: string;
 }
+export interface FindMessageById {
+    QueueUrl: string;
+    MessageId: string;
+}
 export interface GetPublishResponse {
     MessageId: string;
     PublishArn?: ARN;

@@ -112,7 +112,7 @@ class WorkerEventScheduler {
             case 'https': {
                 const MessageAttributes = {};
                 const headers = subscription.Attributes.headers ? JSON.parse(subscription.Attributes.headers) : {};
-                (published.MessageAttributes || []).forEach(({ Name, Value }) => {
+                published.MessageAttributes.forEach(({ Name, Value }) => {
                     MessageAttributes[Name] = { Type: Value.DataType, Value: Value.StringValue };
                 });
                 const response = await this.sqnsClient.post(subscription.EndPoint, {

@@ -1,5 +1,5 @@
-import { BASE_CONFIG, KeyValue } from '../../../../typings/typings';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
+import { BASE_CONFIG, KeyValue } from '../../../../typings/typings';
 import { Queue } from '../../common/model/queue';
 export declare class QueueStorageToQueueConfig {
     private _sending;

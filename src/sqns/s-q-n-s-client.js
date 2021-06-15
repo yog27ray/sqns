@@ -28,6 +28,14 @@ class SQNSClient extends base_client_1.BaseClient {
             });
         });
     }
+    async findByMessageId(params) {
+        const request = {
+            uri: this._sqs.endpoint.href,
+            body: { Action: 'FindMessageById', ...params },
+        };
+        const { FindMessageByIdResponse: { FindMessageByIdResult } } = await this.request(request);
+        return FindMessageByIdResult;
+    }
     receiveMessage(params) {
         return new Promise((resolve, reject) => {
             this._sqs.receiveMessage(params, (error, result_) => {

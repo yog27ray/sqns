@@ -24,7 +24,7 @@ declare class SNSStorageEngine extends BaseStorageEngine {
     deleteTopic(topic: Topic): Promise<void>;
     removeSubscriptions(subscriptions: Array<Subscription>): Promise<void>;
     updateTopicAttributes(topic: Topic): Promise<void>;
-    createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes?: SubscriptionAttributes): Promise<Subscription>;
+    createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes: SubscriptionAttributes): Promise<Subscription>;
     findSubscription(topic: Topic, protocol: string, endPoint: string): Promise<Subscription>;
     createSubscriptionVerificationToken(subscription: Subscription): Promise<SubscriptionVerificationToken>;
     findSubscriptionVerificationToken(token: string): Promise<SubscriptionVerificationToken>;

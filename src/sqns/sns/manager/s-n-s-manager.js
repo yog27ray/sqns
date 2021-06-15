@@ -119,9 +119,6 @@ class SNSManager extends base_manager_1.BaseManager {
         }
         this.sNSStorageEngine.createSubscriptionVerificationToken(subscription)
             .then((subscriptionVerificationToken) => {
-            const subscriptionHeaders = subscription.Attributes.entry
-                .filter(({ key }) => (key === 'headers'))
-                .map(({ value }) => JSON.parse(value))[0] || {};
             const requestBody = {
                 Type: subscriptionVerificationToken.Type,
                 MessageId: subscriptionVerificationToken.id,
@@ -133,7 +130,6 @@ class SNSManager extends base_manager_1.BaseManager {
                 Timestamp: subscriptionVerificationToken.createdAt.toISOString(),
             };
             const headers = {
-                ...subscriptionHeaders,
                 'Content-Type': 'application/json',
                 'x-sqns-sns-message-id': subscriptionVerificationToken.id,
                 'x-sqns-sns-message-type': subscriptionVerificationToken.Type,

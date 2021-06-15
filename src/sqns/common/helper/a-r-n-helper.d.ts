@@ -1,4 +1,4 @@
-import { ARN } from '../../../../typings/common';
+import { ARN } from '../../../../typings/typings';
 export declare class ARNHelper {
     static findResourceClassOfARN(resourceARN: ARN): 'Topic';
 }

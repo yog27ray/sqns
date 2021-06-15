@@ -81,6 +81,12 @@ class SQSController {
                     });
                     return res.send(aws_xml_format_1.AwsXmlFormat.sendMessage(req.serverBody.requestId, event));
                 }
+                case 'FindMessageById': {
+                    const { queueName, region, MessageId, requestId } = req.serverBody;
+                    const queue = await this.eventManager.getQueue(queue_1.Queue.arn(req.user.organizationId, region, queueName));
+                    const eventItem = await this.eventManager.findMessageById(queue, MessageId);
+                    return res.send(aws_xml_format_1.AwsXmlFormat.findMessageById(requestId, eventItem));
+                }
                 case 'ReceiveMessage': {
                     const { MaxNumberOfMessages, VisibilityTimeout, AttributeName, MessageAttributeName, queueName, requestId, region, } = req.serverBody;
                     const queue = await this.eventManager.getQueue(queue_1.Queue.arn(req.user.organizationId, region, queueName));

@@ -1,5 +1,5 @@
-import { BASE_CONFIG } from '../../../../typings/common';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
+import { BASE_CONFIG } from '../../../../typings/typings';
 import { Queue } from '../../common/model/queue';
 export declare class QueueStorageToQueueScheduler {
     private _job;
