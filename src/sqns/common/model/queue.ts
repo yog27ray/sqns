@@ -1,6 +1,6 @@
-import { ARN } from '../../../../typings/typings';
 import { QueueType } from '../../../../typings/class-types';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
+import { ARN } from '../../../../typings/typings';
 import { RESERVED_QUEUE_NAME } from '../helper/common';
 import { DeliveryPolicyHelper } from '../helper/delivery-policy-helper';
 import { BaseObject } from './base-object';

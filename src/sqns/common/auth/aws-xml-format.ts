@@ -101,6 +101,20 @@ class AwsXmlFormat {
     return AwsXmlFormat.jsonToXML('SendMessageBatchResponse', json);
   }
 
+  static findMessageById(requestId: string, eventItem: EventItem): string {
+    const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+    if (message) {
+      message.State = eventItem.state;
+    }
+    const json: any = {
+      ResponseMetadata: { RequestId: requestId },
+      FindMessageByIdResult: {
+        Message: message,
+      },
+    };
+    return AwsXmlFormat.jsonToXML('FindMessageByIdResponse', json);
+  }
+
   static receiveMessage(requestId: string, messages: Array<any>, AttributeName: Array<string>, MessageAttributeName: Array<string>)
     : string {
     const json: any = {
@@ -262,6 +276,9 @@ class AwsXmlFormat {
 
   private static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
     : { [key: string]: any } {
+    if (!event) {
+      return undefined;
+    }
     const result: { [key: string]: any } = {
       MessageId: event.id,
       ReceiptHandle: uuid(),
@@ -282,9 +299,9 @@ class AwsXmlFormat {
       const attributes = {
         ...eventSystemAttribute,
         SenderId: event.queueARN,
-        ApproximateFirstReceiveTimestamp: `${event.firstSentTime.getTime()}`,
+        ApproximateFirstReceiveTimestamp: event.firstSentTime ? `${event.firstSentTime.getTime()}` : '-1',
         ApproximateReceiveCount: `${event.receiveCount}`,
-        SentTimestamp: `${event.sentTime.getTime()}`,
+        SentTimestamp: event.sentTime ? `${event.sentTime.getTime()}` : '-1',
       };
       const attributeFields = Object.keys(attributes)
         .filter((each: string) => AttributeName.includes('ALL') || AttributeName.includes(each));

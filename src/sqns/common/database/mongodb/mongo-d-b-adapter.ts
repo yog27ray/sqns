@@ -1,10 +1,10 @@
 import { v4 as uuid } from 'uuid';
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../../typings/typings';
 import { TopicAttributes, TopicTag } from '../../../../../typings/class-types';
 import { KeyValueString } from '../../../../../typings/common';
 import { MongoDBConfig } from '../../../../../typings/config';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../../typings/subscription';
+import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../../typings/typings';
 import { logger } from '../../logger/logger';
 import { AccessKey } from '../../model/access-key';
 import { EventItem } from '../../model/event-item';
@@ -117,6 +117,14 @@ class MongoDBAdapter implements StorageAdapter {
 
   async findById(id: string): Promise<EventItem> {
     const event = await this.connection.findOne(MongoDBAdapter.Table.Event, { _id: id });
+    if (!event) {
+      return undefined;
+    }
+    return new EventItem(MongoDBAdapter.dbToSystemItem(event));
+  }
+
+  async findByIdForQueue(queue: Queue, id: string): Promise<EventItem> {
+    const event = await this.connection.findOne(MongoDBAdapter.Table.Event, { _id: id, queueARN: queue.arn });
     if (!event) {
       return undefined;
     }

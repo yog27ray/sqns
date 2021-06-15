@@ -1,9 +1,9 @@
-export type ClientConfiguration = {
+export interface ClientConfiguration {
   endpoint: string;
   region?: string;
   accessKeyId: string;
   secretAccessKey: string;
-};
+}
 
 export interface SQNSClientConfig {
   endpoint: string;

@@ -10,8 +10,9 @@ export interface PublishInput {
   MessageAttributes?: MessageAttributeMap;
 }
 
-export interface GetPublishInput { MessageId: string }
-export interface MarkPublishedInput { MessageId: string }
+export interface GetPublishInput { MessageId: string; }
+export interface MarkPublishedInput { MessageId: string; }
+export interface FindMessageById { QueueUrl: string; MessageId: string; }
 
 export interface GetPublishResponse {
   MessageId: string;
@@ -25,4 +26,4 @@ export interface GetPublishResponse {
 
 export declare type MessageStructure = { [key in SUPPORTED_CHANNEL_TYPE]?: string };
 
-export interface PublishResponse { MessageId?: string }
+export interface PublishResponse { MessageId?: string; }

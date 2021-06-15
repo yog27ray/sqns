@@ -1,5 +1,5 @@
-import { BASE_CONFIG, CreateQueueResult, KeyValue } from '../../../../typings/typings';
 import { ManagerQueueConfigListener } from '../../../../typings/config';
+import { BASE_CONFIG, CreateQueueResult, KeyValue } from '../../../../typings/typings';
 
 export class ManagerQueueConfig {
   private readonly _queueName: string;

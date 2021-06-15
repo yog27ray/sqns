@@ -77,7 +77,9 @@ export class BaseClient extends RequestClient {
         const inputValue = input[key] as Array<unknown>;
         // tslint:disable-next-line:prefer-conditional-expression
         if (!this._arrayFields.includes(key) && inputValue.length === 1) {
-          output[key] = inputValue[0] === '' ? [] : this.transformServerResponse(inputValue[0]);
+          output[key] = inputValue[0] as string === '' ? undefined : this.transformServerResponse(inputValue[0]);
+        } else if (this._arrayFields.includes(key) && inputValue.length === 1 && inputValue[0] as string === '') {
+          output[key] = [];
         } else {
           output[key] = inputValue.map((each: unknown) => this.transformServerResponse(each));
         }

@@ -1,6 +1,7 @@
+import { EventState } from '../src/sqns/common/model/event-item';
 import { MessageAttributeMap } from './common';
 
-interface Message {
+export interface Message {
   MessageId?: string;
   ReceiptHandle?: string;
   MD5OfBody?: string;
@@ -20,4 +21,8 @@ export interface ReceiveMessageRequest {
 
 export interface ReceiveMessageResult {
   Messages?: Array<Message>;
+}
+
+export interface FindMessageByIdResult {
+  Message: Message & { State: EventState };
 }
