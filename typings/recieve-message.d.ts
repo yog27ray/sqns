@@ -24,5 +24,12 @@ export interface ReceiveMessageResult {
 export interface FindMessageByIdResult {
     Message: Message & {
         State: EventState;
+        EventTime: string;
+    };
+}
+export interface UpdateMessageByIdResult {
+    Message: Message & {
+        State: EventState;
+        EventTime: string;
     };
 }

@@ -28,6 +28,13 @@ class SQSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
             eventTime: eventItem.eventTime,
         });
     }
+    async updateEvent(queue, eventItem) {
+        const event = await this._storageAdapter.findById(eventItem.id);
+        if (!event || !queue || event.queueARN !== queue.arn) {
+            return;
+        }
+        await this._storageAdapter.updateEvent(eventItem.id, { ...eventItem.toJSON() });
+    }
     async updateEventState(queue, id, state, message) {
         const event = await this._storageAdapter.findById(id);
         if (!event || !queue || event.queueARN !== queue.arn) {

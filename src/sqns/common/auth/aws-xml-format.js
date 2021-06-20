@@ -94,6 +94,7 @@ class AwsXmlFormat {
         const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
         if (message) {
             message.State = eventItem.state;
+            message.EventTime = eventItem.eventTime.toISOString();
         }
         const json = {
             ResponseMetadata: { RequestId: requestId },

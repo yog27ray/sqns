@@ -31,4 +31,6 @@ export declare class EventItem extends BaseObject {
     constructor(item: EventItemType);
     updateSentTime(date: Date): void;
     incrementReceiveCount(): void;
+    setState(state: string): void;
+    setDelaySeconds(DelaySeconds: number): void;
 }

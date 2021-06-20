@@ -250,6 +250,98 @@ describe('SQNSClient', () => {
                 chai_1.expect(Message).to.not.exist;
             });
         });
+        context('UpdateMessageById', () => {
+            let client;
+            let queue;
+            let queue2;
+            let messages;
+            beforeEach(async () => {
+                await setup_1.dropDatabase();
+                client = new s_q_n_s_client_1.SQNSClient({
+                    endpoint: `${test_env_1.Env.URL}/api`,
+                    accessKeyId: test_env_1.Env.accessKeyId,
+                    secretAccessKey: test_env_1.Env.secretAccessKey,
+                });
+                queue = await client.createQueue({ QueueName: 'queue1' });
+                queue2 = await client.createQueue({ QueueName: 'queue2' });
+                ({ Successful: messages } = await client.sendMessageBatch({
+                    QueueUrl: queue.QueueUrl,
+                    Entries: [{
+                            Id: '123',
+                            MessageBody: '123',
+                            MessageAttributes: {
+                                type: { StringValue: 'type1', DataType: 'String' },
+                                name: { StringValue: 'testUser', DataType: 'String' },
+                            },
+                            MessageSystemAttributes: { attribute1: { StringValue: 'attributeValue', DataType: 'String' } },
+                            MessageDeduplicationId: 'uniqueId1',
+                        }],
+                }));
+            });
+            it('should update message with time and state.', async () => {
+                const { Message: OriginalMessage } = await client.findByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                });
+                await client.updateByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                    DelaySeconds: 100,
+                    State: event_item_1.EventState.SUCCESS,
+                });
+                const { Message } = await client.findByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                });
+                chai_1.expect(Message.MessageId).to.equal(OriginalMessage.MessageId);
+                chai_1.expect(Message.Body).to.equal(OriginalMessage.Body);
+                chai_1.expect(Message.State).to.equal('SUCCESS');
+                chai_1.expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.least(100000);
+                chai_1.expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.most(101000);
+            });
+            it('should update message with different state.', async () => {
+                await client.updateByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                    State: event_item_1.EventState.SUCCESS,
+                });
+                let { Message } = await client.findByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                });
+                chai_1.expect(Message.State).to.equal('SUCCESS');
+                await client.updateByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                    State: event_item_1.EventState.FAILURE,
+                });
+                ({ Message } = await client.findByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                }));
+                chai_1.expect(Message.State).to.equal('FAILURE');
+                await client.updateByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                    State: event_item_1.EventState.PENDING,
+                });
+                ({ Message } = await client.findByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                }));
+                chai_1.expect(Message.State).to.equal('PENDING');
+                await client.updateByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                    State: event_item_1.EventState.PROCESSING,
+                });
+                ({ Message } = await client.findByMessageId({
+                    MessageId: messages[0].MessageId,
+                    QueueUrl: queue.QueueUrl,
+                }));
+                chai_1.expect(Message.State).to.equal('PROCESSING');
+            });
+        });
         context('ReceiveMessage', () => {
             let client;
             let queue;

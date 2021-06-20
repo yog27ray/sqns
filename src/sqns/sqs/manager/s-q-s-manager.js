@@ -106,6 +106,9 @@ class SQSManager extends base_manager_1.BaseManager {
         }
         this._eventQueue.resetAll();
     }
+    async updateEvent(queue, event) {
+        await this._sQSStorageEngine.updateEvent(queue, event);
+    }
     updateEventStateSuccess(queue, id, message) {
         return this._sQSStorageEngine.updateEventState(queue, id, event_item_1.EventItem.State.SUCCESS, { successResponse: message });
     }

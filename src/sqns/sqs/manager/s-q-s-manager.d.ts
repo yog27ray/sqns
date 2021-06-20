@@ -23,6 +23,7 @@ export declare class SQSManager extends BaseManager {
     comparatorFunction(queueARN: string, value: (event1: EventItem, event2: EventItem) => boolean): void;
     poll(queue: Queue, visibilityTimeout: number): Promise<EventItem>;
     resetAll(resetOnlyStatistics?: boolean): void;
+    updateEvent(queue: Queue, event: EventItem): Promise<any>;
     updateEventStateSuccess(queue: Queue, id: string, message: string): Promise<any>;
     updateEventStateFailure(queue: Queue, id: string, message: string): Promise<any>;
     listQueues(queueARNPrefix: ARN): Promise<Array<Queue>>;
