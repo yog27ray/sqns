@@ -113,6 +113,22 @@ class SQSController {
           const eventItem = await this.eventManager.findMessageById(queue, MessageId);
           return res.send(AwsXmlFormat.findMessageById(requestId, eventItem));
         }
+        case 'UpdateByMessageId': {
+          const {
+            MessageId,
+            queueName,
+            DelaySeconds,
+            State,
+            region,
+            requestId,
+          } = req.serverBody;
+          const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
+          const eventItem = await this.eventManager.findMessageById(queue, MessageId);
+          eventItem.setState(State);
+          eventItem.setDelaySeconds(DelaySeconds);
+          await this.eventManager.updateEvent(queue, eventItem);
+          return res.send(AwsXmlFormat.findMessageById(requestId, eventItem));
+        }
         case 'ReceiveMessage': {
           const {
             MaxNumberOfMessages,

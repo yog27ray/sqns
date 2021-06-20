@@ -128,6 +128,10 @@ export class SQSManager extends BaseManager {
     this._eventQueue.resetAll();
   }
 
+  async updateEvent(queue: Queue, event: EventItem): Promise<any> {
+    await this._sQSStorageEngine.updateEvent(queue, event);
+  }
+
   updateEventStateSuccess(queue: Queue, id: string, message: string): Promise<any> {
     return this._sQSStorageEngine.updateEventState(queue, id, EventItem.State.SUCCESS, { successResponse: message });
   }

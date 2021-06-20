@@ -1,4 +1,5 @@
 import { ARN, MessageAttributeEntry, MessageAttributeMap, PHONE, SUPPORTED_CHANNEL_TYPE } from './common';
+import { EventState } from '../src/sqns/common/model/event-item';
 
 export interface PublishInput {
   TopicArn?: ARN;
@@ -13,6 +14,7 @@ export interface PublishInput {
 export interface GetPublishInput { MessageId: string; }
 export interface MarkPublishedInput { MessageId: string; }
 export interface FindMessageById { QueueUrl: string; MessageId: string; }
+export interface UpdateMessageById { QueueUrl: string; MessageId: string; DelaySeconds?: number; State?: EventState }
 
 export interface GetPublishResponse {
   MessageId: string;

@@ -1,6 +1,6 @@
 import { SQNSClientConfig } from '../../typings/client-confriguation';
-import { FindMessageById, GetPublishInput, GetPublishResponse, MarkPublishedInput } from '../../typings/publish';
-import { FindMessageByIdResult } from '../../typings/recieve-message';
+import { FindMessageById, GetPublishInput, GetPublishResponse, MarkPublishedInput, UpdateMessageById } from '../../typings/publish';
+import { FindMessageByIdResult, UpdateMessageByIdResult } from '../../typings/recieve-message';
 import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
 import {
   ConfirmSubscriptionInput,
@@ -74,6 +74,17 @@ export class SQNSClient extends BaseClient {
     };
     const { FindMessageByIdResponse: { FindMessageByIdResult } } = await this.request(request) as {
       FindMessageByIdResponse: { FindMessageByIdResult: FindMessageByIdResult },
+    };
+    return FindMessageByIdResult;
+  }
+
+  async updateByMessageId(params: UpdateMessageById): Promise<UpdateMessageByIdResult> {
+    const request = {
+      uri: this._sqs.endpoint.href,
+      body: { Action: 'UpdateByMessageId', ...params },
+    };
+    const { FindMessageByIdResponse: { FindMessageByIdResult } } = await this.request(request) as {
+      FindMessageByIdResponse: { FindMessageByIdResult: UpdateMessageByIdResult },
     };
     return FindMessageByIdResult;
   }

@@ -85,4 +85,33 @@ export class EventItem extends BaseObject {
   incrementReceiveCount(): void {
     this.receiveCount += 1;
   }
+
+  setState(state: string): void {
+    switch (state) {
+      case EventState.PENDING.valueOf(): {
+        this.state = EventState.PENDING;
+        break;
+      }
+      case EventState.FAILURE.valueOf(): {
+        this.state = EventState.FAILURE;
+        break;
+      }
+      case EventState.SUCCESS.valueOf(): {
+        this.state = EventState.SUCCESS;
+        break;
+      }
+      case EventState.PROCESSING.valueOf(): {
+        this.state = EventState.PROCESSING;
+        break;
+      }
+      default:
+    }
+  }
+
+  setDelaySeconds(DelaySeconds: number): void {
+    if (DelaySeconds === undefined) {
+      return;
+    }
+    this.eventTime = new Date(new Date().getTime() + (Number(DelaySeconds) * 1000));
+  }
 }
