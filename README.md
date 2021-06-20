@@ -269,6 +269,15 @@ client.receiveMessage({
   const MessageId = response.Messages[0].MessageId;
 });
 ```
+### updateMessageById
+```js
+client.updateMessageById({
+  QueueUrl: queue.QueueUrl,
+  MessageId: 'messageId',
+}).then(response => {
+  const MessageId = response.Messages[0].MessageId;
+});
+```
 ### listQueues
 ```js
 client.listQueues({
