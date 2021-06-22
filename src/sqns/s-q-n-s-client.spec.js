@@ -228,7 +228,7 @@ describe('SQNSClient', () => {
             });
             it('should find message when messageId is correct.', async () => {
                 const { Message } = await client.findByMessageId({
-                    MessageId: messages[1].MessageId,
+                    MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                 });
                 chai_1.expect(Message.MessageId).to.equal(messages[1].MessageId);
@@ -283,7 +283,7 @@ describe('SQNSClient', () => {
                     MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                 });
-                await client.updateByMessageId({
+                await client.updateMessageById({
                     MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                     DelaySeconds: 100,
@@ -300,7 +300,7 @@ describe('SQNSClient', () => {
                 chai_1.expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.most(101000);
             });
             it('should update message with different state.', async () => {
-                await client.updateByMessageId({
+                await client.updateMessageById({
                     MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                     State: event_item_1.EventState.SUCCESS,
@@ -310,7 +310,7 @@ describe('SQNSClient', () => {
                     QueueUrl: queue.QueueUrl,
                 });
                 chai_1.expect(Message.State).to.equal('SUCCESS');
-                await client.updateByMessageId({
+                await client.updateMessageById({
                     MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                     State: event_item_1.EventState.FAILURE,
@@ -320,7 +320,7 @@ describe('SQNSClient', () => {
                     QueueUrl: queue.QueueUrl,
                 }));
                 chai_1.expect(Message.State).to.equal('FAILURE');
-                await client.updateByMessageId({
+                await client.updateMessageById({
                     MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                     State: event_item_1.EventState.PENDING,
@@ -330,7 +330,7 @@ describe('SQNSClient', () => {
                     QueueUrl: queue.QueueUrl,
                 }));
                 chai_1.expect(Message.State).to.equal('PENDING');
-                await client.updateByMessageId({
+                await client.updateMessageById({
                     MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                     State: event_item_1.EventState.PROCESSING,

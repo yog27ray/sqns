@@ -9,7 +9,7 @@ export declare class SQNSClient extends BaseClient {
     createQueue(params: CreateQueueRequest): Promise<CreateQueueResult>;
     sendMessage(params: SendMessageRequest): Promise<SendMessageResult>;
     findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult>;
-    updateByMessageId(params: UpdateMessageById): Promise<UpdateMessageByIdResult>;
+    updateMessageById(params: UpdateMessageById): Promise<UpdateMessageByIdResult>;
     receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult>;
     listQueues(params?: ListQueuesRequest): Promise<ListQueuesResponse>;
     deleteQueue(params: DeleteQueueRequest): Promise<any>;
