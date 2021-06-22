@@ -111,7 +111,6 @@ class SQSController {
           const { queueName, region, MessageId, requestId } = req.serverBody;
           const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
           const eventItem = await this.eventManager.findMessageById(queue, MessageId);
-          console.log(AwsXmlFormat.findMessageById(requestId, eventItem));
           return res.send(AwsXmlFormat.findMessageById(requestId, eventItem));
         }
         case 'UpdateMessageById': {
