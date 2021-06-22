@@ -83,10 +83,10 @@ export class SQNSClient extends BaseClient {
       uri: this._sqs.endpoint.href,
       body: { Action: 'UpdateMessageById', ...params },
     };
-    const { FindMessageByIdResponse: { FindMessageByIdResult } } = await this.request(request) as {
-      FindMessageByIdResponse: { FindMessageByIdResult: UpdateMessageByIdResult },
+    const { UpdateMessageByIdResponse: { UpdateMessageByIdResult } } = await this.request(request) as {
+      UpdateMessageByIdResponse: { UpdateMessageByIdResult: UpdateMessageByIdResult },
     };
-    return FindMessageByIdResult;
+    return UpdateMessageByIdResult;
   }
 
   receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult> {
