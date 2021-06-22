@@ -246,7 +246,7 @@ describe('SQNSClient', () => {
 
       it('should find message when messageId is correct.', async () => {
         const { Message } = await client.findByMessageId({
-          MessageId: messages[1].MessageId,
+          MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
         });
         expect(Message.MessageId).to.equal(messages[1].MessageId);
@@ -305,7 +305,7 @@ describe('SQNSClient', () => {
           MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
         });
-        await client.updateByMessageId({
+        await client.updateMessageById({
           MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
           DelaySeconds: 100,
@@ -323,7 +323,7 @@ describe('SQNSClient', () => {
       });
 
       it('should update message with different state.', async () => {
-        await client.updateByMessageId({
+        await client.updateMessageById({
           MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
           State: EventState.SUCCESS,
@@ -333,7 +333,7 @@ describe('SQNSClient', () => {
           QueueUrl: queue.QueueUrl,
         });
         expect(Message.State).to.equal('SUCCESS');
-        await client.updateByMessageId({
+        await client.updateMessageById({
           MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
           State: EventState.FAILURE,
@@ -343,7 +343,7 @@ describe('SQNSClient', () => {
           QueueUrl: queue.QueueUrl,
         }));
         expect(Message.State).to.equal('FAILURE');
-        await client.updateByMessageId({
+        await client.updateMessageById({
           MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
           State: EventState.PENDING,
@@ -353,7 +353,7 @@ describe('SQNSClient', () => {
           QueueUrl: queue.QueueUrl,
         }));
         expect(Message.State).to.equal('PENDING');
-        await client.updateByMessageId({
+        await client.updateMessageById({
           MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
           State: EventState.PROCESSING,
