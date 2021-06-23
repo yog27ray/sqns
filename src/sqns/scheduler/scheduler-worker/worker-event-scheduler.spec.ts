@@ -265,7 +265,7 @@ describe('WorkerEventSchedulerSpec', () => {
           expect(body.Message).to.equal('This is message');
           expect(body.SubscriptionArn).to.equal(SubscriptionArn);
           expect(body.UnsubscribeURL).to.equal(`http://127.0.0.1:1234/api/sns?Action=Unsubscribe&SubscriptionArn=${SubscriptionArn}`);
-          expect(body.MessageAttributes).to.deep.equal({ key1: { Type: 'String', Value: 'value' } });
+          expect(body.MessageAttributes).to.deep.equal({ key1: { DataType: 'String', StringValue: 'value' } });
           expect(this.req.headers['x-sqns-sns-message-id'][0]).to.equal(body.MessageId);
           expect(this.req.headers['x-sqns-sns-message-type'][0]).to.equal('Notification');
           expect(this.req.headers['x-sqns-sns-topic-arn'][0]).to.equal(body.TopicArn);

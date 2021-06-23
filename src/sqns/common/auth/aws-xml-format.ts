@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import xml2js from 'xml2js';
-import { KeyValue } from '../../../../typings/common';
+import { KeyValue, MessageAttributeMap, MessageAttributeValue } from '../../../../typings/common';
 import { EventItem } from '../model/event-item';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
@@ -106,8 +106,8 @@ class AwsXmlFormat {
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.eventTime.toISOString();
-      message.MessageAttributes = message.MessageAttribute;
-      message.Attributes = message.Attribute;
+      message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
+      message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
       delete message.MessageAttribute;
       delete message.Attribute;
     }
@@ -125,8 +125,8 @@ class AwsXmlFormat {
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.eventTime.toISOString();
-      message.MessageAttributes = message.MessageAttribute;
-      message.Attributes = message.Attribute;
+      message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
+      message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
       delete message.MessageAttribute;
       delete message.Attribute;
     }
@@ -216,7 +216,7 @@ class AwsXmlFormat {
   static getPublish(requestId: string, publish: Publish): string {
     const publishJSON = {
       MessageId: publish.id,
-      MessageAttributes: publish.MessageAttributes.entry,
+      MessageAttributes: AwsXmlFormat.transformNameValueArrayToMap(publish.MessageAttributes.entry),
       PublishArn: publish.destinationArn,
     };
     ['Message', 'PhoneNumber', 'Subject', 'MessageStructure', 'Status'].forEach((key: string) => {
@@ -296,6 +296,14 @@ class AwsXmlFormat {
 
   static getSubscriptionARN(subscription: Subscription, ReturnSubscriptionArn?: boolean): string {
     return subscription.confirmed || ReturnSubscriptionArn ? subscription.arn : 'PendingConfirmation';
+  }
+
+  private static transformNameValueArrayToMap(input: Array<{ Name: string; Value: MessageAttributeValue; }> = []): MessageAttributeMap {
+    return input.reduce((result_: MessageAttributeMap, item: { Name: string; Value: MessageAttributeValue; }) => {
+      const result = result_;
+      result[item.Name] = item.Value;
+      return result;
+    }, {});
   }
 
   private static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)

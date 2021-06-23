@@ -16,7 +16,7 @@ export class BaseClient extends RequestClient {
 
   protected readonly _sns: SNS;
 
-  private _arrayFields = ['MessageAttributes', 'member'];
+  private _arrayFields = ['member'];
 
   constructor(service: string, config: ClientConfiguration) {
     super();

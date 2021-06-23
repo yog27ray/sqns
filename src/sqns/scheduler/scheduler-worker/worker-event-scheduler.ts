@@ -1,6 +1,5 @@
 import * as schedule from 'node-schedule';
 import { SQNSClientConfig } from '../../../../typings/client-confriguation';
-import { MessageAttributeEntry } from '../../../../typings/common';
 import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { ResponseItem } from '../../../../typings/response-item';
 import { SNS_QUEUE_EVENT_TYPES, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
@@ -106,11 +105,7 @@ class WorkerEventScheduler {
     switch (subscription.Protocol) {
       case 'http':
       case 'https': {
-        const MessageAttributes = {};
         const headers = subscription.Attributes.headers ? JSON.parse(subscription.Attributes.headers) : {};
-        published.MessageAttributes.forEach(({ Name, Value }: MessageAttributeEntry) => {
-          MessageAttributes[Name] = { Type: Value.DataType, Value: Value.StringValue };
-        });
         const response = await this.sqnsClient.post(subscription.EndPoint, {
           body: JSON.stringify({
             Type: 'Notification',
@@ -120,7 +115,7 @@ class WorkerEventScheduler {
             Message: published.Message,
             UnsubscribeURL: subscription.UnsubscribeUrl,
             SubscriptionArn: subscriptionArn,
-            MessageAttributes,
+            MessageAttributes: published.MessageAttributes,
           }),
           headers: {
             ...headers,

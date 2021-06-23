@@ -23,7 +23,7 @@ export interface GetPublishResponse {
   PhoneNumber?: string;
   Subject?: string;
   Status?: string;
-  MessageAttributes?: Array<MessageAttributeEntry>;
+  MessageAttributes?: MessageAttributeMap;
 }
 
 export declare type MessageStructure = { [key in SUPPORTED_CHANNEL_TYPE]?: string };
