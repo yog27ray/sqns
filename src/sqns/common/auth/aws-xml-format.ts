@@ -106,6 +106,10 @@ class AwsXmlFormat {
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.eventTime.toISOString();
+      message.MessageAttributes = message.MessageAttribute;
+      message.Attributes = message.Attribute;
+      delete message.MessageAttribute;
+      delete message.Attribute;
     }
     const json: any = {
       ResponseMetadata: { RequestId: requestId },
@@ -114,6 +118,25 @@ class AwsXmlFormat {
       },
     };
     return AwsXmlFormat.jsonToXML('FindMessageByIdResponse', json);
+  }
+
+  static updateMessageById(requestId: string, eventItem: EventItem): string {
+    const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+    if (message) {
+      message.State = eventItem.state;
+      message.EventTime = eventItem.eventTime.toISOString();
+      message.MessageAttributes = message.MessageAttribute;
+      message.Attributes = message.Attribute;
+      delete message.MessageAttribute;
+      delete message.Attribute;
+    }
+    const json: any = {
+      ResponseMetadata: { RequestId: requestId },
+      UpdateMessageByIdResult: {
+        Message: message,
+      },
+    };
+    return AwsXmlFormat.jsonToXML('UpdateMessageByIdResponse', json);
   }
 
   static receiveMessage(requestId: string, messages: Array<any>, AttributeName: Array<string>, MessageAttributeName: Array<string>)

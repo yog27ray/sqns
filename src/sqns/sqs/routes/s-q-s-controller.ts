@@ -127,7 +127,7 @@ class SQSController {
           eventItem.setState(State);
           eventItem.setDelaySeconds(DelaySeconds);
           await this.eventManager.updateEvent(queue, eventItem);
-          return res.send(AwsXmlFormat.findMessageById(requestId, eventItem));
+          return res.send(AwsXmlFormat.updateMessageById(requestId, eventItem));
         }
         case 'ReceiveMessage': {
           const {

@@ -238,7 +238,7 @@ describe('SQNSClient', () => {
               MessageSystemAttributes: { attribute1: { StringValue: 'attributeValue', DataType: 'String' } },
               MessageDeduplicationId: 'uniqueId1',
             },
-            { Id: '1234', MessageBody: '1234' },
+            { Id: '1234', MessageBody: '1234', MessageAttributes: { type: { StringValue: 'type2', DataType: 'String' } } },
             { Id: '1235', MessageBody: '1235' },
           ],
         }));
@@ -246,11 +246,13 @@ describe('SQNSClient', () => {
 
       it('should find message when messageId is correct.', async () => {
         const { Message } = await client.findByMessageId({
-          MessageId: messages[0].MessageId,
+          MessageId: messages[1].MessageId,
           QueueUrl: queue.QueueUrl,
         });
         expect(Message.MessageId).to.equal(messages[1].MessageId);
         expect(Message.Body).to.equal('1234');
+        expect(Message.Attributes).to.exist;
+        expect(Message.MessageAttributes).to.exist;
         expect(Message.State).to.equal(EventState.PENDING);
       });
 
@@ -305,7 +307,7 @@ describe('SQNSClient', () => {
           MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
         });
-        await client.updateMessageById({
+        const { Message: UpdatedMessage } = await client.updateMessageById({
           MessageId: messages[0].MessageId,
           QueueUrl: queue.QueueUrl,
           DelaySeconds: 100,
@@ -318,6 +320,10 @@ describe('SQNSClient', () => {
         expect(Message.MessageId).to.equal(OriginalMessage.MessageId);
         expect(Message.Body).to.equal(OriginalMessage.Body);
         expect(Message.State).to.equal('SUCCESS');
+        expect(Message.MessageAttributes).to.exist;
+        expect(Message.Attributes).to.exist;
+        expect(UpdatedMessage.MessageAttributes).to.exist;
+        expect(UpdatedMessage.Attributes).to.exist;
         expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.least(100000);
         expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.most(101000);
       });
