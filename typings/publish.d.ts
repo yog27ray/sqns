@@ -1,5 +1,5 @@
 import { EventState } from '../src/sqns/common/model/event-item';
-import { ARN, MessageAttributeEntry, MessageAttributeMap, PHONE, SUPPORTED_CHANNEL_TYPE } from './common';
+import { ARN, MessageAttributeMap, PHONE, SUPPORTED_CHANNEL_TYPE } from './common';
 export interface PublishInput {
     TopicArn?: ARN;
     TargetArn?: ARN;
@@ -32,7 +32,7 @@ export interface GetPublishResponse {
     PhoneNumber?: string;
     Subject?: string;
     Status?: string;
-    MessageAttributes?: Array<MessageAttributeEntry>;
+    MessageAttributes?: MessageAttributeMap;
 }
 export declare type MessageStructure = {
     [key in SUPPORTED_CHANNEL_TYPE]?: string;

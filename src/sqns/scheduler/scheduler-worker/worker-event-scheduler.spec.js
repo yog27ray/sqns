@@ -233,7 +233,7 @@ describe('WorkerEventSchedulerSpec', () => {
                 chai_1.expect(body.Message).to.equal('This is message');
                 chai_1.expect(body.SubscriptionArn).to.equal(SubscriptionArn);
                 chai_1.expect(body.UnsubscribeURL).to.equal(`http://127.0.0.1:1234/api/sns?Action=Unsubscribe&SubscriptionArn=${SubscriptionArn}`);
-                chai_1.expect(body.MessageAttributes).to.deep.equal({ key1: { Type: 'String', Value: 'value' } });
+                chai_1.expect(body.MessageAttributes).to.deep.equal({ key1: { DataType: 'String', StringValue: 'value' } });
                 chai_1.expect(this.req.headers['x-sqns-sns-message-id'][0]).to.equal(body.MessageId);
                 chai_1.expect(this.req.headers['x-sqns-sns-message-type'][0]).to.equal('Notification');
                 chai_1.expect(this.req.headers['x-sqns-sns-topic-arn'][0]).to.equal(body.TopicArn);

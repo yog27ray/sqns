@@ -95,8 +95,8 @@ class AwsXmlFormat {
         if (message) {
             message.State = eventItem.state;
             message.EventTime = eventItem.eventTime.toISOString();
-            message.MessageAttributes = message.MessageAttribute;
-            message.Attributes = message.Attribute;
+            message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
+            message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
             delete message.MessageAttribute;
             delete message.Attribute;
         }
@@ -113,8 +113,8 @@ class AwsXmlFormat {
         if (message) {
             message.State = eventItem.state;
             message.EventTime = eventItem.eventTime.toISOString();
-            message.MessageAttributes = message.MessageAttribute;
-            message.Attributes = message.Attribute;
+            message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
+            message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
             delete message.MessageAttribute;
             delete message.Attribute;
         }
@@ -193,7 +193,7 @@ class AwsXmlFormat {
     static getPublish(requestId, publish) {
         const publishJSON = {
             MessageId: publish.id,
-            MessageAttributes: publish.MessageAttributes.entry,
+            MessageAttributes: AwsXmlFormat.transformNameValueArrayToMap(publish.MessageAttributes.entry),
             PublishArn: publish.destinationArn,
         };
         ['Message', 'PhoneNumber', 'Subject', 'MessageStructure', 'Status'].forEach((key) => {
@@ -268,6 +268,13 @@ class AwsXmlFormat {
     }
     static getSubscriptionARN(subscription, ReturnSubscriptionArn) {
         return subscription.confirmed || ReturnSubscriptionArn ? subscription.arn : 'PendingConfirmation';
+    }
+    static transformNameValueArrayToMap(input = []) {
+        return input.reduce((result_, item) => {
+            const result = result_;
+            result[item.Name] = item.Value;
+            return result;
+        }, {});
     }
     static responseMessage(event, AttributeName, MessageAttributeName) {
         if (!event) {

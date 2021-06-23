@@ -34,6 +34,7 @@ declare class AwsXmlFormat {
     static listSubscriptionsResult(requestId: string, subscriptions: Array<Subscription>, skip: number, total: number): string;
     static listSubscriptionsByTopicResult(requestId: string, subscriptions: Array<Subscription>, skip: number, total: number): string;
     static getSubscriptionARN(subscription: Subscription, ReturnSubscriptionArn?: boolean): string;
+    private static transformNameValueArrayToMap;
     private static responseMessage;
     private static md5HashJSON;
     private static md5Hash;

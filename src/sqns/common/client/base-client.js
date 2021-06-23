@@ -14,7 +14,7 @@ const request_client_1 = require("../request-client/request-client");
 class BaseClient extends request_client_1.RequestClient {
     constructor(service, config) {
         super();
-        this._arrayFields = ['MessageAttributes', 'member'];
+        this._arrayFields = ['member'];
         this._config = { ...config, region: BaseClient.REGION };
         this._sqs = new sqs_1.default({ ...this._config, endpoint: `${config.endpoint}/sqs` });
         this._sns = new sns_1.default({ ...this._config, endpoint: `${config.endpoint}/sns` });
