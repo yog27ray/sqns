@@ -94,7 +94,7 @@ class SQSController {
                     eventItem.setState(State);
                     eventItem.setDelaySeconds(DelaySeconds);
                     await this.eventManager.updateEvent(queue, eventItem);
-                    return res.send(aws_xml_format_1.AwsXmlFormat.findMessageById(requestId, eventItem));
+                    return res.send(aws_xml_format_1.AwsXmlFormat.updateMessageById(requestId, eventItem));
                 }
                 case 'ReceiveMessage': {
                     const { MaxNumberOfMessages, VisibilityTimeout, AttributeName, MessageAttributeName, queueName, requestId, region, } = req.serverBody;

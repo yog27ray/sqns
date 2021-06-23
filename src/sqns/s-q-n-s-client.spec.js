@@ -221,18 +221,20 @@ describe('SQNSClient', () => {
                             MessageSystemAttributes: { attribute1: { StringValue: 'attributeValue', DataType: 'String' } },
                             MessageDeduplicationId: 'uniqueId1',
                         },
-                        { Id: '1234', MessageBody: '1234' },
+                        { Id: '1234', MessageBody: '1234', MessageAttributes: { type: { StringValue: 'type2', DataType: 'String' } } },
                         { Id: '1235', MessageBody: '1235' },
                     ],
                 }));
             });
             it('should find message when messageId is correct.', async () => {
                 const { Message } = await client.findByMessageId({
-                    MessageId: messages[0].MessageId,
+                    MessageId: messages[1].MessageId,
                     QueueUrl: queue.QueueUrl,
                 });
                 chai_1.expect(Message.MessageId).to.equal(messages[1].MessageId);
                 chai_1.expect(Message.Body).to.equal('1234');
+                chai_1.expect(Message.Attributes).to.exist;
+                chai_1.expect(Message.MessageAttributes).to.exist;
                 chai_1.expect(Message.State).to.equal(event_item_1.EventState.PENDING);
             });
             it('should not find message when messageId correct and queueUrl is different.', async () => {
@@ -283,7 +285,7 @@ describe('SQNSClient', () => {
                     MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                 });
-                await client.updateMessageById({
+                const { Message: UpdatedMessage } = await client.updateMessageById({
                     MessageId: messages[0].MessageId,
                     QueueUrl: queue.QueueUrl,
                     DelaySeconds: 100,
@@ -296,6 +298,10 @@ describe('SQNSClient', () => {
                 chai_1.expect(Message.MessageId).to.equal(OriginalMessage.MessageId);
                 chai_1.expect(Message.Body).to.equal(OriginalMessage.Body);
                 chai_1.expect(Message.State).to.equal('SUCCESS');
+                chai_1.expect(Message.MessageAttributes).to.exist;
+                chai_1.expect(Message.Attributes).to.exist;
+                chai_1.expect(UpdatedMessage.MessageAttributes).to.exist;
+                chai_1.expect(UpdatedMessage.Attributes).to.exist;
                 chai_1.expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.least(100000);
                 chai_1.expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.most(101000);
             });
