@@ -57,7 +57,7 @@ export class DeliveryPolicyHelper {
       DeliveryPolicyHelper.hasAllKeys(
         channelDeliveryPolicyJSON,
         DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy as unknown as KeyValue);
-      return channelDeliveryPolicyJSON;
+      return channelDeliveryPolicyJSON as ChannelDeliveryPolicy;
     } catch (error) {
       if (replyWithDefaultPolicy) {
         return DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy;
