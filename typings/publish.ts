@@ -1,5 +1,5 @@
 import { EventState } from '../src/sqns/common/model/event-item';
-import { ARN, MessageAttributeEntry, MessageAttributeMap, PHONE, SUPPORTED_CHANNEL_TYPE } from './common';
+import { ARN, MessageAttributeMap, PHONE, SUPPORTED_CHANNEL_TYPE } from './common';
 
 export interface PublishInput {
   TopicArn?: ARN;
