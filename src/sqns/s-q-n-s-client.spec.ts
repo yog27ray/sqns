@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import moment from 'moment';
 import nock from 'nock';
 import { parseString } from 'xml2js';
+import { ChannelDeliveryPolicy } from '../../typings/delivery-policy';
 import { Message } from '../../typings/recieve-message';
 import {
   ARN,
@@ -19,6 +20,7 @@ import { generateAuthenticationHash } from './common/auth/authentication';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
 import { SYSTEM_QUEUE_NAME } from './common/helper/common';
+import { DeliveryPolicyHelper } from './common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from './common/model/base-storage-engine';
 import { EventItem, EventState } from './common/model/event-item';
 import { Queue } from './common/model/queue';
@@ -57,7 +59,14 @@ describe('SQNSClient', () => {
       });
 
       it('should receive message maximum of 2 times', async () => {
-        const queue = await client.createQueue({ QueueName: 'queue1', Attributes: { maxReceiveCount: '2' } });
+        const deliveryPolicy: ChannelDeliveryPolicy = JSON.parse(JSON.stringify(DeliveryPolicyHelper
+          .DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy));
+        deliveryPolicy.maxDelayTarget = 0;
+        deliveryPolicy.minDelayTarget = 0;
+        const queue = await client.createQueue({
+          QueueName: 'queue1',
+          Attributes: { maxReceiveCount: '2', DeliveryPolicy: JSON.stringify(deliveryPolicy) },
+        });
         await client.sendMessage({
           QueueUrl: queue.QueueUrl,
           MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' }, name: { StringValue: 'testUser', DataType: 'String' } },

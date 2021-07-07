@@ -1,6 +1,6 @@
 import { QueueType } from '../../../../typings/class-types';
+import { ARN } from '../../../../typings/common';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
-import { ARN } from '../../../../typings/typings';
 import { RESERVED_QUEUE_NAME } from '../helper/common';
 import { DeliveryPolicyHelper } from '../helper/delivery-policy-helper';
 import { BaseObject } from './base-object';
@@ -38,7 +38,7 @@ class Queue extends BaseObject {
     this.attributes = item.attributes || {};
     this.tags = item.tags || {};
     this.arn = item.arn || this.getARN();
-    this.DeliveryPolicy = item.DeliveryPolicy || DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy(this.attributes.DeliveryPolicy);
+    this.DeliveryPolicy = DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy(this.attributes.DeliveryPolicy);
   }
 
   getMaxReceiveCount(): number {

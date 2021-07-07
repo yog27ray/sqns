@@ -1,8 +1,8 @@
+import { KeyValue, SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from '../../../../typings/common';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { GetSubscriptionResponse } from '../../../../typings/subscription';
-import { KeyValue, SUPPORTED_BACKOFF_FUNCTIONS_TYPE } from '../../../../typings/typings';
 import { SQNSError } from '../auth/s-q-n-s-error';
-import { SUPPORTED_BACKOFF_FUNCTIONS } from './common';
+import { SUPPORTED_BACKOFF_FUNCTIONS, SUPPORTED_CHANNEL } from './common';
 
 export class DeliveryPolicyHelper {
   static readonly DEFAULT_DELIVERY_POLICY: DeliveryPolicy = {
@@ -20,9 +20,8 @@ export class DeliveryPolicyHelper {
     },
   };
 
-  private static readonly DELAY_CONFIG: { [key in SUPPORTED_BACKOFF_FUNCTIONS_TYPE]: number } = {
-    linear: 1000 * 60 * 10,
-    exponential: 2,
+  private static readonly DELAY_CONFIG: Partial<{ [key in SUPPORTED_BACKOFF_FUNCTIONS_TYPE]: number }> = {
+    linear: 60 * 10,
   };
 
   static calculateNewEventTime(
@@ -36,7 +35,7 @@ export class DeliveryPolicyHelper {
         break;
       }
       case 'exponential': {
-        timeDelay = (DeliveryPolicyHelper.DELAY_CONFIG.exponential ** params.attempt) * params.minDelay * 1000;
+        timeDelay = params.minDelay ** params.attempt;
         break;
       }
       default: {
@@ -46,15 +45,19 @@ export class DeliveryPolicyHelper {
         });
       }
     }
-    return new Date(startTime.getTime() + Math.max(timeDelay, params.minDelay));
+    const effectiveDelay = Math.min(
+      channelDeliveryPolicy.maxDelayTarget,
+      Math.max(timeDelay, params.minDelay, channelDeliveryPolicy.minDelayTarget)) * 1000;
+    return new Date(startTime.getTime() + effectiveDelay);
   }
 
-  static verifyAndGetChannelDeliveryPolicy(channelDeliveryPolicy?: string, replyWithDefaultPolicy?: boolean): ChannelDeliveryPolicy {
+  static verifyAndGetChannelDeliveryPolicy(channelDeliveryPolicy: string, replyWithDefaultPolicy?: boolean): ChannelDeliveryPolicy {
     try {
+      const channelDeliveryPolicyJSON = JSON.parse(channelDeliveryPolicy);
       DeliveryPolicyHelper.hasAllKeys(
-        JSON.parse(channelDeliveryPolicy),
+        channelDeliveryPolicyJSON,
         DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy as unknown as KeyValue);
-      return JSON.parse(channelDeliveryPolicy) as ChannelDeliveryPolicy;
+      return channelDeliveryPolicyJSON;
     } catch (error) {
       if (replyWithDefaultPolicy) {
         return DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy;
@@ -109,5 +112,14 @@ export class DeliveryPolicyHelper {
         SQNSError.invalidDeliveryPolicy(`"${key}" missing.`);
       }
     });
+  }
+
+  private static validChannelName(deliveryChannelNames: Array<string>): void {
+    const invalidChannelNames = deliveryChannelNames
+      .filter((channelName: SUPPORTED_CHANNEL_TYPE) => !SUPPORTED_CHANNEL.includes(channelName));
+    if (!invalidChannelNames.length) {
+      return;
+    }
+    SQNSError.invalidDeliveryPolicy(`"${invalidChannelNames.join(',')}" un-supported channel names.`);
   }
 }

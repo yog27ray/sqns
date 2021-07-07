@@ -164,15 +164,15 @@ export class SQSManager extends BaseManager {
   async sendMessage(queue: Queue, MessageBody: string, MessageAttribute: MessageAttributeMap, MessageSystemAttribute: MessageAttributeMap,
     DelaySeconds: string = '0', MessageDeduplicationId?: string): Promise<EventItem> {
     this.storageToQueueWorker.setUpIntervalForQueue(queue);
-    const DeliveryPolicy: ChannelDeliveryPolicy = DeliveryPolicyHelper
-      .verifyAndGetChannelDeliveryPolicy(MessageAttribute?.DeliveryPolicy?.StringValue, true) || queue.DeliveryPolicy;
+    const deliveryPolicy: ChannelDeliveryPolicy = DeliveryPolicyHelper
+      .verifyAndGetChannelDeliveryPolicy(MessageAttribute?.DeliveryPolicy?.StringValue);
     const eventItem = new EventItem({
       id: undefined,
       MessageAttribute,
       MessageSystemAttribute,
       MessageBody,
       queueARN: queue.arn,
-      DeliveryPolicy,
+      DeliveryPolicy: deliveryPolicy,
       MessageDeduplicationId,
       maxReceiveCount: queue.getMaxReceiveCount(),
       eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),

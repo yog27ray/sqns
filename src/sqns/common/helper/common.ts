@@ -1,4 +1,4 @@
-import { SupportedProtocol, SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from '../../../../typings/typings';
+import { SupportedProtocol, SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from '../../../../typings/common';
 
 const SUPPORTED_PROTOCOL: Array<SupportedProtocol> = ['http', 'https'];
 const SUPPORTED_CHANNEL: Array<SUPPORTED_CHANNEL_TYPE> = ['http', 'https', 'default'];

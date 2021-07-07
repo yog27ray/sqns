@@ -1,3 +1,4 @@
+/* tslint:disable:no-null-keyword */
 import SQS from 'aws-sdk/clients/sqs';
 import { expect } from 'chai';
 import moment from 'moment';
@@ -7,6 +8,7 @@ import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
 import { SQNSClient } from '../../../s-q-n-s-client';
 import { WorkerEventScheduler } from '../../../scheduler/scheduler-worker/worker-event-scheduler';
+import { DeliveryPolicyHelper } from '../../helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../model/base-storage-engine';
 import { RequestClient } from '../../request-client/request-client';
 import { MongoDBAdapter } from './mongo-d-b-adapter';
@@ -26,7 +28,14 @@ describe('mongoDB test cases', () => {
         accessKeyId: Env.accessKeyId,
         secretAccessKey: Env.secretAccessKey,
       });
-      queue = await client.createQueue({ QueueName: 'queue1' });
+      const deliveryPolicy: ChannelDeliveryPolicy = JSON.parse(JSON.stringify(DeliveryPolicyHelper
+        .DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy));
+      deliveryPolicy.minDelayTarget = 60;
+      deliveryPolicy.maxDelayTarget = 60;
+      queue = await client.createQueue({
+        QueueName: 'queue1',
+        Attributes: { DeliveryPolicy: JSON.stringify(deliveryPolicy) },
+      });
     });
 
     it('should call failure api when request fails in mongoDB. for exponential retry', async () => {
@@ -102,15 +111,7 @@ describe('mongoDB test cases', () => {
         state: 'FAILURE',
         processingResponse: 'sent to slave',
         failureResponse: 'Event marked failed without response.',
-        DeliveryPolicy: {
-          numRetries: 3,
-          numNoDelayRetries: 0,
-          minDelayTarget: 20,
-          maxDelayTarget: 20,
-          numMinDelayRetries: 0,
-          numMaxDelayRetries: 0,
-          backoffFunction: 'exponential',
-        },
+        DeliveryPolicy: null,
       }, {
         priority: 999999,
         receiveCount: 1,
@@ -122,15 +123,7 @@ describe('mongoDB test cases', () => {
         MessageAttribute: {},
         state: 'PROCESSING',
         processingResponse: 'sent to slave',
-        DeliveryPolicy: {
-          numRetries: 3,
-          numNoDelayRetries: 0,
-          minDelayTarget: 20,
-          maxDelayTarget: 20,
-          numMinDelayRetries: 0,
-          numMaxDelayRetries: 0,
-          backoffFunction: 'exponential',
-        },
+        DeliveryPolicy: null,
       }, {
         priority: 999999,
         receiveCount: 1,
@@ -143,15 +136,7 @@ describe('mongoDB test cases', () => {
         state: 'SUCCESS',
         processingResponse: 'sent to slave',
         successResponse: 'this is success message',
-        DeliveryPolicy: {
-          numRetries: 3,
-          numNoDelayRetries: 0,
-          minDelayTarget: 20,
-          maxDelayTarget: 20,
-          numMinDelayRetries: 0,
-          numMaxDelayRetries: 0,
-          backoffFunction: 'exponential',
-        },
+        DeliveryPolicy: null,
       }]);
     });
 
@@ -161,7 +146,7 @@ describe('mongoDB test cases', () => {
         numRetries: 3,
         numNoDelayRetries: 0,
         minDelayTarget: 20,
-        maxDelayTarget: 20,
+        maxDelayTarget: 2000,
         numMinDelayRetries: 0,
         numMaxDelayRetries: 0,
         backoffFunction: 'linear',
@@ -280,15 +265,7 @@ describe('mongoDB test cases', () => {
         queueARN: 'arn:sqns:sqs:sqns:1:queue1',
         failureResponse: 'Event marked failed without response.',
         processingResponse: 'sent to slave',
-        DeliveryPolicy: {
-          numRetries: 3,
-          numNoDelayRetries: 0,
-          minDelayTarget: 20,
-          maxDelayTarget: 20,
-          numMinDelayRetries: 0,
-          numMaxDelayRetries: 0,
-          backoffFunction: 'exponential',
-        },
+        DeliveryPolicy: null,
       }]);
     });
 
