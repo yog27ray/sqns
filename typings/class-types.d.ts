@@ -58,7 +58,7 @@ export declare interface QueueType extends BaseObjectType {
         [key: string]: string;
     };
     arn?: ARN;
-    DeliveryPolicy?: ChannelDeliveryPolicy;
+    DeliveryPolicy?: DeliveryPolicy;
 }
 export declare interface SubscriptionVerificationTokenType extends BaseObjectType {
     Type: string;

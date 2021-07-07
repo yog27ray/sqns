@@ -12,7 +12,7 @@ class DeliveryPolicyHelper {
                 break;
             }
             case 'exponential': {
-                timeDelay = (DeliveryPolicyHelper.DELAY_CONFIG.exponential ** params.attempt) * params.minDelay * 1000;
+                timeDelay = params.minDelay ** params.attempt;
                 break;
             }
             default: {
@@ -22,12 +22,14 @@ class DeliveryPolicyHelper {
                 });
             }
         }
-        return new Date(startTime.getTime() + Math.max(timeDelay, params.minDelay));
+        const effectiveDelay = Math.min(channelDeliveryPolicy.maxDelayTarget, Math.max(timeDelay, params.minDelay, channelDeliveryPolicy.minDelayTarget)) * 1000;
+        return new Date(startTime.getTime() + effectiveDelay);
     }
     static verifyAndGetChannelDeliveryPolicy(channelDeliveryPolicy, replyWithDefaultPolicy) {
         try {
-            DeliveryPolicyHelper.hasAllKeys(JSON.parse(channelDeliveryPolicy), DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy);
-            return JSON.parse(channelDeliveryPolicy);
+            const channelDeliveryPolicyJSON = JSON.parse(channelDeliveryPolicy);
+            DeliveryPolicyHelper.hasAllKeys(channelDeliveryPolicyJSON, DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy);
+            return channelDeliveryPolicyJSON;
         }
         catch (error) {
             if (replyWithDefaultPolicy) {
@@ -97,7 +99,6 @@ DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY = {
     },
 };
 DeliveryPolicyHelper.DELAY_CONFIG = {
-    linear: 1000 * 60 * 10,
-    exponential: 2,
+    linear: 60 * 10,
 };
 //# sourceMappingURL=delivery-policy-helper.js.map

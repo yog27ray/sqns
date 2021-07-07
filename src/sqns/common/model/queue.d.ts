@@ -1,6 +1,6 @@
 import { QueueType } from '../../../../typings/class-types';
+import { ARN } from '../../../../typings/common';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
-import { ARN } from '../../../../typings/typings';
 import { BaseObject } from './base-object';
 declare class Queue extends BaseObject {
     ownerId: string;

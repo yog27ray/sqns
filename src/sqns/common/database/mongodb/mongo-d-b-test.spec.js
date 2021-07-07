@@ -9,6 +9,7 @@ const setup_1 = require("../../../../setup");
 const test_env_1 = require("../../../../test-env");
 const s_q_n_s_client_1 = require("../../../s-q-n-s-client");
 const worker_event_scheduler_1 = require("../../../scheduler/scheduler-worker/worker-event-scheduler");
+const delivery_policy_helper_1 = require("../../helper/delivery-policy-helper");
 const base_storage_engine_1 = require("../../model/base-storage-engine");
 const request_client_1 = require("../../request-client/request-client");
 const mongo_d_b_adapter_1 = require("./mongo-d-b-adapter");
@@ -26,7 +27,14 @@ describe('mongoDB test cases', () => {
                 accessKeyId: test_env_1.Env.accessKeyId,
                 secretAccessKey: test_env_1.Env.secretAccessKey,
             });
-            queue = await client.createQueue({ QueueName: 'queue1' });
+            const deliveryPolicy = JSON.parse(JSON.stringify(delivery_policy_helper_1.DeliveryPolicyHelper
+                .DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy));
+            deliveryPolicy.minDelayTarget = 60;
+            deliveryPolicy.maxDelayTarget = 60;
+            queue = await client.createQueue({
+                QueueName: 'queue1',
+                Attributes: { DeliveryPolicy: JSON.stringify(deliveryPolicy) },
+            });
         });
         it('should call failure api when request fails in mongoDB. for exponential retry', async () => {
             const time = new Date().getTime() / -1000;
@@ -97,15 +105,7 @@ describe('mongoDB test cases', () => {
                     state: 'FAILURE',
                     processingResponse: 'sent to slave',
                     failureResponse: 'Event marked failed without response.',
-                    DeliveryPolicy: {
-                        numRetries: 3,
-                        numNoDelayRetries: 0,
-                        minDelayTarget: 20,
-                        maxDelayTarget: 20,
-                        numMinDelayRetries: 0,
-                        numMaxDelayRetries: 0,
-                        backoffFunction: 'exponential',
-                    },
+                    DeliveryPolicy: null,
                 }, {
                     priority: 999999,
                     receiveCount: 1,
@@ -117,15 +117,7 @@ describe('mongoDB test cases', () => {
                     MessageAttribute: {},
                     state: 'PROCESSING',
                     processingResponse: 'sent to slave',
-                    DeliveryPolicy: {
-                        numRetries: 3,
-                        numNoDelayRetries: 0,
-                        minDelayTarget: 20,
-                        maxDelayTarget: 20,
-                        numMinDelayRetries: 0,
-                        numMaxDelayRetries: 0,
-                        backoffFunction: 'exponential',
-                    },
+                    DeliveryPolicy: null,
                 }, {
                     priority: 999999,
                     receiveCount: 1,
@@ -138,15 +130,7 @@ describe('mongoDB test cases', () => {
                     state: 'SUCCESS',
                     processingResponse: 'sent to slave',
                     successResponse: 'this is success message',
-                    DeliveryPolicy: {
-                        numRetries: 3,
-                        numNoDelayRetries: 0,
-                        minDelayTarget: 20,
-                        maxDelayTarget: 20,
-                        numMinDelayRetries: 0,
-                        numMaxDelayRetries: 0,
-                        backoffFunction: 'exponential',
-                    },
+                    DeliveryPolicy: null,
                 }]);
         });
         it('should call failure api when request fails in mongoDB. for linear retry', async () => {
@@ -155,7 +139,7 @@ describe('mongoDB test cases', () => {
                 numRetries: 3,
                 numNoDelayRetries: 0,
                 minDelayTarget: 20,
-                maxDelayTarget: 20,
+                maxDelayTarget: 2000,
                 numMinDelayRetries: 0,
                 numMaxDelayRetries: 0,
                 backoffFunction: 'linear',
@@ -262,15 +246,7 @@ describe('mongoDB test cases', () => {
                     queueARN: 'arn:sqns:sqs:sqns:1:queue1',
                     failureResponse: 'Event marked failed without response.',
                     processingResponse: 'sent to slave',
-                    DeliveryPolicy: {
-                        numRetries: 3,
-                        numNoDelayRetries: 0,
-                        minDelayTarget: 20,
-                        maxDelayTarget: 20,
-                        numMinDelayRetries: 0,
-                        numMaxDelayRetries: 0,
-                        backoffFunction: 'exponential',
-                    },
+                    DeliveryPolicy: null,
                 }]);
         });
         afterEach(() => slaveScheduler === null || slaveScheduler === void 0 ? void 0 : slaveScheduler.cancel());

@@ -13,6 +13,7 @@ const authentication_1 = require("./common/auth/authentication");
 const s_q_n_s_error_1 = require("./common/auth/s-q-n-s-error");
 const base_client_1 = require("./common/client/base-client");
 const common_1 = require("./common/helper/common");
+const delivery_policy_helper_1 = require("./common/helper/delivery-policy-helper");
 const base_storage_engine_1 = require("./common/model/base-storage-engine");
 const event_item_1 = require("./common/model/event-item");
 const queue_1 = require("./common/model/queue");
@@ -47,7 +48,14 @@ describe('SQNSClient', () => {
                 chai_1.expect(result.QueueUrl).to.equal(`${test_env_1.Env.URL}/api/sqs/sqns/1/queue1`);
             });
             it('should receive message maximum of 2 times', async () => {
-                const queue = await client.createQueue({ QueueName: 'queue1', Attributes: { maxReceiveCount: '2' } });
+                const deliveryPolicy = JSON.parse(JSON.stringify(delivery_policy_helper_1.DeliveryPolicyHelper
+                    .DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy));
+                deliveryPolicy.maxDelayTarget = 0;
+                deliveryPolicy.minDelayTarget = 0;
+                const queue = await client.createQueue({
+                    QueueName: 'queue1',
+                    Attributes: { maxReceiveCount: '2', DeliveryPolicy: JSON.stringify(deliveryPolicy) },
+                });
                 await client.sendMessage({
                     QueueUrl: queue.QueueUrl,
                     MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' }, name: { StringValue: 'testUser', DataType: 'String' } },

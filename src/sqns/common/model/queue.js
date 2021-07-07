@@ -14,7 +14,7 @@ class Queue extends base_object_1.BaseObject {
         this.attributes = item.attributes || {};
         this.tags = item.tags || {};
         this.arn = item.arn || this.getARN();
-        this.DeliveryPolicy = item.DeliveryPolicy || delivery_policy_helper_1.DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy(this.attributes.DeliveryPolicy);
+        this.DeliveryPolicy = delivery_policy_helper_1.DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy(this.attributes.DeliveryPolicy);
     }
     static arn(companyId, region, name) {
         if (common_1.RESERVED_QUEUE_NAME.includes(name)) {

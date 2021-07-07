@@ -135,15 +135,15 @@ class SQSManager extends base_manager_1.BaseManager {
     async sendMessage(queue, MessageBody, MessageAttribute, MessageSystemAttribute, DelaySeconds = '0', MessageDeduplicationId) {
         var _a;
         this.storageToQueueWorker.setUpIntervalForQueue(queue);
-        const DeliveryPolicy = delivery_policy_helper_1.DeliveryPolicyHelper
-            .verifyAndGetChannelDeliveryPolicy((_a = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.DeliveryPolicy) === null || _a === void 0 ? void 0 : _a.StringValue, true) || queue.DeliveryPolicy;
+        const deliveryPolicy = delivery_policy_helper_1.DeliveryPolicyHelper
+            .verifyAndGetChannelDeliveryPolicy((_a = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.DeliveryPolicy) === null || _a === void 0 ? void 0 : _a.StringValue);
         const eventItem = new event_item_1.EventItem({
             id: undefined,
             MessageAttribute,
             MessageSystemAttribute,
             MessageBody,
             queueARN: queue.arn,
-            DeliveryPolicy,
+            DeliveryPolicy: deliveryPolicy,
             MessageDeduplicationId,
             maxReceiveCount: queue.getMaxReceiveCount(),
             eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),

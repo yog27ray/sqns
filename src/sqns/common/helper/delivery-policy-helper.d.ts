@@ -7,7 +7,7 @@ export declare class DeliveryPolicyHelper {
         minDelay: number;
         attempt: number;
     }): Date;
-    static verifyAndGetChannelDeliveryPolicy(channelDeliveryPolicy?: string, replyWithDefaultPolicy?: boolean): ChannelDeliveryPolicy;
+    static verifyAndGetChannelDeliveryPolicy(channelDeliveryPolicy: string, replyWithDefaultPolicy?: boolean): ChannelDeliveryPolicy;
     static getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy: DeliveryPolicy, subscription: GetSubscriptionResponse): ChannelDeliveryPolicy;
     static checkDeliveryPolicyCorrectness(deliveryPolicyStringValue?: string): void;
     private static hasAllKeys;

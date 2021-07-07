@@ -16,9 +16,10 @@ class SQSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
         const eventItem = eventItem_;
         eventItem.updateSentTime(new Date());
         eventItem.incrementReceiveCount();
-        const effectiveDeliveryPolicy = eventItem.DeliveryPolicy || queue.DeliveryPolicy;
-        eventItem.eventTime = delivery_policy_helper_1.DeliveryPolicyHelper
-            .calculateNewEventTime(new Date(), effectiveDeliveryPolicy, { attempt: eventItem.receiveCount, minDelay: visibilityTimeout });
+        const effectiveDeliveryPolicy = eventItem.DeliveryPolicy
+            || queue.DeliveryPolicy
+            || delivery_policy_helper_1.DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy;
+        eventItem.eventTime = delivery_policy_helper_1.DeliveryPolicyHelper.calculateNewEventTime(new Date(), effectiveDeliveryPolicy, { attempt: eventItem.receiveCount, minDelay: visibilityTimeout || effectiveDeliveryPolicy.minDelayTarget });
         await this._storageAdapter.updateEvent(eventItem.id, {
             state: event_item_1.EventItem.State.PROCESSING.valueOf(),
             processingResponse: message,

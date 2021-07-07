@@ -7,8 +7,8 @@ and subscriptions in distributed system. This service can be divided into follow
 1. Queue Management
 2. Notification Management
 
-This project has been inspired from AWS SQS and AWS SNS.
-This is an extension of the existing AWS SQS and AWS SNS with some more functionality add that we felt were lagging.
+This project is inspired by AWS SQS and AWS SNS.
+This is an extension of the existing AWS SQS and AWS SNS with some more functionality add that I felt were missing.
 
 # Prerequisites
 - Express app
