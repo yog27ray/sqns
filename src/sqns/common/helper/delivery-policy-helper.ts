@@ -1,8 +1,8 @@
-import { KeyValue, SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from '../../../../typings/common';
+import { KeyValue, SUPPORTED_BACKOFF_FUNCTIONS_TYPE } from '../../../../typings/common';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { GetSubscriptionResponse } from '../../../../typings/subscription';
 import { SQNSError } from '../auth/s-q-n-s-error';
-import { SUPPORTED_BACKOFF_FUNCTIONS, SUPPORTED_CHANNEL } from './common';
+import { SUPPORTED_BACKOFF_FUNCTIONS } from './common';
 
 export class DeliveryPolicyHelper {
   static readonly DEFAULT_DELIVERY_POLICY: DeliveryPolicy = {
@@ -112,14 +112,5 @@ export class DeliveryPolicyHelper {
         SQNSError.invalidDeliveryPolicy(`"${key}" missing.`);
       }
     });
-  }
-
-  private static validChannelName(deliveryChannelNames: Array<string>): void {
-    const invalidChannelNames = deliveryChannelNames
-      .filter((channelName: SUPPORTED_CHANNEL_TYPE) => !SUPPORTED_CHANNEL.includes(channelName));
-    if (!invalidChannelNames.length) {
-      return;
-    }
-    SQNSError.invalidDeliveryPolicy(`"${invalidChannelNames.join(',')}" un-supported channel names.`);
   }
 }
