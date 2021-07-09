@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AwsXmlFormat = void 0;
 const uuid_1 = require("uuid");
 const xml2js_1 = __importDefault(require("xml2js"));
+const authentication_1 = require("./authentication");
 const encryption_1 = require("./encryption");
 class AwsXmlFormat {
     static jsonToXML(rootName, keyValue) {
@@ -311,7 +312,7 @@ class AwsXmlFormat {
         return result;
     }
     static md5HashJSON(json) {
-        const message = Object.keys(json).sort().map((key) => `${key}=${encodeURIComponent(json[key])}`).join('&');
+        const message = Object.keys(json).sort().map((key) => `${key}=${authentication_1.rfc3986EncodeURIComponent(json[key])}`).join('&');
         return AwsXmlFormat.md5Hash(message);
     }
     static md5Hash(message) {

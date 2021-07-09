@@ -15,6 +15,7 @@ declare interface GenerateAuthenticationHash {
         [key: string]: any;
     };
 }
+declare function rfc3986EncodeURIComponent(str: string): string;
 declare function generateAuthenticationHash({ service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body }: GenerateAuthenticationHash): string;
 declare function authentication(getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>): ExpressMiddleware;
-export { authentication, generateAuthenticationHash, getSecretKey };
+export { authentication, generateAuthenticationHash, getSecretKey, rfc3986EncodeURIComponent };

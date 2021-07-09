@@ -201,6 +201,25 @@ describe('SQNSClient', () => {
                         }],
                 });
             });
+            it('should add new event in the queue1 with special characters in MessageAttributes', async () => {
+                const result = await client.sendMessage({
+                    QueueUrl: queue.QueueUrl,
+                    MessageAttributes: {
+                        type: { StringValue: 'type1', DataType: 'String' },
+                        message: {
+                            DataType: 'String',
+                            StringValue: 'Hello User, Hope you would have started using the product & comfortable with it.'
+                                + ' Do let us know if there\'s anything I can do for you by responding to this msg. We will always be there to support'
+                                + ' you through this process.',
+                        },
+                    },
+                    MessageDeduplicationId: 'uniqueId1',
+                    MessageBody: '123',
+                });
+                chai_1.expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
+                chai_1.expect(result.MD5OfMessageAttributes).to.equal('2951094a8d0f32172b42c6e00d63a24e');
+                chai_1.expect(result.MessageId).to.exist;
+            });
         });
         context('FindMessageById', () => {
             let client;

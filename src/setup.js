@@ -59,8 +59,8 @@ function waitForServerToBoot() {
     });
 }
 before(async () => {
-    const mongoDB = new mongodb_memory_server_1.MongoMemoryServer({ instance: { dbName: 'sqns' } });
-    const uri = await mongoDB.getUri();
+    const mongoDB = await mongodb_memory_server_1.MongoMemoryServer.create({ instance: { dbName: 'sqns' } });
+    const uri = `${mongoDB.getUri()}/sqns`;
     log.info('TestDB URI:', uri);
     databaseConfig = { database: database_1.Database.MONGO_DB, uri, config: { useUnifiedTopology: true } };
     setupConfig.mongoConnection = new mongo_d_b_connection_1.MongoDBConnection(databaseConfig.uri, databaseConfig.config);

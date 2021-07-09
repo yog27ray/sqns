@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSecretKey = exports.generateAuthenticationHash = exports.authentication = void 0;
+exports.rfc3986EncodeURIComponent = exports.getSecretKey = exports.generateAuthenticationHash = exports.authentication = void 0;
 const v4_js_1 = __importDefault(require("aws-sdk/lib/signers/v4.js"));
 const moment_1 = __importDefault(require("moment"));
 const logger_1 = require("../logger/logger");
@@ -26,16 +26,20 @@ function getSecretKey(storageEngine) {
     };
 }
 exports.getSecretKey = getSecretKey;
+function rfc3986EncodeURIComponent(str) {
+    return encodeURIComponent(str).replace(/[!'()*]/g, escape);
+}
+exports.rfc3986EncodeURIComponent = rfc3986EncodeURIComponent;
 function generateAuthenticationHash({ service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body }) {
     log.verbose('Received Authentication Data:', { service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body });
     const testRequest = {
         method,
         region,
-        body: Object.keys(body).sort().map((key) => `${key}=${encodeURIComponent(body[key])}`).join('&'),
+        body: Object.keys(body).sort().map((key) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&'),
         search: () => '',
         pathname: () => originalUrl,
         headers: {
-            'X-Amz-Content-Sha256': encryption_1.Encryption.createHash('sha256', Object.keys(body).sort().map((key) => `${key}=${encodeURIComponent(body[key])}`).join('&')),
+            'X-Amz-Content-Sha256': encryption_1.Encryption.createHash('sha256', Object.keys(body).sort().map((key) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&')),
             Host: host,
             Authorization: '',
         },

@@ -46,7 +46,8 @@ class DeliveryPolicyHelper {
         if (!subscription.Attributes.DeliveryPolicy) {
             return effectiveParentDeliveryPolicy.defaultHealthyRetryPolicy;
         }
-        return (effectiveParentDeliveryPolicy === null || effectiveParentDeliveryPolicy === void 0 ? void 0 : effectiveParentDeliveryPolicy.disableOverrides) ? effectiveParentDeliveryPolicy.defaultHealthyRetryPolicy
+        return (effectiveParentDeliveryPolicy === null || effectiveParentDeliveryPolicy === void 0 ? void 0 : effectiveParentDeliveryPolicy.disableOverrides)
+            ? effectiveParentDeliveryPolicy.defaultHealthyRetryPolicy
             : JSON.parse(subscription.Attributes.DeliveryPolicy);
     }
     static checkDeliveryPolicyCorrectness(deliveryPolicyStringValue) {
