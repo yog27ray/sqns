@@ -224,9 +224,12 @@ describe('SQNSClient', () => {
           QueueUrl: queue.QueueUrl,
           MessageAttributes: {
             type: { StringValue: 'type1', DataType: 'String' },
-            message: { DataType: 'String', StringValue: 'Hello User, Hope you would have started using the product & comfortable with it.'
+            message: {
+              DataType: 'String',
+              StringValue: 'Hello User, Hope you would have started using the product & comfortable with it.'
                 + ' Do let us know if there\'s anything I can do for you by responding to this msg. We will always be there to support'
-                + ' you through this process.' },
+                + ' you through this process.',
+            },
           },
           MessageDeduplicationId: 'uniqueId1',
           MessageBody: '123',

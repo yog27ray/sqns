@@ -58,7 +58,7 @@ class MongoDBConnection {
       filter._id = filter.id;
       delete filter.id;
     }
-    return this.getDB().collection(tableName).findOne(filter);
+    return await this.getDB().collection(tableName).findOne(filter) as KeyValue;
   }
 
   async dropDatabase(): Promise<any> {

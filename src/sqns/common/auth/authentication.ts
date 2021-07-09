@@ -38,7 +38,7 @@ declare interface GenerateAuthenticationHash {
   body: { [key: string]: any };
 }
 
-function rfc3986EncodeURIComponent(str): string {
+function rfc3986EncodeURIComponent(str: string): string {
   return encodeURIComponent(str).replace(/[!'()*]/g, escape);
 }
 
