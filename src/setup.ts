@@ -58,8 +58,8 @@ function waitForServerToBoot(): Promise<unknown> {
 }
 
 before(async () => {
-  const mongoDB = new MongoMemoryServer({ instance: { dbName: 'sqns' } });
-  const uri = await mongoDB.getUri();
+  const mongoDB = await MongoMemoryServer.create({ instance: { dbName: 'sqns' } });
+  const uri = `${mongoDB.getUri()}/sqns`;
   log.info('TestDB URI:', uri);
   databaseConfig = { database: Database.MONGO_DB, uri, config: { useUnifiedTopology: true } };
   setupConfig.mongoConnection = new MongoDBConnection(databaseConfig.uri, databaseConfig.config);

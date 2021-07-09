@@ -38,19 +38,23 @@ declare interface GenerateAuthenticationHash {
   body: { [key: string]: any };
 }
 
+function rfc3986EncodeURIComponent(str): string {
+  return encodeURIComponent(str).replace(/[!'()*]/g, escape);
+}
+
 function generateAuthenticationHash({ service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body }
 : GenerateAuthenticationHash): string {
   log.verbose('Received Authentication Data:', { service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body });
   const testRequest = {
     method,
     region,
-    body: Object.keys(body).sort().map((key: string) => `${key}=${encodeURIComponent(body[key])}`).join('&'),
+    body: Object.keys(body).sort().map((key: string) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&'),
     search: (): string => '',
     pathname: (): string => originalUrl,
     headers: {
       'X-Amz-Content-Sha256': Encryption.createHash(
         'sha256',
-        Object.keys(body).sort().map((key: string) => `${key}=${encodeURIComponent(body[key])}`).join('&')),
+        Object.keys(body).sort().map((key: string) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&')),
       Host: host,
       Authorization: '',
     },
@@ -96,4 +100,4 @@ function authentication(getSecretKeyCallback: (accessKey: string) => Promise<Get
   };
 }
 
-export { authentication, generateAuthenticationHash, getSecretKey };
+export { authentication, generateAuthenticationHash, getSecretKey, rfc3986EncodeURIComponent };

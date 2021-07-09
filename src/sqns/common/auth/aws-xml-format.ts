@@ -6,6 +6,7 @@ import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';
 import { Topic } from '../model/topic';
+import { rfc3986EncodeURIComponent } from './authentication';
 import { Encryption } from './encryption';
 
 class AwsXmlFormat {
@@ -343,7 +344,7 @@ class AwsXmlFormat {
   }
 
   private static md5HashJSON(json: { [key: string]: any }): string {
-    const message = Object.keys(json).sort().map((key: string) => `${key}=${encodeURIComponent(json[key])}`).join('&');
+    const message = Object.keys(json).sort().map((key: string) => `${key}=${rfc3986EncodeURIComponent(json[key])}`).join('&');
     return AwsXmlFormat.md5Hash(message);
   }
 
