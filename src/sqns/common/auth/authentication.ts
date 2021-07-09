@@ -3,16 +3,20 @@ import { NextFunction, Request, Response } from 'express';
 import moment from 'moment';
 import { GetSecretKeyResult } from '../../../../typings/auth';
 import { ExpressMiddleware } from '../../../../typings/express';
+import { logger } from '../logger/logger';
 import { BaseStorageEngine } from '../model/base-storage-engine';
 import { ExpressHelper } from '../routes/express-helper';
 import { Encryption } from './encryption';
 import { SQNSError } from './s-q-n-s-error';
+
+const log = logger.instance('Authentication');
 
 function getSecretKey(storageEngine: BaseStorageEngine): (accessKeyId: string) => Promise<GetSecretKeyResult> {
   return async (accessKeyId: string): Promise<GetSecretKeyResult> => {
     const accessKey = await storageEngine.findAccessKey({ accessKey: accessKeyId })
       .catch((error: SQNSError) => {
         if (error.code === 'NotFound') {
+          log.verbose(`AccessKey not found: ${accessKeyId}`);
           SQNSError.invalidSignatureError();
         }
         return Promise.reject(error);
@@ -36,6 +40,7 @@ declare interface GenerateAuthenticationHash {
 
 function generateAuthenticationHash({ service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body }
 : GenerateAuthenticationHash): string {
+  log.verbose('Received Authentication Data:', { service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body });
   const testRequest = {
     method,
     region,
@@ -50,6 +55,7 @@ function generateAuthenticationHash({ service, method, accessKeyId, secretAccess
       Authorization: '',
     },
   };
+  log.verbose('Matching Against Authentication Data:', testRequest.headers, moment(date, 'YYYYMMDDTHHmmssZ').toDate());
   new V4(testRequest, service, { signatureCache: true, operation: {}, signatureVersion: 'v4' })
     .addAuthorization(
       { accessKeyId, secretAccessKey },
@@ -59,10 +65,13 @@ function generateAuthenticationHash({ service, method, accessKeyId, secretAccess
 
 function authentication(getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>): ExpressMiddleware {
   return (req: Request, res: Response, next: NextFunction): void => {
+    log.verbose('Authorization header received:', req.header('Authorization'));
     const [accessKey, , region, service]: Array<string> = req.header('Authorization')
       .split(' ')[1].split('=')[1].split('/');
+    log.verbose('AccessKey:', accessKey, '\tregion:', region, '\tservice:', service);
     getSecretKeyCallback(accessKey)
       .then(({ accessKeyId, secretAccessKey, user }: GetSecretKeyResult): Promise<void> => {
+        log.verbose('DB AccessKey:', accessKeyId, '\tsecret:', secretAccessKey, '\tuser:', user.id);
         const verificationHash = generateAuthenticationHash({
           accessKeyId,
           secretAccessKey,
@@ -74,6 +83,7 @@ function authentication(getSecretKeyCallback: (accessKey: string) => Promise<Get
           body: req.body,
           service,
         });
+        log.verbose('Matching generated hash:', verificationHash, 'against client hash: ', req.header('Authorization'));
         const isTokenValid = req.header('Authorization') === verificationHash;
         if (!isTokenValid) {
           SQNSError.invalidSignatureError();
