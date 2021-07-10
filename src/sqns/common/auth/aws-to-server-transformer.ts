@@ -5,7 +5,7 @@ import { ExpressMiddleware } from '../../../../typings/express';
 class AwsToServerTransformer {
   static transformRequestBody(): ExpressMiddleware {
     return (req: Request & { serverBody: { [key: string]: any }; sqnsBaseURL: string }, res: Response, next: NextFunction): void => {
-      req.sqnsBaseURL = `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get('host')}${req.baseUrl}`;
+      req.sqnsBaseURL = `${req.headers['x-forwarded-proto'] as string || req.protocol}://${req.get('host')}${req.baseUrl}`;
       if (req.method === 'GET') {
         req.serverBody = AwsToServerTransformer.transformPlainJSONToNestedJSON(req.query);
         Object.assign(req.serverBody, { requestId: uuid() });
