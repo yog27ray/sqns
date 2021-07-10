@@ -37,7 +37,7 @@ function generateAuthenticationHash({ service, method, accessKeyId, secretAccess
         region,
         body: Object.keys(body).sort().map((key) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&'),
         search: () => '',
-        pathname: () => originalUrl,
+        pathname: () => decodeURIComponent(originalUrl),
         headers: {
             'X-Amz-Content-Sha256': encryption_1.Encryption.createHash('sha256', Object.keys(body).sort().map((key) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&')),
             Host: host,

@@ -649,7 +649,7 @@ describe('SQNSClient', () => {
             let storageAdapter;
             let MessageId;
             let queue;
-            before(async () => {
+            beforeEach(async () => {
                 await setup_1.dropDatabase();
                 storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
                 client = new s_q_n_s_client_1.SQNSClient({
@@ -658,14 +658,26 @@ describe('SQNSClient', () => {
                     secretAccessKey: test_env_1.Env.secretAccessKey,
                 });
                 queue = await client.createQueue({ QueueName: 'queue1' });
+            });
+            it('should mark event success', async () => {
                 ({ MessageId } = await client.sendMessage({
                     QueueUrl: queue.QueueUrl,
                     MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
                     MessageDeduplicationId: 'uniqueId1',
                     MessageBody: '123',
                 }));
+                await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
+                const event = await setup_1.setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Event'));
+                chai_1.expect(event.state).to.equal('SUCCESS');
+                chai_1.expect(event.successResponse).to.equal('test success message');
             });
-            it('should mark event success', async () => {
+            it('should mark event success for event having special character in id', async () => {
+                ({ MessageId } = await client.sendMessage({
+                    QueueUrl: queue.QueueUrl,
+                    MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
+                    MessageDeduplicationId: 'uniqueId1|2',
+                    MessageBody: '123',
+                }));
                 await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
                 const event = await setup_1.setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Event'));
                 chai_1.expect(event.state).to.equal('SUCCESS');
