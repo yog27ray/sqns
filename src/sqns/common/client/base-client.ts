@@ -25,7 +25,7 @@ export class BaseClient extends RequestClient {
     this._sns = new SNS({ ...this._config, endpoint: `${config.endpoint}/sns` });
   }
 
-  protected request(request: { uri: string, body: KeyValue, headers?: KeyValue<string> }): Promise<any> {
+  request(request: { uri: string, body: KeyValue, headers?: KeyValue<string> }): Promise<any> {
     const headers = {
       'x-amz-date': moment().utc().format('YYYYMMDDTHHmmss'),
       host: request.uri.split('/')[2],

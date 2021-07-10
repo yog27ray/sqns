@@ -52,6 +52,20 @@ describe('SQNSClient', () => {
         expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/sqns/1/queue1`);
       });
 
+      it('should return queue url protocol as provided in headers', async () => {
+        const result = await new BaseClient('sqs', {
+          endpoint: `${Env.URL}/api`,
+          accessKeyId: Env.accessKeyId,
+          secretAccessKey: Env.secretAccessKey,
+        }).request({
+          uri: `${Env.URL}/api/sqs`,
+          body: { Action: 'CreateQueue', QueueName: 'queue1' },
+          headers: { 'x-forwarded-proto': 'https' },
+        });
+        expect(result.CreateQueueResponse.CreateQueueResult.QueueUrl).to
+          .equal(`https:${Env.URL.split(':').slice(1).join(':')}/api/sqs/sqns/1/queue1`);
+      });
+
       it('should allow request create same queue multiple times', async () => {
         await client.createQueue({ QueueName: 'queue1' });
         const result = await client.createQueue({ QueueName: 'queue1' });
