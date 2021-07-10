@@ -692,7 +692,7 @@ describe('SQNSClient', () => {
       let storageAdapter: BaseStorageEngine;
       let MessageId: string;
       let queue: SQS.Types.CreateQueueResult;
-      before(async () => {
+      beforeEach(async () => {
         await dropDatabase();
         storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
         client = new SQNSClient({
@@ -701,15 +701,28 @@ describe('SQNSClient', () => {
           secretAccessKey: Env.secretAccessKey,
         });
         queue = await client.createQueue({ QueueName: 'queue1' });
+      });
+
+      it('should mark event success', async () => {
         ({ MessageId } = await client.sendMessage({
           QueueUrl: queue.QueueUrl,
           MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
           MessageDeduplicationId: 'uniqueId1',
           MessageBody: '123',
         }));
+        await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
+        const event = await setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Event'));
+        expect(event.state).to.equal('SUCCESS');
+        expect(event.successResponse).to.equal('test success message');
       });
 
-      it('should mark event success', async () => {
+      it('should mark event success for event having special character in id', async () => {
+        ({ MessageId } = await client.sendMessage({
+          QueueUrl: queue.QueueUrl,
+          MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
+          MessageDeduplicationId: 'uniqueId1|2',
+          MessageBody: '123',
+        }));
         await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
         const event = await setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Event'));
         expect(event.state).to.equal('SUCCESS');
