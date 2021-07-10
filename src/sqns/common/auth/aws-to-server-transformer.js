@@ -5,7 +5,7 @@ const uuid_1 = require("uuid");
 class AwsToServerTransformer {
     static transformRequestBody() {
         return (req, res, next) => {
-            req.sqnsBaseURL = `${req.protocol}://${req.get('host')}${req.baseUrl}`;
+            req.sqnsBaseURL = `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get('host')}${req.baseUrl}`;
             if (req.method === 'GET') {
                 req.serverBody = AwsToServerTransformer.transformPlainJSONToNestedJSON(req.query);
                 Object.assign(req.serverBody, { requestId: uuid_1.v4() });

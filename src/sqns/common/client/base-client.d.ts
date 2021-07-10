@@ -9,7 +9,7 @@ export declare class BaseClient extends RequestClient {
     protected readonly _sns: SNS;
     private _arrayFields;
     constructor(service: string, config: ClientConfiguration);
-    protected request(request: {
+    request(request: {
         uri: string;
         body: KeyValue;
         headers?: KeyValue<string>;
