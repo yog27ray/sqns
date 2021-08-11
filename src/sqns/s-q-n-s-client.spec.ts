@@ -52,6 +52,20 @@ describe('SQNSClient', () => {
         expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/sqns/1/queue1`);
       });
 
+      it('should return queue url protocol as provided in headers', async () => {
+        const result = await new BaseClient('sqs', {
+          endpoint: `${Env.URL}/api`,
+          accessKeyId: Env.accessKeyId,
+          secretAccessKey: Env.secretAccessKey,
+        }).request({
+          uri: `${Env.URL}/api/sqs`,
+          body: { Action: 'CreateQueue', QueueName: 'queue1' },
+          headers: { 'x-forwarded-proto': 'https' },
+        });
+        expect(result.CreateQueueResponse.CreateQueueResult.QueueUrl).to
+          .equal(`https:${Env.URL.split(':').slice(1).join(':')}/api/sqs/sqns/1/queue1`);
+      });
+
       it('should allow request create same queue multiple times', async () => {
         await client.createQueue({ QueueName: 'queue1' });
         const result = await client.createQueue({ QueueName: 'queue1' });
@@ -353,8 +367,7 @@ describe('SQNSClient', () => {
         expect(Message.Attributes).to.exist;
         expect(UpdatedMessage.MessageAttributes).to.exist;
         expect(UpdatedMessage.Attributes).to.exist;
-        expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.least(100000);
-        expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.most(101000);
+        expect(new Date(Message.EventTime).getTime()).to.equal(new Date(OriginalMessage.EventTime).getTime());
       });
 
       it('should update message with different state.', async () => {
@@ -678,7 +691,7 @@ describe('SQNSClient', () => {
       let storageAdapter: BaseStorageEngine;
       let MessageId: string;
       let queue: SQS.Types.CreateQueueResult;
-      before(async () => {
+      beforeEach(async () => {
         await dropDatabase();
         storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
         client = new SQNSClient({
@@ -687,15 +700,28 @@ describe('SQNSClient', () => {
           secretAccessKey: Env.secretAccessKey,
         });
         queue = await client.createQueue({ QueueName: 'queue1' });
+      });
+
+      it('should mark event success', async () => {
         ({ MessageId } = await client.sendMessage({
           QueueUrl: queue.QueueUrl,
           MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
           MessageDeduplicationId: 'uniqueId1',
           MessageBody: '123',
         }));
+        await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
+        const event = await setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Event'));
+        expect(event.state).to.equal('SUCCESS');
+        expect(event.successResponse).to.equal('test success message');
       });
 
-      it('should mark event success', async () => {
+      it('should mark event success for event having special character in id', async () => {
+        ({ MessageId } = await client.sendMessage({
+          QueueUrl: queue.QueueUrl,
+          MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
+          MessageDeduplicationId: 'uniqueId1|2',
+          MessageBody: '123',
+        }));
         await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
         const event = await setupConfig.mongoConnection.findOne(storageAdapter.getDBTableName('Event'));
         expect(event.state).to.equal('SUCCESS');
