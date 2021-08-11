@@ -95,7 +95,7 @@ class AwsXmlFormat {
         const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
         if (message) {
             message.State = eventItem.state;
-            message.EventTime = eventItem.eventTime.toISOString();
+            message.EventTime = eventItem.originalEventTime.toISOString();
             message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
             message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
             delete message.MessageAttribute;

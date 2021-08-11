@@ -342,8 +342,7 @@ describe('SQNSClient', () => {
                 chai_1.expect(Message.Attributes).to.exist;
                 chai_1.expect(UpdatedMessage.MessageAttributes).to.exist;
                 chai_1.expect(UpdatedMessage.Attributes).to.exist;
-                chai_1.expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.least(100000);
-                chai_1.expect(new Date(Message.EventTime).getTime() - new Date(OriginalMessage.EventTime).getTime()).to.be.most(101000);
+                chai_1.expect(new Date(Message.EventTime).getTime()).to.equal(new Date(OriginalMessage.EventTime).getTime());
             });
             it('should update message with different state.', async () => {
                 await client.updateMessageById({
