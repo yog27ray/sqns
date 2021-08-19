@@ -527,7 +527,7 @@ describe('SQNSClient', () => {
     context('sendMessageBatch', () => {
       let client: SQNSClient;
       let queue: SQS.Types.CreateQueueResult;
-      before(async () => {
+      beforeEach(async () => {
         await dropDatabase();
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
