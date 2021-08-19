@@ -1,6 +1,6 @@
 import * as schedule from 'node-schedule';
+import { BASE_CONFIG, KeyValue } from '../../../../typings/common';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
-import { BASE_CONFIG, KeyValue } from '../../../../typings/typings';
 import { logger } from '../../common/logger/logger';
 import { Queue } from '../../common/model/queue';
 import { QueueStorageToQueueConfig } from './queue-storage-to-queue-config';
