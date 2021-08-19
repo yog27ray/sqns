@@ -566,6 +566,27 @@ describe('SQNSClient', () => {
         expect(results.Successful[1].MessageId).to.exist;
         expect(results.Failed.length).to.equal(0);
       });
+
+      it('should update priority in the queue1', async () => {
+        const results = await client.sendMessageBatch({
+          QueueUrl: queue.QueueUrl,
+          Entries: [
+            { Id: '1', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '1' } } },
+            { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' } } },
+            { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' } } },
+            { Id: '4', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: 'abc' } } },
+            { Id: '5', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '-2' } } },
+          ],
+        });
+        expect(results.Successful.length).to.equal(5);
+        const events = await setupConfig.mongoConnection.find('Event', { MessageBody: 'PriorityTest' });
+        expect(events.length).to.equal(5);
+        expect(events[0].priority).to.equal(1);
+        expect(events[1].priority).to.equal(2);
+        expect(events[2].priority).to.equal(3);
+        expect(events[3].priority).to.equal(999999);
+        expect(events[4].priority).to.equal(0);
+      });
     });
 
     context('listQueues', () => {

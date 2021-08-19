@@ -166,6 +166,9 @@ export class SQSManager extends BaseManager {
     this.storageToQueueWorker.setUpIntervalForQueue(queue);
     const deliveryPolicy: ChannelDeliveryPolicy = DeliveryPolicyHelper
       .verifyAndGetChannelDeliveryPolicy(MessageAttribute?.DeliveryPolicy?.StringValue);
+    const priority = isNaN(Number(MessageAttribute?.Priority?.StringValue))
+      ? EventItem.PRIORITY.DEFAULT
+      : Math.max(Math.min(Math.floor(Number(MessageAttribute?.Priority?.StringValue)), EventItem.PRIORITY.DEFAULT), 0);
     const eventItem = new EventItem({
       id: undefined,
       MessageAttribute,
@@ -175,6 +178,7 @@ export class SQSManager extends BaseManager {
       DeliveryPolicy: deliveryPolicy,
       MessageDeduplicationId,
       maxReceiveCount: queue.getMaxReceiveCount(),
+      priority,
       eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),
     });
     const inQueueEvent = this._eventQueue.findEventInQueue(queue.arn, eventItem);

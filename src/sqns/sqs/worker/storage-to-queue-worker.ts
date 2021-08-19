@@ -1,5 +1,5 @@
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
-import { KeyValue } from '../../../../typings/typings';
+import { KeyValue } from '../../../../typings/common';
 import { logger } from '../../common/logger/logger';
 import { EventItem } from '../../common/model/event-item';
 import { Queue } from '../../common/model/queue';

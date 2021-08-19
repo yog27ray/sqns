@@ -57,7 +57,7 @@ export class EventItem extends BaseObject {
     }
     this.MessageAttribute = item.MessageAttribute || {};
     this.MessageSystemAttribute = item.MessageSystemAttribute || {};
-    this.priority = item.priority || EventItem.PRIORITY.DEFAULT;
+    this.priority = isNaN(item.priority) ? EventItem.PRIORITY.DEFAULT : item.priority;
     this.state = item.state || EventState.PENDING;
 
     this.eventTime = item.eventTime;

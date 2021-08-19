@@ -136,21 +136,27 @@ class WorkerEventScheduler {
 
   private initialize(cronInterval: string = '15 * * * * *'): void {
     log.info('Adding scheduler job for event slave.');
-    this.job = schedule.scheduleJob(cronInterval, () => this.queueNames
-      .filter((queueName: string) => !this.queueConfigs[queueName].polling)
-      .forEach((queueName: string) => this.checkIfMoreItemsCanBeProcessed(this.queueConfigs[queueName])));
+    this.job = schedule.scheduleJob(cronInterval, () => {
+      log.info('Executing Worker Job Interval');
+      const queuesNotPollingEvent = this.queueNames.filter((queueName: string) => !this.queueConfigs[queueName].polling);
+      log.info('Queues to start event polling:', queuesNotPollingEvent);
+      queuesNotPollingEvent.forEach((queueName: string) => this.checkIfMoreItemsCanBeProcessed(this.queueConfigs[queueName]));
+    });
   }
 
   private checkIfMoreItemsCanBeProcessed(workerQueueConfig_: WorkerQueueConfig): void {
     const workerQueueConfig = workerQueueConfig_;
     workerQueueConfig.polling = true;
     if (workerQueueConfig.config.count >= workerQueueConfig.config.MAX_COUNT) {
+      log.info('Queue:', workerQueueConfig.queueName, 'already maximum task running.');
       return;
     }
     while (workerQueueConfig.config.count < workerQueueConfig.config.MAX_COUNT && workerQueueConfig.hasMore) {
+      log.info('Queue:', workerQueueConfig.queueName, 'Processing new event.');
       this.requestEventToProcessAsynchronous(workerQueueConfig);
     }
     if (!workerQueueConfig.config.count && !workerQueueConfig.hasMore) {
+      log.info('Queue:', workerQueueConfig.queueName, 'No events to process reset status.');
       workerQueueConfig.polling = false;
       workerQueueConfig.hasMore = true;
     }
