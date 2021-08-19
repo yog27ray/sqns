@@ -7,6 +7,7 @@ export declare class QueueStorageToQueueScheduler {
     constructor(queue: Queue, baseParams: BASE_CONFIG, listener: QueueStorageToQueueConfigListener, cronInterval?: string);
     cancel(): void;
     addQueue(queue: Queue): void;
+    private getQueueNames;
     private startProcessingOfQueue;
     private findEventsToAddInQueueAsynchronous;
     private findEventsToAddInQueue;

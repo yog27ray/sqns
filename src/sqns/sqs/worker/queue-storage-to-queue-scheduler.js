@@ -41,14 +41,20 @@ class QueueStorageToQueueScheduler {
     }
     addQueue(queue) {
         log.info(`Adding queueARN: ${queue.arn}`);
+        if (this.config.queues.some((each) => each.arn === queue.arn)) {
+            return;
+        }
         this.config.queues.push(queue);
+    }
+    getQueueNames() {
+        return this.config.queues.map((each) => each.name);
     }
     startProcessingOfQueue() {
         if (this.config.sending) {
-            log.info('Queues:', this.config.queues, 'already fetching events.');
+            log.info('Queues:', this.getQueueNames(), 'already fetching events.');
             return;
         }
-        log.info('Queues:', this.config.queues, 'start fetching events.');
+        log.info('Queues:', this.getQueueNames(), 'start fetching events.');
         this.findEventsToAddInQueueAsynchronous(this.config.queues.map((each) => each), this.config.cloneBaseParams);
     }
     findEventsToAddInQueueAsynchronous(queues, itemListParams) {

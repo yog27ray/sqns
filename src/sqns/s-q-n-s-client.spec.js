@@ -492,7 +492,7 @@ describe('SQNSClient', () => {
         context('sendMessageBatch', () => {
             let client;
             let queue;
-            before(async () => {
+            beforeEach(async () => {
                 await setup_1.dropDatabase();
                 client = new s_q_n_s_client_1.SQNSClient({
                     endpoint: `${test_env_1.Env.URL}/api`,
@@ -535,8 +535,8 @@ describe('SQNSClient', () => {
                     QueueUrl: queue.QueueUrl,
                     Entries: [
                         { Id: '1', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '1' } } },
-                        { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' } } },
-                        { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' } } },
+                        { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' } } },
+                        { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' } } },
                         { Id: '4', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: 'abc' } } },
                         { Id: '5', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '-2' } } },
                     ],
@@ -545,10 +545,20 @@ describe('SQNSClient', () => {
                 const events = await setup_1.setupConfig.mongoConnection.find('Event', { MessageBody: 'PriorityTest' });
                 chai_1.expect(events.length).to.equal(5);
                 chai_1.expect(events[0].priority).to.equal(1);
-                chai_1.expect(events[1].priority).to.equal(2);
-                chai_1.expect(events[2].priority).to.equal(3);
+                chai_1.expect(events[1].priority).to.equal(3);
+                chai_1.expect(events[2].priority).to.equal(2);
                 chai_1.expect(events[3].priority).to.equal(999999);
                 chai_1.expect(events[4].priority).to.equal(0);
+                let { Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] });
+                chai_1.expect(Message.MessageAttributes.Priority.StringValue).to.equal('-2');
+                ({ Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
+                chai_1.expect(Message.MessageAttributes.Priority.StringValue).to.equal('1');
+                ({ Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
+                chai_1.expect(Message.MessageAttributes.Priority.StringValue).to.equal('2');
+                ({ Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
+                chai_1.expect(Message.MessageAttributes.Priority.StringValue).to.equal('3.1');
+                ({ Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
+                chai_1.expect(Message.MessageAttributes.Priority.StringValue).to.equal('abc');
             });
         });
         context('listQueues', () => {
