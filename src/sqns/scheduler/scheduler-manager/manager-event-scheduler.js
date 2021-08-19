@@ -50,10 +50,13 @@ class ManagerEventScheduler {
     }
     initialize(cronInterval = '* * * * *') {
         log.info('Adding scheduler job for event master.');
-        this.job = schedule.scheduleJob(cronInterval, () => this.queueNames
-            .filter((queueName) => !this.queueConfigs[queueName].sending)
-            .forEach((queueName) => this
-            .requestEventsToAddInQueueAsynchronous(this.queueConfigs[queueName], this.queueConfigs[queueName].cloneBaseParams)));
+        this.job = schedule.scheduleJob(cronInterval, () => {
+            log.info('Executing Manage Job Interval');
+            const queuesNotSendingEvent = this.queueNames.filter((queueName) => !this.queueConfigs[queueName].sending);
+            log.info('Queues to start event sending:', queuesNotSendingEvent);
+            queuesNotSendingEvent.forEach((queueName) => this
+                .requestEventsToAddInQueueAsynchronous(this.queueConfigs[queueName], this.queueConfigs[queueName].cloneBaseParams));
+        });
     }
     requestEventsToAddInQueueAsynchronous(queueConfig_, itemListParams) {
         const queueConfig = queueConfig_;

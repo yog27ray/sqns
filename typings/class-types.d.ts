@@ -26,7 +26,7 @@ export declare interface EventItemType extends BaseObjectType {
     };
     receiveCount?: number;
     maxReceiveCount: number;
-    priority?: number;
+    priority: number;
     sentTime?: Date;
     firstSentTime?: Date;
     originalEventTime?: Date;

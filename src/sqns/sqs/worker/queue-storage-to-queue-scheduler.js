@@ -31,7 +31,10 @@ class QueueStorageToQueueScheduler {
         this.config.queues = [queue];
         this.config.baseParams = baseParams;
         log.info(`Adding scheduler job for queueARN: ${queue.arn}`);
-        this._job = schedule.scheduleJob(cronInterval || '*/5 * * * * *', () => this.startProcessingOfQueue());
+        this._job = schedule.scheduleJob(cronInterval || '*/5 * * * * *', () => {
+            log.info('Executing Manage Job Interval');
+            this.startProcessingOfQueue();
+        });
     }
     cancel() {
         this._job.cancel();
@@ -42,8 +45,10 @@ class QueueStorageToQueueScheduler {
     }
     startProcessingOfQueue() {
         if (this.config.sending) {
+            log.info('Queues:', this.config.queues, 'already fetching events.');
             return;
         }
+        log.info('Queues:', this.config.queues, 'start fetching events.');
         this.findEventsToAddInQueueAsynchronous(this.config.queues.map((each) => each), this.config.cloneBaseParams);
     }
     findEventsToAddInQueueAsynchronous(queues, itemListParams) {
@@ -57,6 +62,7 @@ class QueueStorageToQueueScheduler {
     async findEventsToAddInQueue(queues, itemListParams) {
         const [nextItemListParams, hasMoreData] = await this.config.listener(queues, itemListParams);
         if (!hasMoreData) {
+            log.info('Queues:', this.config.queues, 'No more data to fetch, resetting.');
             this.config.sending = false;
             return;
         }

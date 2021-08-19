@@ -133,10 +133,13 @@ class SQSManager extends base_manager_1.BaseManager {
         }
     }
     async sendMessage(queue, MessageBody, MessageAttribute, MessageSystemAttribute, DelaySeconds = '0', MessageDeduplicationId) {
-        var _a;
+        var _a, _b, _c;
         this.storageToQueueWorker.setUpIntervalForQueue(queue);
         const deliveryPolicy = delivery_policy_helper_1.DeliveryPolicyHelper
             .verifyAndGetChannelDeliveryPolicy((_a = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.DeliveryPolicy) === null || _a === void 0 ? void 0 : _a.StringValue);
+        const priority = isNaN(Number((_b = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.Priority) === null || _b === void 0 ? void 0 : _b.StringValue))
+            ? event_item_1.EventItem.PRIORITY.DEFAULT
+            : Math.max(Math.min(Math.floor(Number((_c = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.Priority) === null || _c === void 0 ? void 0 : _c.StringValue)), event_item_1.EventItem.PRIORITY.DEFAULT), 0);
         const eventItem = new event_item_1.EventItem({
             id: undefined,
             MessageAttribute,
@@ -146,6 +149,7 @@ class SQSManager extends base_manager_1.BaseManager {
             DeliveryPolicy: deliveryPolicy,
             MessageDeduplicationId,
             maxReceiveCount: queue.getMaxReceiveCount(),
+            priority,
             eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),
         });
         const inQueueEvent = this._eventQueue.findEventInQueue(queue.arn, eventItem);
