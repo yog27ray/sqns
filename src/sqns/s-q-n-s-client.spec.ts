@@ -572,8 +572,8 @@ describe('SQNSClient', () => {
           QueueUrl: queue.QueueUrl,
           Entries: [
             { Id: '1', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '1' } } },
-            { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' } } },
-            { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' } } },
+            { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' } } },
+            { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' } } },
             { Id: '4', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: 'abc' } } },
             { Id: '5', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '-2' } } },
           ],
@@ -582,10 +582,20 @@ describe('SQNSClient', () => {
         const events = await setupConfig.mongoConnection.find('Event', { MessageBody: 'PriorityTest' });
         expect(events.length).to.equal(5);
         expect(events[0].priority).to.equal(1);
-        expect(events[1].priority).to.equal(2);
-        expect(events[2].priority).to.equal(3);
+        expect(events[1].priority).to.equal(3);
+        expect(events[2].priority).to.equal(2);
         expect(events[3].priority).to.equal(999999);
         expect(events[4].priority).to.equal(0);
+        let { Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] });
+        expect(Message.MessageAttributes.Priority.StringValue).to.equal('-2');
+        ({ Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
+        expect(Message.MessageAttributes.Priority.StringValue).to.equal('1');
+        ({ Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
+        expect(Message.MessageAttributes.Priority.StringValue).to.equal('2');
+        ({ Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
+        expect(Message.MessageAttributes.Priority.StringValue).to.equal('3.1');
+        ({ Messages: [Message] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
+        expect(Message.MessageAttributes.Priority.StringValue).to.equal('abc');
       });
     });
 
