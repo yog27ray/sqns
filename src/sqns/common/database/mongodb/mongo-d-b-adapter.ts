@@ -89,14 +89,16 @@ class MongoDBAdapter implements StorageAdapter {
   }
 
   async findEventsToProcess(queues: Array<Queue>, time: Date, limit: number): Promise<Array<EventItem>> {
+    const query = {
+      queueARN: { $in: queues.map((queue: Queue) => queue.arn) },
+      eventTime: { $lte: time },
+      state: { $in: [EventItem.State.PENDING, EventItem.State.PROCESSING, EventItem.State.FAILURE] },
+      $expr: { $lt: ['$receiveCount', '$maxReceiveCount'] },
+    };
+    log.info('DB Fetch ', query);
     const mongoDocuments = await this.connection.find(
       MongoDBAdapter.Table.Event,
-      {
-        queueARN: { $in: queues.map((queue: Queue) => queue.arn) },
-        eventTime: { $lt: time },
-        state: { $in: [EventItem.State.PENDING, EventItem.State.PROCESSING, EventItem.State.FAILURE] },
-        $expr: { $lt: ['$receiveCount', '$maxReceiveCount'] },
-      },
+      query,
       { eventTime: -1 },
       { limit });
     return mongoDocuments.map((mongoDocument: any) => new EventItem(MongoDBAdapter.dbToSystemItem(mongoDocument)));

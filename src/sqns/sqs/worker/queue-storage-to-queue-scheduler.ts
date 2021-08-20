@@ -15,7 +15,7 @@ export class QueueStorageToQueueScheduler {
   constructor(queue: Queue, baseParams: BASE_CONFIG, listener: QueueStorageToQueueConfigListener, cronInterval?: string) {
     this.config = new QueueStorageToQueueConfig();
     this.config.listener = listener;
-    this.config.queues = [queue];
+    this.addQueue(queue);
     this.config.baseParams = baseParams;
     log.info(`Adding scheduler job for queueARN: ${queue.arn}`);
     this._job = schedule.scheduleJob(cronInterval || '*/5 * * * * *', () => {
@@ -29,10 +29,11 @@ export class QueueStorageToQueueScheduler {
   }
 
   addQueue(queue: Queue): void {
-    log.info(`Adding queueARN: ${queue.arn}`);
-    if (this.config.queues.some((each: Queue) => each.arn === queue.arn)) {
+    if (this.config.knownQueueARN[queue.arn]) {
       return;
     }
+    log.info(`Adding queueARN: ${queue.arn}`);
+    this.config.knownQueueARN[queue.arn] = true;
     this.config.queues.push(queue);
   }
 

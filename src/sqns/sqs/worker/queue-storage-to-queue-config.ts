@@ -1,5 +1,5 @@
+import { BASE_CONFIG, KeyValue } from '../../../../typings/common';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
-import { BASE_CONFIG, KeyValue } from '../../../../typings/typings';
 import { Queue } from '../../common/model/queue';
 
 export class QueueStorageToQueueConfig {
@@ -9,7 +9,9 @@ export class QueueStorageToQueueConfig {
 
   private _listener: QueueStorageToQueueConfigListener;
 
-  private _queues: Array<Queue>;
+  private _queues: Array<Queue> = [];
+
+  private _knownQueueARN: KeyValue<boolean> = {};
 
   get sending(): boolean {
     return this._sending;
@@ -37,6 +39,10 @@ export class QueueStorageToQueueConfig {
 
   get queues(): Array<Queue> {
     return this._queues;
+  }
+
+  get knownQueueARN(): KeyValue<boolean> {
+    return this._knownQueueARN;
   }
 
   set queues(value: Array<Queue>) {
