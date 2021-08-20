@@ -58,7 +58,7 @@ class StorageToQueueWorker {
 
   private setUpListener(): void {
     this._listener = async (queues: Array<Queue>, { time }: KeyValue): Promise<[KeyValue, boolean]> => {
-      const items = await this._storageEngine.findEventsToProcess(queues, time as Date, 20);
+      const items = await this._storageEngine.findEventsToProcess(queues, time as Date, 100);
       if (!items.length) {
         return [{}, false];
       }

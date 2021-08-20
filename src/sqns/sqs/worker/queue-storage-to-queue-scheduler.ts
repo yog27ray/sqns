@@ -43,7 +43,7 @@ export class QueueStorageToQueueScheduler {
 
   private startProcessingOfQueue(): void {
     if (this.config.sending) {
-      log.info('Queues:', this.getQueueNames(), 'already fetching events.');
+      log.verbose('Queues:', this.getQueueNames(), 'already fetching events.');
       return;
     }
     log.info('Queues:', this.getQueueNames(), 'start fetching events.');
