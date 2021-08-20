@@ -101,6 +101,7 @@ class MongoDBAdapter implements StorageAdapter {
       query,
       { eventTime: -1 },
       { limit });
+    log.info('DB Fetch Result length: ', mongoDocuments.length);
     return mongoDocuments.map((mongoDocument: any) => new EventItem(MongoDBAdapter.dbToSystemItem(mongoDocument)));
   }
 
