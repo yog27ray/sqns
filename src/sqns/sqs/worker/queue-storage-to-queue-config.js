@@ -4,6 +4,8 @@ exports.QueueStorageToQueueConfig = void 0;
 class QueueStorageToQueueConfig {
     constructor() {
         this._sending = false;
+        this._queues = [];
+        this._knownQueueARN = {};
     }
     get sending() {
         return this._sending;
@@ -28,6 +30,9 @@ class QueueStorageToQueueConfig {
     }
     set queues(value) {
         this._queues = value;
+    }
+    get knownQueueARN() {
+        return this._knownQueueARN;
     }
     get cloneBaseParams() {
         if (typeof this.baseParams === 'function') {
