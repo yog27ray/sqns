@@ -41,12 +41,12 @@ export class QueueStorageToQueueConfig {
     return this._queues;
   }
 
-  get knownQueueARN(): KeyValue<boolean> {
-    return this._knownQueueARN;
-  }
-
   set queues(value: Array<Queue>) {
     this._queues = value;
+  }
+
+  get knownQueueARN(): KeyValue<boolean> {
+    return this._knownQueueARN;
   }
 
   get cloneBaseParams(): KeyValue {
