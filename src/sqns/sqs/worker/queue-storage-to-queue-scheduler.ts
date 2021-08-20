@@ -62,7 +62,7 @@ export class QueueStorageToQueueScheduler {
   private async findEventsToAddInQueue(queues: Array<Queue>, itemListParams: KeyValue): Promise<void> {
     const [nextItemListParams, hasMoreData] = await this.config.listener(queues, itemListParams);
     if (!hasMoreData) {
-      log.info('Queues:', this.config.queues, 'No more data to fetch, resetting.');
+      log.info('Queues:', this.getQueueNames(), 'No more data to fetch, resetting.');
       this.config.sending = false;
       return;
     }
