@@ -16,3 +16,4 @@ git add *
 git commit -m "$VERSION"
 git push release dist
 npm publish
+cd ..
