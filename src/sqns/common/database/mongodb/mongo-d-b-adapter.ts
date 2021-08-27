@@ -77,7 +77,15 @@ class MongoDBAdapter implements StorageAdapter {
     try {
       await this.connection.insert(MongoDBAdapter.Table.Event, mongoDocument);
     } catch (error) {
-      if (error.code !== 11000) {
+      if (error.code === 11000 && mongoDocument.MessageDeduplicationId) {
+        const dBItem = await this.connection.findOne(MongoDBAdapter.Table.Event, {
+          MessageDeduplicationId: mongoDocument.MessageDeduplicationId,
+        });
+        if (!dBItem) {
+          await Promise.reject(error);
+        }
+        mongoDocument._id = dBItem._id;
+      } else {
         await Promise.reject(error);
       }
     }

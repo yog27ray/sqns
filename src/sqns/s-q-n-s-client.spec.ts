@@ -214,7 +214,7 @@ describe('SQNSClient', () => {
           MessageAttributeNames: ['ALL'],
         });
         expect(messages.Messages.length).to.equal(1);
-        expect(messages.Messages[0].MessageId).to.equal('uniqueId1');
+        expect(messages.Messages[0].MessageId).to.exist;
         expect(messages.Messages[0].ReceiptHandle).to.exist;
         deleteDynamicDataOfResults(messages);
         expect(messages).to.deep.equal({

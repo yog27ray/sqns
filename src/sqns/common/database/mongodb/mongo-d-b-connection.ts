@@ -1,4 +1,4 @@
-import { Db, MongoClient } from 'mongodb';
+import { Collection, Db, MongoClient } from 'mongodb';
 import { KeyValue } from '../../../../../typings/common';
 
 class MongoDBConnection {
@@ -58,7 +58,11 @@ class MongoDBConnection {
       filter._id = filter.id;
       delete filter.id;
     }
-    return await this.getDB().collection(tableName).findOne(filter) as KeyValue;
+    return await this.collection(tableName).findOne(filter) as KeyValue;
+  }
+
+  collection(tableName: string): Collection {
+    return this.getDB().collection(tableName);
   }
 
   async dropDatabase(): Promise<any> {
