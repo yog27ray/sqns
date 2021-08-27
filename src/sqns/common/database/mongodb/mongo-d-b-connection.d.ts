@@ -1,3 +1,4 @@
+import { Collection } from 'mongodb';
 import { KeyValue } from '../../../../../typings/common';
 declare class MongoDBConnection {
     private readonly _option;
@@ -16,6 +17,7 @@ declare class MongoDBConnection {
         skip?: number;
     }): Promise<Array<any>>;
     findOne(tableName: string, filter_?: KeyValue): Promise<KeyValue>;
+    collection(tableName: string): Collection;
     dropDatabase(): Promise<any>;
     insert(collectionName: string, item_: KeyValue & {
         id?: string;

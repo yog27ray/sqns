@@ -30,9 +30,6 @@ class EventItem extends base_object_1.BaseObject {
         this.sentTime = item.sentTime;
         this.firstSentTime = item.firstSentTime || this.sentTime;
         if (!this.id) {
-            if (this.MessageDeduplicationId) {
-                this.id = this.MessageDeduplicationId;
-            }
             if (this.MessageAttribute.priority) {
                 this.priority = Number(this.MessageAttribute.priority.StringValue);
             }

@@ -38,6 +38,12 @@ async function dropDatabase() {
     await setupConfig.mongoConnection.dropDatabase();
     await setupConfig.sqns.resetAll();
     const storageAdapter = new base_storage_engine_1.BaseStorageEngine(databaseConfig);
+    await new Promise((resolve) => setupConfig.mongoConnection
+        .collection(storageAdapter.getDBTableName('Event'))
+        .createIndex({ MessageDeduplicationId: 1 }, {
+        unique: true,
+        partialFilterExpression: { MessageDeduplicationId: { $exists: true } },
+    }, () => resolve()));
     await storageAdapter.initialize([{
             accessKey: test_env_1.Env.accessKeyId,
             secretAccessKey: test_env_1.Env.secretAccessKey,
