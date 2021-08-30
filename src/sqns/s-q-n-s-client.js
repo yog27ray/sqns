@@ -52,6 +52,14 @@ class SQNSClient extends base_client_1.BaseClient {
         const { UpdateMessageByIdResponse: { UpdateMessageByIdResult } } = await this.request(request);
         return UpdateMessageByIdResult;
     }
+    async updateMessageByDeduplicationId(params) {
+        const request = {
+            uri: this._sqs.endpoint.href,
+            body: { Action: 'UpdateMessageByDeduplicationId', ...params },
+        };
+        const { UpdateMessageByDeduplicationIdResponse: { UpdateMessageByDeduplicationIdResult } } = await this.request(request);
+        return UpdateMessageByDeduplicationIdResult;
+    }
     receiveMessage(params) {
         return new Promise((resolve, reject) => {
             this._sqs.receiveMessage(params, (error, result_) => {

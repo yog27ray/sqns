@@ -39,3 +39,9 @@ export interface UpdateMessageByIdResult {
         EventTime: string;
     };
 }
+export interface UpdateMessageByDeduplicationIdResult {
+    Message: Message & {
+        State: EventState;
+        EventTime: string;
+    };
+}

@@ -145,6 +145,24 @@ class AwsXmlFormat {
         };
         return AwsXmlFormat.jsonToXML('UpdateMessageByIdResponse', json);
     }
+    static updateMessageByDeduplicationId(requestId, eventItem) {
+        const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+        if (message) {
+            message.State = eventItem.state;
+            message.EventTime = eventItem.eventTime.toISOString();
+            message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
+            message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
+            delete message.MessageAttribute;
+            delete message.Attribute;
+        }
+        const json = {
+            ResponseMetadata: { RequestId: requestId },
+            UpdateMessageByDeduplicationIdResult: {
+                Message: message,
+            },
+        };
+        return AwsXmlFormat.jsonToXML('UpdateMessageByDeduplicationIdResponse', json);
+    }
     static receiveMessage(requestId, messages, AttributeName, MessageAttributeName) {
         const json = {
             ResponseMetadata: { RequestId: requestId },

@@ -8,5 +8,5 @@ import { SQNSClientConfig } from './typings/client-confriguation';
 import { UpdateMessageById } from './typings/publish';
 import { FindMessageByIdResult, UpdateMessageByIdResult } from './typings/recieve-message';
 import { ResponseItem } from './typings/response-item';
-import { MessageAttributeMap, SendMessageRequest } from './typings/typings';
-export { EventState, UpdateMessageById, UpdateMessageByIdResult, ManagerEventScheduler, WorkerEventScheduler, FindMessageByIdResult, SQNSClient, SQNS, SQNSClientConfig, Database, ResponseItem, SendMessageRequest, MessageAttributeMap, };
+import { MessageAttributeMap, SendMessageRequest, SendMessage } from './typings/typings';
+export { EventState, UpdateMessageById, UpdateMessageByIdResult, ManagerEventScheduler, WorkerEventScheduler, FindMessageByIdResult, SendMessage, SQNSClient, SQNS, SQNSClientConfig, Database, ResponseItem, SendMessageRequest, MessageAttributeMap, };

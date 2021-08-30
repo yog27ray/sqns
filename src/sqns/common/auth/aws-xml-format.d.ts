@@ -20,6 +20,7 @@ declare class AwsXmlFormat {
     static findMessageById(requestId: string, eventItem: EventItem): string;
     static findMessageByDeduplicationId(requestId: string, eventItem: EventItem): string;
     static updateMessageById(requestId: string, eventItem: EventItem): string;
+    static updateMessageByDeduplicationId(requestId: string, eventItem: EventItem): string;
     static receiveMessage(requestId: string, messages: Array<any>, AttributeName: Array<string>, MessageAttributeName: Array<string>): string;
     static createTopic(requestId: string, topic: Topic): string;
     static listTopicsResult(requestId: string, topics: Array<Topic>, skip: number, total: number): string;

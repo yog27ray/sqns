@@ -29,6 +29,12 @@ export interface UpdateMessageById {
     DelaySeconds?: number;
     State?: EventState;
 }
+export interface UpdateMessageByDeduplicationId {
+    QueueUrl: string;
+    MessageDeduplicationId: string;
+    DelaySeconds?: number;
+    State?: EventState;
+}
 export interface GetPublishResponse {
     MessageId: string;
     PublishArn?: ARN;
