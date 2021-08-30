@@ -5,7 +5,7 @@ import {
   GetPublishInput,
   GetPublishResponse,
   MarkPublishedInput,
-  UpdateMessageById
+  UpdateMessageById,
 } from '../../typings/publish';
 import { FindMessageByDeduplicationIdResult, FindMessageByIdResult, UpdateMessageByIdResult } from '../../typings/recieve-message';
 import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
