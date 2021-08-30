@@ -17,5 +17,6 @@ declare class SQSStorageEngine extends BaseStorageEngine {
     deleteQueue(queue: Queue): Promise<void>;
     findEvent(id: string): Promise<EventItem>;
     findQueueEvent(queue: Queue, messageId: string): Promise<EventItem>;
+    findQueueEventByDeduplicationId(queue: Queue, messageDeduplicationId: string): Promise<EventItem>;
 }
 export { SQSStorageEngine };

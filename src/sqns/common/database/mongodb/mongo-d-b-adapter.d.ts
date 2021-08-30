@@ -29,6 +29,7 @@ declare class MongoDBAdapter implements StorageAdapter {
     }): Promise<any>;
     findById(id: string): Promise<EventItem>;
     findByIdForQueue(queue: Queue, id: string): Promise<EventItem>;
+    findByDeduplicationIdForQueue(queue: Queue, id: string): Promise<EventItem>;
     createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tags: KeyValueString): Promise<Queue>;
     getQueue(queueArn: ARN): Promise<Queue>;
     deleteQueue(queue: Queue): Promise<void>;

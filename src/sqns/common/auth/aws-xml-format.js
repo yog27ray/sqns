@@ -109,6 +109,24 @@ class AwsXmlFormat {
         };
         return AwsXmlFormat.jsonToXML('FindMessageByIdResponse', json);
     }
+    static findMessageByDeduplicationId(requestId, eventItem) {
+        const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+        if (message) {
+            message.State = eventItem.state;
+            message.EventTime = eventItem.originalEventTime.toISOString();
+            message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
+            message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
+            delete message.MessageAttribute;
+            delete message.Attribute;
+        }
+        const json = {
+            ResponseMetadata: { RequestId: requestId },
+            FindMessageByDeduplicationIdResult: {
+                Message: message,
+            },
+        };
+        return AwsXmlFormat.jsonToXML('FindMessageByDeduplicationIdResponse', json);
+    }
     static updateMessageById(requestId, eventItem) {
         const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
         if (message) {

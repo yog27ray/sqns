@@ -19,6 +19,10 @@ export interface FindMessageById {
     QueueUrl: string;
     MessageId: string;
 }
+export interface FindMessageByDeduplicationId {
+    QueueUrl: string;
+    MessageDeduplicationId: string;
+}
 export interface UpdateMessageById {
     QueueUrl: string;
     MessageId: string;

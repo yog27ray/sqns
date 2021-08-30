@@ -292,6 +292,69 @@ describe('SQNSClient', () => {
                 chai_1.expect(Message).to.not.exist;
             });
         });
+        context('FindMessageByDeduplicationId', () => {
+            let client;
+            let queue;
+            let queue2;
+            let messages;
+            beforeEach(async () => {
+                await setup_1.dropDatabase();
+                client = new s_q_n_s_client_1.SQNSClient({
+                    endpoint: `${test_env_1.Env.URL}/api`,
+                    accessKeyId: test_env_1.Env.accessKeyId,
+                    secretAccessKey: test_env_1.Env.secretAccessKey,
+                });
+                queue = await client.createQueue({ QueueName: 'queue1' });
+                queue2 = await client.createQueue({ QueueName: 'queue2' });
+                ({ Successful: messages } = await client.sendMessageBatch({
+                    QueueUrl: queue.QueueUrl,
+                    Entries: [
+                        {
+                            Id: '123',
+                            MessageBody: '123',
+                            MessageAttributes: {
+                                type: { StringValue: 'type1', DataType: 'String' },
+                                name: { StringValue: 'testUser', DataType: 'String' },
+                            },
+                            MessageSystemAttributes: { attribute1: { StringValue: 'attributeValue', DataType: 'String' } },
+                            MessageDeduplicationId: 'uniqueId1',
+                        },
+                        {
+                            Id: '1234',
+                            MessageBody: '1234',
+                            MessageAttributes: { type: { StringValue: 'type2', DataType: 'String' } },
+                            MessageDeduplicationId: 'uniqueId2',
+                        },
+                        { Id: '1235', MessageBody: '1235' },
+                    ],
+                }));
+            });
+            it('should find message when messageDeduplicationId is correct.', async () => {
+                const { Message } = await client.findByMessageDeduplicationId({
+                    MessageDeduplicationId: 'uniqueId2',
+                    QueueUrl: queue.QueueUrl,
+                });
+                chai_1.expect(Message.MessageId).to.equal(messages[1].MessageId);
+                chai_1.expect(Message.Body).to.equal('1234');
+                chai_1.expect(Message.Attributes).to.exist;
+                chai_1.expect(Message.MessageAttributes).to.exist;
+                chai_1.expect(Message.State).to.equal(event_item_1.EventState.PENDING);
+            });
+            it('should not find message when messageDeduplicationId correct and queueUrl is different.', async () => {
+                const { Message } = await client.findByMessageDeduplicationId({
+                    MessageDeduplicationId: messages[1].MessageId,
+                    QueueUrl: queue2.QueueUrl,
+                });
+                chai_1.expect(Message).to.not.exist;
+            });
+            it('should not find message when messageDeduplicationId is invalid.', async () => {
+                const { Message } = await client.findByMessageDeduplicationId({
+                    MessageDeduplicationId: 'invalidMessageId',
+                    QueueUrl: queue.QueueUrl,
+                });
+                chai_1.expect(Message).to.not.exist;
+            });
+        });
         context('UpdateMessageById', () => {
             let client;
             let queue;

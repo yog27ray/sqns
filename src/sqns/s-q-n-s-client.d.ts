@@ -1,6 +1,6 @@
 import { SQNSClientConfig } from '../../typings/client-confriguation';
-import { FindMessageById, GetPublishInput, GetPublishResponse, MarkPublishedInput, UpdateMessageById } from '../../typings/publish';
-import { FindMessageByIdResult, UpdateMessageByIdResult } from '../../typings/recieve-message';
+import { FindMessageByDeduplicationId, FindMessageById, GetPublishInput, GetPublishResponse, MarkPublishedInput, UpdateMessageById } from '../../typings/publish';
+import { FindMessageByDeduplicationIdResult, FindMessageByIdResult, UpdateMessageByIdResult } from '../../typings/recieve-message';
 import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
 import { ConfirmSubscriptionInput, ConfirmSubscriptionResponse, CreateQueueRequest, CreateQueueResult, CreateTopicInput, CreateTopicResponse, DeleteQueueRequest, DeleteTopicInput, GetQueueUrlRequest, GetQueueUrlResult, GetTopicAttributesInput, GetTopicAttributesResponse, ListQueuesRequest, ListQueuesResponse, ListSubscriptionsByTopicInput, ListSubscriptionsByTopicResponse, ListSubscriptionsInput, ListSubscriptionsResponse, ListTopicsInput, ListTopicsResponse, PublishInput, PublishResponse, ReceiveMessageRequest, ReceiveMessageResult, SendMessageBatchRequest, SendMessageBatchResult, SendMessageRequest, SendMessageResult, SetTopicAttributesInput, SubscribeInput, UnsubscribeInput } from '../../typings/typings';
 import { BaseClient } from './common/client/base-client';
@@ -9,6 +9,7 @@ export declare class SQNSClient extends BaseClient {
     createQueue(params: CreateQueueRequest): Promise<CreateQueueResult>;
     sendMessage(params: SendMessageRequest): Promise<SendMessageResult>;
     findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult>;
+    findByMessageDeduplicationId(params: FindMessageByDeduplicationId): Promise<FindMessageByDeduplicationIdResult>;
     updateMessageById(params: UpdateMessageById): Promise<UpdateMessageByIdResult>;
     receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult>;
     listQueues(params?: ListQueuesRequest): Promise<ListQueuesResponse>;

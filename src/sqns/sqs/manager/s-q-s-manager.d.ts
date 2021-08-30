@@ -35,6 +35,7 @@ export declare class SQSManager extends BaseManager {
     cancel(): void;
     getStorageEngine(): BaseStorageEngine;
     findMessageById(queue: Queue, messageId: string): Promise<EventItem>;
+    findMessageByDeduplicationId(queue: Queue, messageDeduplicationId: string): Promise<EventItem>;
     private pollN;
     private addEventInQueueListener;
     private addItemInQueue;

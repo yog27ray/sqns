@@ -65,6 +65,9 @@ class SQSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
     findQueueEvent(queue, messageId) {
         return this._storageAdapter.findByIdForQueue(queue, messageId);
     }
+    findQueueEventByDeduplicationId(queue, messageDeduplicationId) {
+        return this._storageAdapter.findByDeduplicationIdForQueue(queue, messageDeduplicationId);
+    }
 }
 exports.SQSStorageEngine = SQSStorageEngine;
 //# sourceMappingURL=s-q-s-storage-engine.js.map

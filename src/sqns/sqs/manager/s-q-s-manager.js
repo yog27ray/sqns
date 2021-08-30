@@ -176,6 +176,9 @@ class SQSManager extends base_manager_1.BaseManager {
     async findMessageById(queue, messageId) {
         return this._sQSStorageEngine.findQueueEvent(queue, messageId);
     }
+    async findMessageByDeduplicationId(queue, messageDeduplicationId) {
+        return this._sQSStorageEngine.findQueueEventByDeduplicationId(queue, messageDeduplicationId);
+    }
     async pollN(queue, visibilityTimeout, size) {
         if (!size) {
             return [];

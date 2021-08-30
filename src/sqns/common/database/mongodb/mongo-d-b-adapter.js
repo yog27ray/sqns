@@ -100,6 +100,13 @@ class MongoDBAdapter {
         }
         return new event_item_1.EventItem(MongoDBAdapter.dbToSystemItem(event));
     }
+    async findByDeduplicationIdForQueue(queue, id) {
+        const event = await this.connection.findOne(MongoDBAdapter.Table.Event, { MessageDeduplicationId: id, queueARN: queue.arn });
+        if (!event) {
+            return undefined;
+        }
+        return new event_item_1.EventItem(MongoDBAdapter.dbToSystemItem(event));
+    }
     async createQueue(user, queueName, region, attributes, tags) {
         let queue = await this.getQueue(queue_1.Queue.arn(user.organizationId, region, queueName));
         if (!queue) {
