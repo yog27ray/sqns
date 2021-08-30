@@ -81,6 +81,10 @@ class SQSStorageEngine extends BaseStorageEngine {
   findQueueEvent(queue: Queue, messageId: string): Promise<EventItem> {
     return this._storageAdapter.findByIdForQueue(queue, messageId);
   }
+
+  findQueueEventByDeduplicationId(queue: Queue, messageDeduplicationId: string): Promise<EventItem> {
+    return this._storageAdapter.findByDeduplicationIdForQueue(queue, messageDeduplicationId);
+  }
 }
 
 export { SQSStorageEngine };

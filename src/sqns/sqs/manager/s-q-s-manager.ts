@@ -210,6 +210,10 @@ export class SQSManager extends BaseManager {
     return this._sQSStorageEngine.findQueueEvent(queue, messageId);
   }
 
+  async findMessageByDeduplicationId(queue: Queue, messageDeduplicationId: string): Promise<EventItem> {
+    return this._sQSStorageEngine.findQueueEventByDeduplicationId(queue, messageDeduplicationId);
+  }
+
   private async pollN(queue: Queue, visibilityTimeout: number, size: number): Promise<Array<EventItem>> {
     if (!size) {
       return [];

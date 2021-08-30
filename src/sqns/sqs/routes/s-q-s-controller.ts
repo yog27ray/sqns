@@ -113,6 +113,12 @@ class SQSController {
           const eventItem = await this.eventManager.findMessageById(queue, MessageId);
           return res.send(AwsXmlFormat.findMessageById(requestId, eventItem));
         }
+        case 'FindMessageByDeduplicationId': {
+          const { queueName, region, MessageDeduplicationId, requestId } = req.serverBody;
+          const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
+          const eventItem = await this.eventManager.findMessageByDeduplicationId(queue, MessageDeduplicationId);
+          return res.send(AwsXmlFormat.findMessageByDeduplicationId(requestId, eventItem));
+        }
         case 'UpdateMessageById': {
           const {
             MessageId,

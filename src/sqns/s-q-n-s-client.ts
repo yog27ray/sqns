@@ -1,6 +1,13 @@
 import { SQNSClientConfig } from '../../typings/client-confriguation';
-import { FindMessageById, GetPublishInput, GetPublishResponse, MarkPublishedInput, UpdateMessageById } from '../../typings/publish';
-import { FindMessageByIdResult, UpdateMessageByIdResult } from '../../typings/recieve-message';
+import {
+  FindMessageByDeduplicationId,
+  FindMessageById,
+  GetPublishInput,
+  GetPublishResponse,
+  MarkPublishedInput,
+  UpdateMessageById
+} from '../../typings/publish';
+import { FindMessageByDeduplicationIdResult, FindMessageByIdResult, UpdateMessageByIdResult } from '../../typings/recieve-message';
 import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
 import {
   ConfirmSubscriptionInput,
@@ -76,6 +83,17 @@ export class SQNSClient extends BaseClient {
       FindMessageByIdResponse: { FindMessageByIdResult: FindMessageByIdResult },
     };
     return FindMessageByIdResult;
+  }
+
+  async findByMessageDeduplicationId(params: FindMessageByDeduplicationId): Promise<FindMessageByDeduplicationIdResult> {
+    const request = {
+      uri: this._sqs.endpoint.href,
+      body: { Action: 'FindMessageByDeduplicationId', ...params },
+    };
+    const { FindMessageByDeduplicationIdResponse: { FindMessageByDeduplicationIdResult } } = await this.request(request) as {
+      FindMessageByDeduplicationIdResponse: { FindMessageByDeduplicationIdResult: FindMessageByDeduplicationIdResult },
+    };
+    return FindMessageByDeduplicationIdResult;
   }
 
   async updateMessageById(params: UpdateMessageById): Promise<UpdateMessageByIdResult> {

@@ -142,6 +142,14 @@ class MongoDBAdapter implements StorageAdapter {
     return new EventItem(MongoDBAdapter.dbToSystemItem(event));
   }
 
+  async findByDeduplicationIdForQueue(queue: Queue, id: string): Promise<EventItem> {
+    const event = await this.connection.findOne(MongoDBAdapter.Table.Event, { MessageDeduplicationId: id, queueARN: queue.arn });
+    if (!event) {
+      return undefined;
+    }
+    return new EventItem(MongoDBAdapter.dbToSystemItem(event));
+  }
+
   async createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tags: KeyValueString): Promise<Queue> {
     let queue = await this.getQueue(Queue.arn(user.organizationId, region, queueName));
     if (!queue) {

@@ -21,6 +21,7 @@ interface StorageAdapter {
   findUsers(where: { [key: string]: unknown }, skip?: number, limit?: number): Promise<Array<User>>;
   addEventItem(queue: Queue, item: EventItem): Promise<EventItem>;
   findByIdForQueue(queue: Queue, id: string): Promise<EventItem>;
+  findByDeduplicationIdForQueue(queue: Queue, id: string): Promise<EventItem>;
   findById(id: string): Promise<EventItem>;
   findEventsToProcess(queues: Array<Queue>, time: Date, limit: number): Promise<Array<EventItem>>;
   updateEvent(id: string, data: { [key: string]: any }): Promise<void>;
