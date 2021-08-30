@@ -257,6 +257,15 @@ client.findMessageById({
   const MessageId = response.Messages[0].MessageId;
 });
 ```
+### findMessageByDeduplicationId
+```js
+client.findMessageByDeduplicationId({
+  QueueUrl: queue.QueueUrl,
+  MessageDeduplicationId: 'messageId',
+}).then(response => {
+  const MessageId = response.Messages[0].MessageId;
+});
+```
 ### receiveMessage
 ```js
 client.receiveMessage({
