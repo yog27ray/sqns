@@ -8,7 +8,7 @@ import { SQNSClientConfig } from './typings/client-confriguation';
 import { UpdateMessageById } from './typings/publish';
 import { FindMessageByIdResult, UpdateMessageByIdResult } from './typings/recieve-message';
 import { ResponseItem } from './typings/response-item';
-import { MessageAttributeMap, SendMessageRequest } from './typings/typings';
+import { MessageAttributeMap, SendMessageRequest, SendMessage } from './typings/typings';
 
 export {
   EventState,
@@ -17,6 +17,7 @@ export {
   ManagerEventScheduler,
   WorkerEventScheduler,
   FindMessageByIdResult,
+  SendMessage,
   SQNSClient,
   SQNS,
   SQNSClientConfig,

@@ -34,3 +34,7 @@ export interface FindMessageByDeduplicationIdResult {
 export interface UpdateMessageByIdResult {
   Message: Message & { State: EventState, EventTime: string };
 }
+
+export interface UpdateMessageByDeduplicationIdResult {
+  Message: Message & { State: EventState, EventTime: string };
+}

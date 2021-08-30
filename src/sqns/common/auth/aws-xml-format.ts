@@ -159,6 +159,25 @@ class AwsXmlFormat {
     return AwsXmlFormat.jsonToXML('UpdateMessageByIdResponse', json);
   }
 
+  static updateMessageByDeduplicationId(requestId: string, eventItem: EventItem): string {
+    const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+    if (message) {
+      message.State = eventItem.state;
+      message.EventTime = eventItem.eventTime.toISOString();
+      message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
+      message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
+      delete message.MessageAttribute;
+      delete message.Attribute;
+    }
+    const json: any = {
+      ResponseMetadata: { RequestId: requestId },
+      UpdateMessageByDeduplicationIdResult: {
+        Message: message,
+      },
+    };
+    return AwsXmlFormat.jsonToXML('UpdateMessageByDeduplicationIdResponse', json);
+  }
+
   static receiveMessage(requestId: string, messages: Array<any>, AttributeName: Array<string>, MessageAttributeName: Array<string>)
     : string {
     const json: any = {

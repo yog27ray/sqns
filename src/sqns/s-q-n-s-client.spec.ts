@@ -481,6 +481,104 @@ describe('SQNSClient', () => {
       });
     });
 
+    context('updateMessageByDeduplicationId', () => {
+      let client: SQNSClient;
+      let queue: CreateQueueResult;
+      let queue2: CreateQueueResult;
+      let messages: Array<Message>;
+      beforeEach(async () => {
+        await dropDatabase();
+        client = new SQNSClient({
+          endpoint: `${Env.URL}/api`,
+          accessKeyId: Env.accessKeyId,
+          secretAccessKey: Env.secretAccessKey,
+        });
+        queue = await client.createQueue({ QueueName: 'queue1' });
+        queue2 = await client.createQueue({ QueueName: 'queue2' });
+        ({ Successful: messages } = await client.sendMessageBatch({
+          QueueUrl: queue.QueueUrl,
+          Entries: [{
+            Id: '123',
+            MessageBody: '123',
+            MessageAttributes: {
+              type: { StringValue: 'type1', DataType: 'String' },
+              name: { StringValue: 'testUser', DataType: 'String' },
+            },
+            MessageSystemAttributes: { attribute1: { StringValue: 'attributeValue', DataType: 'String' } },
+            MessageDeduplicationId: 'uniqueId1',
+          }],
+        }));
+      });
+
+      it('should update message with time and state.', async () => {
+        const { Message: OriginalMessage } = await client.findByMessageId({
+          MessageId: messages[0].MessageId,
+          QueueUrl: queue.QueueUrl,
+        });
+        const { Message: UpdatedMessage } = await client.updateMessageByDeduplicationId({
+          MessageDeduplicationId: 'uniqueId1',
+          QueueUrl: queue.QueueUrl,
+          DelaySeconds: 100,
+          State: EventState.SUCCESS,
+        });
+        const { Message } = await client.findByMessageId({
+          MessageId: messages[0].MessageId,
+          QueueUrl: queue.QueueUrl,
+        });
+        expect(Message.MessageId).to.equal(OriginalMessage.MessageId);
+        expect(Message.Body).to.equal(OriginalMessage.Body);
+        expect(Message.State).to.equal('SUCCESS');
+        expect(Message.MessageAttributes).to.exist;
+        expect(Message.Attributes).to.exist;
+        expect(UpdatedMessage.MessageAttributes).to.exist;
+        expect(UpdatedMessage.Attributes).to.exist;
+        expect(new Date(Message.EventTime).getTime()).to.equal(new Date(OriginalMessage.EventTime).getTime());
+      });
+
+      it('should update message with different state.', async () => {
+        await client.updateMessageById({
+          MessageId: messages[0].MessageId,
+          QueueUrl: queue.QueueUrl,
+          State: EventState.SUCCESS,
+        });
+        let { Message } = await client.findByMessageId({
+          MessageId: messages[0].MessageId,
+          QueueUrl: queue.QueueUrl,
+        });
+        expect(Message.State).to.equal('SUCCESS');
+        await client.updateMessageByDeduplicationId({
+          MessageDeduplicationId: 'uniqueId1',
+          QueueUrl: queue.QueueUrl,
+          State: EventState.FAILURE,
+        });
+        ({ Message } = await client.findByMessageId({
+          MessageId: messages[0].MessageId,
+          QueueUrl: queue.QueueUrl,
+        }));
+        expect(Message.State).to.equal('FAILURE');
+        await client.updateMessageById({
+          MessageId: messages[0].MessageId,
+          QueueUrl: queue.QueueUrl,
+          State: EventState.PENDING,
+        });
+        ({ Message } = await client.findByMessageId({
+          MessageId: messages[0].MessageId,
+          QueueUrl: queue.QueueUrl,
+        }));
+        expect(Message.State).to.equal('PENDING');
+        await client.updateMessageByDeduplicationId({
+          MessageDeduplicationId: 'uniqueId1',
+          QueueUrl: queue.QueueUrl,
+          State: EventState.PROCESSING,
+        });
+        ({ Message } = await client.findByMessageId({
+          MessageId: messages[0].MessageId,
+          QueueUrl: queue.QueueUrl,
+        }));
+        expect(Message.State).to.equal('PROCESSING');
+      });
+    });
+
     context('ReceiveMessage', () => {
       let client: SQNSClient;
       let queue: CreateQueueResult;

@@ -287,6 +287,15 @@ client.updateMessageById({
   const MessageId = response.Messages[0].MessageId;
 });
 ```
+### updateMessageByDeduplicationId
+```js
+client.updateMessageByDeduplicationId({
+  QueueUrl: queue.QueueUrl,
+  MessageDeduplicationId: 'messageDeduplicationId',
+}).then(response => {
+  const MessageId = response.Messages[0].MessageId;
+});
+```
 ### listQueues
 ```js
 client.listQueues({

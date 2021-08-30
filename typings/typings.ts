@@ -1,3 +1,4 @@
+import { SendMessage } from './send-message';
 import { ClientConfiguration } from './client-confriguation';
 import {
   ARN,
@@ -70,4 +71,5 @@ export {
   MessageAttributeEntry,
   MessageAttributeMap,
   SupportedProtocol,
+  SendMessage,
 };
