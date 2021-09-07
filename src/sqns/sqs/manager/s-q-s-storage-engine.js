@@ -9,8 +9,8 @@ class SQSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
     addEventItem(queue, eventItem) {
         return this._storageAdapter.addEventItem(queue, eventItem);
     }
-    findEventsToProcess(queues, time, limit) {
-        return this._storageAdapter.findEventsToProcess(queues, time, limit);
+    findEventsToProcess(time, limit) {
+        return this._storageAdapter.findEventsToProcess(time, limit);
     }
     async updateEventStateProcessing(queue, eventItem_, visibilityTimeout, message) {
         const eventItem = eventItem_;

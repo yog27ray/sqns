@@ -20,6 +20,7 @@ export declare class EventItem extends BaseObject {
     MessageAttribute: MessageAttributeMap;
     MessageSystemAttribute: MessageAttributeMap;
     priority: number;
+    maxAttemptCompleted: boolean;
     receiveCount: number;
     maxReceiveCount: number;
     sentTime: Date;
@@ -33,4 +34,5 @@ export declare class EventItem extends BaseObject {
     incrementReceiveCount(): void;
     setState(state: string): void;
     setDelaySeconds(DelaySeconds: number): void;
+    setReceiveCount(receiveCount: number): void;
 }

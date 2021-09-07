@@ -537,6 +537,7 @@ describe('SQNSClient', () => {
                     MessageDeduplicationId: 'uniqueId1',
                     QueueUrl: queue.QueueUrl,
                     State: event_item_1.EventState.PROCESSING,
+                    ReceiveCount: -2,
                 });
                 ({ Message } = await client.findByMessageId({
                     MessageId: messages[0].MessageId,
@@ -1190,8 +1191,12 @@ describe('SQNSClient', () => {
                 queue = await client.createQueue({ QueueName: 'processingFlow' });
                 await client.sendMessageBatch({
                     QueueUrl: queue.QueueUrl,
-                    Entries: new Array(10).fill(0)
-                        .map((item, index) => ({ Id: `${index}`, MessageBody: `Message ${index}`, DelaySeconds: 2 })),
+                    Entries: new Array(10).fill(0).map((item, index) => ({
+                        Id: `${index}`,
+                        MessageBody: `Message ${index}`,
+                        DelaySeconds: 2,
+                        MessageAttributes: { MaxReceiveCount: { StringValue: `${index}`, DataType: 'String' } },
+                    })),
                 });
                 await setup_1.delay(6 * 1000);
             });

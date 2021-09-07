@@ -22,7 +22,10 @@ class Queue extends base_object_1.BaseObject {
         }
         return `arn:sqns:sqs:${region}:${companyId}:${name}`;
     }
-    getMaxReceiveCount() {
+    getMaxReceiveCount(maxReceiveCount) {
+        if (maxReceiveCount && !isNaN(Number(maxReceiveCount))) {
+            return Math.max(Number(maxReceiveCount), 1);
+        }
         return Math.max(Number(this.attributes.maxReceiveCount || '3'), 1);
     }
     getARN() {

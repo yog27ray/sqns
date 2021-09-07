@@ -17,7 +17,7 @@ declare class Queue extends BaseObject {
     arn: ARN;
     static arn(companyId: string, region: string, name: string): ARN;
     constructor(item: QueueType);
-    getMaxReceiveCount(): number;
+    getMaxReceiveCount(maxReceiveCount: string): number;
     private getARN;
 }
 export { Queue };

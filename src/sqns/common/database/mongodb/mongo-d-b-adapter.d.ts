@@ -22,7 +22,7 @@ declare class MongoDBAdapter implements StorageAdapter {
     getDBTableName(tableName: string): string;
     constructor(config: MongoDBConfig);
     addEventItem(queue: Queue, eventItem: EventItem): Promise<EventItem>;
-    findEventsToProcess(queues: Array<Queue>, time: Date, limit: number): Promise<Array<EventItem>>;
+    findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>>;
     getQueues(queueARNPrefix: string): Promise<Array<Queue>>;
     updateEvent(id: string, data: {
         [key: string]: any;

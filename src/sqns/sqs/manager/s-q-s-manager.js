@@ -133,8 +133,7 @@ class SQSManager extends base_manager_1.BaseManager {
         }
     }
     async sendMessage(queue, MessageBody, MessageAttribute, MessageSystemAttribute, DelaySeconds = '0', MessageDeduplicationId) {
-        var _a, _b, _c;
-        this.storageToQueueWorker.setUpIntervalForQueue(queue);
+        var _a, _b, _c, _d;
         const deliveryPolicy = delivery_policy_helper_1.DeliveryPolicyHelper
             .verifyAndGetChannelDeliveryPolicy((_a = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.DeliveryPolicy) === null || _a === void 0 ? void 0 : _a.StringValue);
         const priority = isNaN(Number((_b = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.Priority) === null || _b === void 0 ? void 0 : _b.StringValue))
@@ -148,7 +147,7 @@ class SQSManager extends base_manager_1.BaseManager {
             queueARN: queue.arn,
             DeliveryPolicy: deliveryPolicy,
             MessageDeduplicationId,
-            maxReceiveCount: queue.getMaxReceiveCount(),
+            maxReceiveCount: queue.getMaxReceiveCount((_d = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.MaxReceiveCount) === null || _d === void 0 ? void 0 : _d.StringValue),
             priority,
             eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),
         });

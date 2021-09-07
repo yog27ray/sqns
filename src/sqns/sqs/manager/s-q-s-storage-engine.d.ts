@@ -5,7 +5,7 @@ import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
 declare class SQSStorageEngine extends BaseStorageEngine {
     addEventItem(queue: Queue, eventItem: EventItem): Promise<EventItem>;
-    findEventsToProcess(queues: Array<Queue>, time: Date, limit: number): Promise<Array<EventItem>>;
+    findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>>;
     updateEventStateProcessing(queue: Queue, eventItem_: EventItem, visibilityTimeout: number, message: string): Promise<any>;
     updateEvent(queue: Queue, eventItem: EventItem): Promise<any>;
     updateEventState(queue: Queue, id: string, state: EventState, message: {

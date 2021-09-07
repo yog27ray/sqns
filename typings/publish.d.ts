@@ -33,6 +33,7 @@ export interface UpdateMessageByDeduplicationId {
     QueueUrl: string;
     MessageDeduplicationId: string;
     DelaySeconds?: number;
+    ReceiveCount?: number;
     State?: EventState;
 }
 export interface GetPublishResponse {

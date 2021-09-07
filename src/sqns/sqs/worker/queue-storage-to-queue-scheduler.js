@@ -25,12 +25,11 @@ const logger_1 = require("../../common/logger/logger");
 const queue_storage_to_queue_config_1 = require("./queue-storage-to-queue-config");
 const log = logger_1.logger.instance('QueueStorageToQueueScheduler');
 class QueueStorageToQueueScheduler {
-    constructor(queue, baseParams, listener, cronInterval) {
+    constructor(baseParams, listener, cronInterval) {
         this.config = new queue_storage_to_queue_config_1.QueueStorageToQueueConfig();
         this.config.listener = listener;
-        this.addQueue(queue);
         this.config.baseParams = baseParams;
-        log.info(`Adding scheduler job for queueARN: ${queue.arn}`);
+        log.info('Adding scheduler job');
         this._job = schedule.scheduleJob(cronInterval || '*/5 * * * * *', () => {
             log.info('Executing Manage Job Interval');
             this.startProcessingOfQueue();
@@ -39,41 +38,30 @@ class QueueStorageToQueueScheduler {
     cancel() {
         this._job.cancel();
     }
-    addQueue(queue) {
-        if (this.config.knownQueueARN[queue.arn]) {
-            return;
-        }
-        log.info(`Adding queueARN: ${queue.arn}`);
-        this.config.knownQueueARN[queue.arn] = true;
-        this.config.queues.push(queue);
-    }
-    getQueueNames() {
-        return this.config.queues.map((each) => each.name);
-    }
     startProcessingOfQueue() {
         if (this.config.sending) {
-            log.verbose('Queues:', this.getQueueNames(), 'already fetching events.');
+            log.verbose('already fetching events.');
             return;
         }
-        log.info('Queues:', this.getQueueNames(), 'start fetching events.');
-        this.findEventsToAddInQueueAsynchronous(this.config.queues.map((each) => each), this.config.cloneBaseParams);
+        log.info('start fetching events.');
+        this.findEventsToAddInQueueAsynchronous(this.config.cloneBaseParams);
     }
-    findEventsToAddInQueueAsynchronous(queues, itemListParams) {
+    findEventsToAddInQueueAsynchronous(itemListParams) {
         this.config.sending = true;
-        this.findEventsToAddInQueue(queues, itemListParams)
+        this.findEventsToAddInQueue(itemListParams)
             .catch((error) => {
             log.error(error);
             this.config.sending = false;
         });
     }
-    async findEventsToAddInQueue(queues, itemListParams) {
-        const [nextItemListParams, hasMoreData] = await this.config.listener(queues, itemListParams);
+    async findEventsToAddInQueue(itemListParams) {
+        const [nextItemListParams, hasMoreData] = await this.config.listener(itemListParams);
         if (!hasMoreData) {
-            log.info('Queues:', this.getQueueNames(), 'No more data to fetch, resetting.');
+            log.info('No more data to fetch, resetting.');
             this.config.sending = false;
             return;
         }
-        this.findEventsToAddInQueueAsynchronous(queues, nextItemListParams);
+        this.findEventsToAddInQueueAsynchronous(nextItemListParams);
     }
 }
 exports.QueueStorageToQueueScheduler = QueueStorageToQueueScheduler;

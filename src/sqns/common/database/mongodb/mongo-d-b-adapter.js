@@ -63,12 +63,11 @@ class MongoDBAdapter {
         }
         return new event_item_1.EventItem(MongoDBAdapter.dbToSystemItem(insertedMongoDocument));
     }
-    async findEventsToProcess(queues, time, limit) {
+    async findEventsToProcess(time, limit) {
         const query = {
-            queueARN: { $in: queues.map((queue) => queue.arn) },
+            maxAttemptCompleted: false,
             eventTime: { $lt: time },
             state: { $in: [event_item_1.EventItem.State.PENDING, event_item_1.EventItem.State.PROCESSING, event_item_1.EventItem.State.FAILURE] },
-            $expr: { $lt: ['$receiveCount', '$maxReceiveCount'] },
         };
         log.info('DB Fetch ', query);
         const mongoDocuments = await this.connection.find(MongoDBAdapter.Table.Event, query, { eventTime: -1 }, { limit });
