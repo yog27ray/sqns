@@ -1,5 +1,4 @@
 import { Database } from '../src/sqns/common/database';
-import { Queue } from '../src/sqns/common/model/queue';
 import { KeyValue } from './common';
 import { RequestItem } from './request-item';
 
