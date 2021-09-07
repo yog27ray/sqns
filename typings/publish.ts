@@ -16,7 +16,7 @@ export interface MarkPublishedInput { MessageId: string; }
 export interface FindMessageById { QueueUrl: string; MessageId: string; }
 export interface FindMessageByDeduplicationId { QueueUrl: string; MessageDeduplicationId: string; }
 export interface UpdateMessageById { QueueUrl: string; MessageId: string; DelaySeconds?: number; State?: EventState; }
-export interface UpdateMessageByDeduplicationId { QueueUrl: string; MessageDeduplicationId: string; DelaySeconds?: number; State?: EventState; }
+export interface UpdateMessageByDeduplicationId { QueueUrl: string; MessageDeduplicationId: string; DelaySeconds?: number; ReceiveCount?: number; State?: EventState; }
 
 export interface GetPublishResponse {
   MessageId: string;

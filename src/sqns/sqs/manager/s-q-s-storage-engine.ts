@@ -11,8 +11,8 @@ class SQSStorageEngine extends BaseStorageEngine {
     return this._storageAdapter.addEventItem(queue, eventItem);
   }
 
-  findEventsToProcess(queues: Array<Queue>, time: Date, limit: number): Promise<Array<EventItem>> {
-    return this._storageAdapter.findEventsToProcess(queues, time, limit);
+  findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>> {
+    return this._storageAdapter.findEventsToProcess(time, limit);
   }
 
   async updateEventStateProcessing(queue: Queue, eventItem_: EventItem, visibilityTimeout: number, message: string): Promise<any> {

@@ -9,10 +9,6 @@ export class QueueStorageToQueueConfig {
 
   private _listener: QueueStorageToQueueConfigListener;
 
-  private _queues: Array<Queue> = [];
-
-  private _knownQueueARN: KeyValue<boolean> = {};
-
   get sending(): boolean {
     return this._sending;
   }
@@ -35,18 +31,6 @@ export class QueueStorageToQueueConfig {
 
   set listener(value: QueueStorageToQueueConfigListener) {
     this._listener = value;
-  }
-
-  get queues(): Array<Queue> {
-    return this._queues;
-  }
-
-  set queues(value: Array<Queue>) {
-    this._queues = value;
-  }
-
-  get knownQueueARN(): KeyValue<boolean> {
-    return this._knownQueueARN;
   }
 
   get cloneBaseParams(): KeyValue {

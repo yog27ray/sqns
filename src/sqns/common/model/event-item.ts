@@ -29,6 +29,8 @@ export class EventItem extends BaseObject {
 
   priority: number = Number.MAX_SAFE_INTEGER;
 
+  maxAttemptCompleted: boolean;
+
   receiveCount: number;
 
   maxReceiveCount: number;
@@ -47,7 +49,7 @@ export class EventItem extends BaseObject {
 
   constructor(item: EventItemType) {
     super(item);
-    this.receiveCount = item.receiveCount || 0;
+    this.setReceiveCount(item.receiveCount || 0);
     this.queueARN = item.queueARN;
     this.maxReceiveCount = item.maxReceiveCount;
     this.data = item.data || {};
@@ -80,7 +82,7 @@ export class EventItem extends BaseObject {
   }
 
   incrementReceiveCount(): void {
-    this.receiveCount += 1;
+    this.setReceiveCount(this.receiveCount + 1);
   }
 
   setState(state: string): void {
@@ -110,5 +112,13 @@ export class EventItem extends BaseObject {
       return;
     }
     this.eventTime = new Date(new Date().getTime() + (Number(DelaySeconds) * 1000));
+  }
+
+  setReceiveCount(receiveCount: number): void {
+    if (receiveCount === undefined) {
+      return;
+    }
+    this.receiveCount = Math.max(0, receiveCount);
+    this.maxAttemptCompleted = this.receiveCount >= this.maxReceiveCount;
   }
 }

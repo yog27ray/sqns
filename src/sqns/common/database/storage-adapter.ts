@@ -23,7 +23,7 @@ interface StorageAdapter {
   findByIdForQueue(queue: Queue, id: string): Promise<EventItem>;
   findByDeduplicationIdForQueue(queue: Queue, id: string): Promise<EventItem>;
   findById(id: string): Promise<EventItem>;
-  findEventsToProcess(queues: Array<Queue>, time: Date, limit: number): Promise<Array<EventItem>>;
+  findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>>;
   updateEvent(id: string, data: { [key: string]: any }): Promise<void>;
   getQueues(queueARNPrefix?: ARN): Promise<Array<Queue>>;
   createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tag: KeyValueString): Promise<Queue>;

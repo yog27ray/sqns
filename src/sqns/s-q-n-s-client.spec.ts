@@ -570,6 +570,7 @@ describe('SQNSClient', () => {
           MessageDeduplicationId: 'uniqueId1',
           QueueUrl: queue.QueueUrl,
           State: EventState.PROCESSING,
+          ReceiveCount: -2,
         });
         ({ Message } = await client.findByMessageId({
           MessageId: messages[0].MessageId,

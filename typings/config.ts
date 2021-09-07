@@ -57,5 +57,4 @@ export declare type ManagerQueueConfigListener = (queueName: string, nextItemLis
 
 export declare interface ConfigCount { count: number; MAX_COUNT: number; }
 
-export declare type QueueStorageToQueueConfigListener = (queues: Array<Queue>, nextItemListParams: KeyValue)
-  => Promise<[KeyValue, boolean]>;
+export declare type QueueStorageToQueueConfigListener = (nextItemListParams: KeyValue) => Promise<[KeyValue, boolean]>;
