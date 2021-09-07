@@ -163,7 +163,6 @@ export class SQSManager extends BaseManager {
 
   async sendMessage(queue: Queue, MessageBody: string, MessageAttribute: MessageAttributeMap, MessageSystemAttribute: MessageAttributeMap,
     DelaySeconds: string = '0', MessageDeduplicationId?: string): Promise<EventItem> {
-    this.storageToQueueWorker.setUpIntervalForQueue(queue);
     const deliveryPolicy: ChannelDeliveryPolicy = DeliveryPolicyHelper
       .verifyAndGetChannelDeliveryPolicy(MessageAttribute?.DeliveryPolicy?.StringValue);
     const priority = isNaN(Number(MessageAttribute?.Priority?.StringValue))
@@ -177,7 +176,7 @@ export class SQSManager extends BaseManager {
       queueARN: queue.arn,
       DeliveryPolicy: deliveryPolicy,
       MessageDeduplicationId,
-      maxReceiveCount: queue.getMaxReceiveCount(),
+      maxReceiveCount: queue.getMaxReceiveCount(MessageAttribute?.MaxReceiveCount?.StringValue),
       priority,
       eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),
     });

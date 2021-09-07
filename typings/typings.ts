@@ -1,4 +1,3 @@
-import { SendMessage } from './send-message';
 import { ClientConfiguration } from './client-confriguation';
 import {
   ARN,
@@ -16,7 +15,7 @@ import { MessageStructure, PublishInput, PublishResponse } from './publish';
 import { CreateQueueRequest, CreateQueueResult, DeleteQueueRequest, GetQueueUrlRequest, GetQueueUrlResult } from './queue';
 import { ReceiveMessageRequest, ReceiveMessageResult } from './recieve-message';
 import { RequestItem } from './request-item';
-import { SendMessageBatchRequest, SendMessageBatchResult, SendMessageRequest, SendMessageResult } from './send-message';
+import { SendMessage, SendMessageBatchRequest, SendMessageBatchResult, SendMessageRequest, SendMessageResult } from './send-message';
 import { ConfirmSubscriptionInput,
   ConfirmSubscriptionResponse, ListSubscriptionsByTopicInput,
   ListSubscriptionsByTopicResponse, ListSubscriptionsInput,
