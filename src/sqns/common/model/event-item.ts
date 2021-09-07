@@ -31,6 +31,8 @@ export class EventItem extends BaseObject {
 
   maxAttemptCompleted: boolean;
 
+  completionPending: boolean;
+
   receiveCount: number;
 
   maxReceiveCount: number;
@@ -71,6 +73,7 @@ export class EventItem extends BaseObject {
         this.priority = Number(this.MessageAttribute.priority.StringValue);
       }
     }
+    this.completionPending = item.completionPending || item.state !== EventState.SUCCESS;
     this.DeliveryPolicy = item.DeliveryPolicy;
   }
 
