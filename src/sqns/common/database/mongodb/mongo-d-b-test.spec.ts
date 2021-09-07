@@ -137,7 +137,7 @@ describe('mongoDB test cases', () => {
         queueARN: 'arn:sqns:sqs:sqns:1:queue1',
         MessageBody: '1235',
         MessageAttribute: {},
-        completionPending: true,
+        completionPending: false,
         maxAttemptCompleted: false,
         state: 'SUCCESS',
         processingResponse: 'sent to slave',
