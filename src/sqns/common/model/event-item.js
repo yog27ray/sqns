@@ -34,6 +34,7 @@ class EventItem extends base_object_1.BaseObject {
                 this.priority = Number(this.MessageAttribute.priority.StringValue);
             }
         }
+        this.completionPending = item.completionPending || item.state !== EventState.SUCCESS;
         this.DeliveryPolicy = item.DeliveryPolicy;
     }
     updateSentTime(date) {

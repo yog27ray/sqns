@@ -110,7 +110,7 @@ class SQSManager extends base_manager_1.BaseManager {
         await this._sQSStorageEngine.updateEvent(queue, event);
     }
     updateEventStateSuccess(queue, id, message) {
-        return this._sQSStorageEngine.updateEventState(queue, id, event_item_1.EventItem.State.SUCCESS, { successResponse: message });
+        return this._sQSStorageEngine.updateEventState(queue, id, event_item_1.EventItem.State.SUCCESS, { successResponse: message, completionPending: false });
     }
     async updateEventStateFailure(queue, id, message) {
         await this._sQSStorageEngine.updateEventState(queue, id, event_item_1.EventItem.State.FAILURE, { failureResponse: message });
@@ -147,6 +147,7 @@ class SQSManager extends base_manager_1.BaseManager {
             queueARN: queue.arn,
             DeliveryPolicy: deliveryPolicy,
             MessageDeduplicationId,
+            completionPending: true,
             maxReceiveCount: queue.getMaxReceiveCount((_d = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.MaxReceiveCount) === null || _d === void 0 ? void 0 : _d.StringValue),
             priority,
             eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),

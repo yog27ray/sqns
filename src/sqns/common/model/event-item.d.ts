@@ -21,6 +21,7 @@ export declare class EventItem extends BaseObject {
     MessageSystemAttribute: MessageAttributeMap;
     priority: number;
     maxAttemptCompleted: boolean;
+    completionPending: boolean;
     receiveCount: number;
     maxReceiveCount: number;
     sentTime: Date;
