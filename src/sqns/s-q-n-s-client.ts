@@ -11,7 +11,7 @@ import {
   FindMessageByDeduplicationIdResult,
   FindMessageByIdResult,
   UpdateMessageByDeduplicationIdResult,
-  UpdateMessageByIdResult
+  UpdateMessageByIdResult,
 } from '../../typings/recieve-message';
 import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
 import {
