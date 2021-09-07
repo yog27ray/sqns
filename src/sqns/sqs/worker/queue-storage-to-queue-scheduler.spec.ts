@@ -1,5 +1,4 @@
 import { dropDatabase } from '../../../setup';
-import { Queue } from '../../common/model/queue';
 import { QueueStorageToQueueScheduler } from './queue-storage-to-queue-scheduler';
 
 describe('QueueStorageToQueueSchedulerSpec', () => {
@@ -13,7 +12,6 @@ describe('QueueStorageToQueueSchedulerSpec', () => {
         let attempt = 2;
         const timeout = setTimeout(() => reject('should not reach here.'), 6000);
         queueStorageToQueueScheduler = new QueueStorageToQueueScheduler(
-          new Queue({ name: 'queue1' } as any),
           () => ({}),
           async () => {
             if (!attempt) {
