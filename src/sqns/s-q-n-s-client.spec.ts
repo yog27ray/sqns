@@ -1268,8 +1268,12 @@ describe('SQNSClient', () => {
         queue = await client.createQueue({ QueueName: 'processingFlow' });
         await client.sendMessageBatch({
           QueueUrl: queue.QueueUrl,
-          Entries: new Array(10).fill(0)
-            .map((item: number, index: number) => ({ Id: `${index}`, MessageBody: `Message ${index}`, DelaySeconds: 2 })),
+          Entries: new Array(10).fill(0).map((item: number, index: number) => ({
+            Id: `${index}`,
+            MessageBody: `Message ${index}`,
+            DelaySeconds: 2,
+            MessageAttributes: { MaxReceiveCount: { StringValue: `${index}`, DataType: 'String' } },
+          })),
         });
         await delay(6 * 1000);
       });

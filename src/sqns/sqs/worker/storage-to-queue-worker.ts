@@ -46,12 +46,7 @@ class StorageToQueueWorker {
       if (!items.length) {
         return [{}, false];
       }
-      items.forEach((item: EventItem) => {
-        if (item.receiveCount >= item.maxReceiveCount) {
-          return;
-        }
-        this._addEventToQueueListener(item);
-      });
+      items.forEach((item: EventItem) => this._addEventToQueueListener(item));
       return [{ time: items[items.length - 1].eventTime }, true];
     };
   }

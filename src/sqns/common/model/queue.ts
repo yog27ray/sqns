@@ -41,7 +41,10 @@ class Queue extends BaseObject {
     this.DeliveryPolicy = DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy(this.attributes.DeliveryPolicy);
   }
 
-  getMaxReceiveCount(): number {
+  getMaxReceiveCount(maxReceiveCount: string): number {
+    if (maxReceiveCount && !isNaN(Number(maxReceiveCount))) {
+      return Math.max(Number(maxReceiveCount), 1);
+    }
     return Math.max(Number(this.attributes.maxReceiveCount || '3'), 1);
   }
 

@@ -176,7 +176,7 @@ export class SQSManager extends BaseManager {
       queueARN: queue.arn,
       DeliveryPolicy: deliveryPolicy,
       MessageDeduplicationId,
-      maxReceiveCount: queue.getMaxReceiveCount(),
+      maxReceiveCount: queue.getMaxReceiveCount(MessageAttribute?.MaxReceiveCount?.StringValue),
       priority,
       eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),
     });
