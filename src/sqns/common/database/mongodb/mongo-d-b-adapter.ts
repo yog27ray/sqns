@@ -97,11 +97,7 @@ class MongoDBAdapter implements StorageAdapter {
   }
 
   async findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>> {
-    const query = {
-      maxAttemptCompleted: false,
-      eventTime: { $lt: time },
-      state: { $in: [EventItem.State.PENDING, EventItem.State.PROCESSING, EventItem.State.FAILURE] },
-    };
+    const query = { maxAttemptCompleted: false, completionPending: true, eventTime: { $lt: time } };
     log.info('DB Fetch ', query);
     const mongoDocuments = await this.connection.find(
       MongoDBAdapter.Table.Event,
