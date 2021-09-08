@@ -35,7 +35,7 @@ class MongoDBConnection {
             query._id = query.id;
             delete query.id;
         }
-        return this.getDB().collection(tableName).find(query, { sort, limit, skip }).toArray();
+        return this.getDB().collection(tableName).find(query).sort(sort).skip(skip).limit(limit).toArray();
     }
     async findOne(tableName, filter_ = {}) {
         const filter = filter_;

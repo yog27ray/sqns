@@ -1,4 +1,4 @@
-import { ARN } from '../../../../typings/typings';
+import { ARN } from '../../../../typings/common';
 import { EventItem } from '../../common/model/event-item';
 declare class SQSQueue {
     private _notifyNeedTaskURLS;
