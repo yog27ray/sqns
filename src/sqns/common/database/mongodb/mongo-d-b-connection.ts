@@ -48,7 +48,11 @@ class MongoDBConnection {
       query._id = query.id;
       delete query.id;
     }
-    return this.getDB().collection(tableName).find(query).sort(sort).skip(skip || 0).limit(limit || 100).toArray();
+    return this.getDB().collection(tableName).find(query)
+      .sort(sort)
+      .skip(skip || 0)
+      .limit(limit || 100)
+      .toArray();
   }
 
   async findOne(tableName: string, filter_: KeyValue = {}): Promise<KeyValue> {
