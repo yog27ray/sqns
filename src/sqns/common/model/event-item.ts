@@ -51,9 +51,9 @@ export class EventItem extends BaseObject {
 
   constructor(item: EventItemType) {
     super(item);
-    this.setReceiveCount(item.receiveCount || 0);
-    this.queueARN = item.queueARN;
     this.maxReceiveCount = item.maxReceiveCount;
+    this.setReceiveCount(item.receiveCount);
+    this.queueARN = item.queueARN;
     this.data = item.data || {};
     this.MessageBody = item.MessageBody;
     if (item.MessageDeduplicationId) {
@@ -62,8 +62,7 @@ export class EventItem extends BaseObject {
     this.MessageAttribute = item.MessageAttribute || {};
     this.MessageSystemAttribute = item.MessageSystemAttribute || {};
     this.priority = isNaN(item.priority) ? EventItem.PRIORITY.DEFAULT : item.priority;
-    this.state = item.state || EventState.PENDING;
-
+    this.setState(item.state);
     this.eventTime = item.eventTime;
     this.originalEventTime = item.originalEventTime || this.eventTime;
     this.sentTime = item.sentTime;
@@ -73,7 +72,6 @@ export class EventItem extends BaseObject {
         this.priority = Number(this.MessageAttribute.priority.StringValue);
       }
     }
-    this.completionPending = item.completionPending || item.state !== EventState.SUCCESS;
     this.DeliveryPolicy = item.DeliveryPolicy;
   }
 
@@ -88,7 +86,10 @@ export class EventItem extends BaseObject {
     this.setReceiveCount(this.receiveCount + 1);
   }
 
-  setState(state: string): void {
+  setState(state: string = EventState.PENDING): void {
+    if (this.state && EventState.SUCCESS !== state) {
+      this.setReceiveCount(0);
+    }
     switch (state) {
       case EventState.PENDING.valueOf(): {
         this.state = EventState.PENDING;
@@ -108,6 +109,7 @@ export class EventItem extends BaseObject {
       }
       default:
     }
+    this.completionPending = this.state !== EventState.SUCCESS;
   }
 
   setDelaySeconds(DelaySeconds: number): void {
@@ -117,7 +119,7 @@ export class EventItem extends BaseObject {
     this.eventTime = new Date(new Date().getTime() + (Number(DelaySeconds) * 1000));
   }
 
-  setReceiveCount(receiveCount: number): void {
+  setReceiveCount(receiveCount: number = 0): void {
     if (receiveCount === undefined) {
       return;
     }
