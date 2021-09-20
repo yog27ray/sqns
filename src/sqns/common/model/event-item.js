@@ -13,9 +13,9 @@ class EventItem extends base_object_1.BaseObject {
     constructor(item) {
         super(item);
         this.priority = Number.MAX_SAFE_INTEGER;
-        this.maxReceiveCount = item.maxReceiveCount;
-        this.setReceiveCount(item.receiveCount);
+        this.setReceiveCount(item.receiveCount || 0);
         this.queueARN = item.queueARN;
+        this.maxReceiveCount = item.maxReceiveCount;
         this.data = item.data || {};
         this.MessageBody = item.MessageBody;
         if (item.MessageDeduplicationId) {
@@ -24,7 +24,7 @@ class EventItem extends base_object_1.BaseObject {
         this.MessageAttribute = item.MessageAttribute || {};
         this.MessageSystemAttribute = item.MessageSystemAttribute || {};
         this.priority = isNaN(item.priority) ? EventItem.PRIORITY.DEFAULT : item.priority;
-        this.setState(item.state);
+        this.state = item.state || EventState.PENDING;
         this.eventTime = item.eventTime;
         this.originalEventTime = item.originalEventTime || this.eventTime;
         this.sentTime = item.sentTime;
@@ -34,6 +34,7 @@ class EventItem extends base_object_1.BaseObject {
                 this.priority = Number(this.MessageAttribute.priority.StringValue);
             }
         }
+        this.completionPending = item.completionPending || item.state !== EventState.SUCCESS;
         this.DeliveryPolicy = item.DeliveryPolicy;
     }
     updateSentTime(date) {
@@ -45,10 +46,7 @@ class EventItem extends base_object_1.BaseObject {
     incrementReceiveCount() {
         this.setReceiveCount(this.receiveCount + 1);
     }
-    setState(state = EventState.PENDING) {
-        if (this.state && EventState.SUCCESS !== state) {
-            this.setReceiveCount(0);
-        }
+    setState(state) {
         switch (state) {
             case EventState.PENDING.valueOf(): {
                 this.state = EventState.PENDING;
@@ -68,7 +66,6 @@ class EventItem extends base_object_1.BaseObject {
             }
             default:
         }
-        this.completionPending = this.state !== EventState.SUCCESS;
     }
     setDelaySeconds(DelaySeconds) {
         if (DelaySeconds === undefined) {
@@ -76,7 +73,7 @@ class EventItem extends base_object_1.BaseObject {
         }
         this.eventTime = new Date(new Date().getTime() + (Number(DelaySeconds) * 1000));
     }
-    setReceiveCount(receiveCount = 0) {
+    setReceiveCount(receiveCount) {
         if (receiveCount === undefined) {
             return;
         }
