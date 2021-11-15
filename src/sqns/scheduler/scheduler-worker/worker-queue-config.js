@@ -2,12 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WorkerQueueConfig = void 0;
 class WorkerQueueConfig {
-    constructor(queueName, listener) {
+    constructor(queueName, listener, config = { count: 0, MAX_COUNT: 1 }) {
         this._config = { count: 0, MAX_COUNT: 1 };
         this._polling = false;
         this._hasMore = true;
         this._queueName = queueName;
         this._listener = listener;
+        this._config = config;
     }
     get queueName() {
         return this._queueName;
@@ -37,9 +38,7 @@ class WorkerQueueConfig {
         this._hasMore = value;
     }
     clone() {
-        const config = new WorkerQueueConfig(this.queueName, this.listener);
-        config._config = { MAX_COUNT: this.config.MAX_COUNT, count: 0 };
-        return config;
+        return new WorkerQueueConfig(this.queueName, this.listener, this.config);
     }
 }
 exports.WorkerQueueConfig = WorkerQueueConfig;

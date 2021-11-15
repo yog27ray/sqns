@@ -27,7 +27,6 @@ class SQSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
             firstSentTime: eventItem.firstSentTime,
             sentTime: eventItem.sentTime,
             eventTime: eventItem.eventTime,
-            maxAttemptCompleted: eventItem.maxAttemptCompleted,
         });
     }
     async updateEvent(queue, eventItem) {

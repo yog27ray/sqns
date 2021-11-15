@@ -147,7 +147,6 @@ class SQSManager extends base_manager_1.BaseManager {
             queueARN: queue.arn,
             DeliveryPolicy: deliveryPolicy,
             MessageDeduplicationId,
-            completionPending: true,
             maxReceiveCount: queue.getMaxReceiveCount((_d = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.MaxReceiveCount) === null || _d === void 0 ? void 0 : _d.StringValue),
             priority,
             eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),
