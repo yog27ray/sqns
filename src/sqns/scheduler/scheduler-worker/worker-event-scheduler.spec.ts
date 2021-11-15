@@ -8,6 +8,7 @@ import { SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { RequestClient } from '../../common/request-client/request-client';
 import { SQNSClient } from '../../s-q-n-s-client';
 import { WorkerEventScheduler } from './worker-event-scheduler';
+import { WorkerQueueConfig } from './worker-queue-config';
 
 describe('WorkerEventSchedulerSpec', () => {
   context('installing a Worker scheduler', () => {
@@ -31,21 +32,22 @@ describe('WorkerEventSchedulerSpec', () => {
       const result: Array<ResponseItem> = [];
       await new Promise((resolve: (value?: unknown) => void) => {
         let itemCheck = 2;
+        const workerQueueConfig = new WorkerQueueConfig('queue1', async (queueName: string, item: ResponseItem) => {
+          result.push(item);
+          itemCheck -= 1;
+          if (!itemCheck) {
+            resolve();
+          }
+          return 'response';
+        });
         workerEventScheduler = new WorkerEventScheduler(
           {
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
           },
-          ['queue1'],
-          async (queueName: string, item: ResponseItem) => {
-            result.push(item);
-            itemCheck -= 1;
-            if (!itemCheck) {
-              resolve();
-            }
-            return 'response';
-          }, '*/2 * * * * *');
+          [workerQueueConfig],
+          '*/2 * * * * *');
       });
       const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
@@ -87,21 +89,22 @@ describe('WorkerEventSchedulerSpec', () => {
     it('should process 100 events in the queue', async () => {
       await new Promise((resolve: (value?: unknown) => void) => {
         let itemCheck = ITEM_COUNT;
+        // eslint-disable-next-line promise/param-names
+        const workerQueueConfig = new WorkerQueueConfig('queue1', () => new Promise((resolve1
+          : (value?: string) => void) => setTimeout(() => {
+          resolve1();
+          itemCheck -= 1;
+          if (!itemCheck) {
+            resolve();
+          }
+        }, 10)));
         workerEventScheduler = new WorkerEventScheduler(
           {
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
           },
-          ['queue1'],
-          // eslint-disable-next-line promise/param-names
-          () => new Promise((resolve1: (value?: string) => void) => setTimeout(() => {
-            resolve1();
-            itemCheck -= 1;
-            if (!itemCheck) {
-              resolve();
-            }
-          }, 10)),
+          [workerQueueConfig],
           '*/2 * * * * *');
       });
       await delay();
@@ -139,17 +142,18 @@ describe('WorkerEventSchedulerSpec', () => {
     it('should re-attempt to check if server is ready.', async () => {
       await new Promise((resolve: (value: unknown) => void) => {
         const timeout = setTimeout(resolve, 6000);
+        const workerQueueConfig = new WorkerQueueConfig('queue1', async () => {
+          clearTimeout(timeout);
+          return 'response';
+        });
         workerEventScheduler = new WorkerEventScheduler(
           {
             endpoint: `${Env.URL}/api/wrong`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
           },
-          ['queue1'],
-          async () => {
-            clearTimeout(timeout);
-            return 'response';
-          }, '*/2 * * * * *');
+          [workerQueueConfig],
+          '*/2 * * * * *');
       });
       const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
@@ -162,21 +166,21 @@ describe('WorkerEventSchedulerSpec', () => {
     it('should call failure api when request fails.', async () => {
       await new Promise((resolve: (value: unknown) => void) => {
         let count = 0;
+        const workerQueueConfig = new WorkerQueueConfig('queue1', () => {
+          count += 1;
+          if (count === 2) {
+            setTimeout(resolve, 0);
+            return Promise.resolve('this is success message');
+          }
+          return Promise.reject('Error in processing');
+        });
         workerEventScheduler = new WorkerEventScheduler(
           {
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
           },
-          ['queue1'],
-          () => {
-            count += 1;
-            if (count === 2) {
-              setTimeout(resolve, 0);
-              return Promise.resolve('this is success message');
-            }
-            return Promise.reject('Error in processing');
-          },
+          [workerQueueConfig],
           '*/2 * * * * *');
       });
       const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
@@ -225,14 +229,14 @@ describe('WorkerEventSchedulerSpec', () => {
         Subject: 'Subject',
         MessageAttributes: { key1: { DataType: 'String', StringValue: 'value' } },
       });
+      const workerQueueConfig = new WorkerQueueConfig(SYSTEM_QUEUE_NAME.SNS, undefined);
       workerEventScheduler = new WorkerEventScheduler(
         {
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
         },
-        [SYSTEM_QUEUE_NAME.SNS],
-        undefined,
+        [workerQueueConfig],
         '*/2 * * * * *',
       );
       await new Promise((resolve: (value?: unknown) => void) => {
@@ -287,14 +291,14 @@ describe('WorkerEventSchedulerSpec', () => {
         Subject: 'Subject',
         MessageAttributes: { key1: { DataType: 'String', StringValue: 'value' } },
       }));
+      const workerQueueConfig = new WorkerQueueConfig(SYSTEM_QUEUE_NAME.SNS, undefined);
       workerEventScheduler = new WorkerEventScheduler(
         {
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
         },
-        [SYSTEM_QUEUE_NAME.SNS],
-        undefined,
+        [workerQueueConfig],
         '*/2 * * * * *',
       );
       // eslint-disable-next-line promise/param-names

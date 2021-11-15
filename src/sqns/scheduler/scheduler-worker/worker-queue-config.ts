@@ -1,6 +1,6 @@
 import { ConfigCount } from '../../../../typings/config';
+import { CreateQueueResult } from '../../../../typings/queue';
 import { ResponseItem } from '../../../../typings/response-item';
-import { CreateQueueResult } from '../../../../typings/typings';
 
 class WorkerQueueConfig {
   private readonly _queueName: string;
@@ -13,10 +13,11 @@ class WorkerQueueConfig {
 
   private _queue: CreateQueueResult;
 
-  private _listener: (queueName: string, item: ResponseItem) => Promise<string>;
+  private readonly _listener: (queueName: string, item: ResponseItem) => Promise<string>;
 
-  constructor(queueName: string) {
+  constructor(queueName: string, listener: (queueName: string, item: ResponseItem) => Promise<string>) {
     this._queueName = queueName;
+    this._listener = listener;
   }
 
   get queueName(): string {
@@ -47,16 +48,18 @@ class WorkerQueueConfig {
     return this._listener;
   }
 
-  set listener(value: (queueName: string, item: ResponseItem) => Promise<string>) {
-    this._listener = value;
-  }
-
   get hasMore(): boolean {
     return this._hasMore;
   }
 
   set hasMore(value: boolean) {
     this._hasMore = value;
+  }
+
+  clone(): WorkerQueueConfig {
+    const config = new WorkerQueueConfig(this.queueName, this.listener);
+    config._config = { MAX_COUNT: this.config.MAX_COUNT, count: 0 };
+    return config;
   }
 }
 

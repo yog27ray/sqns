@@ -19,15 +19,12 @@ class WorkerEventScheduler {
 
   private job: schedule.Job;
 
-  constructor(options: SQNSClientConfig, queueNames: Array<string>, listener: (queueName: string, item: ResponseItem) => Promise<string>,
-    cronInterval?: string) {
-    this.queueNames = queueNames.map((each: string) => each);
+  constructor(options: SQNSClientConfig, queueConfigs: Array<WorkerQueueConfig>, cronInterval?: string) {
+    this.queueNames = [];
     this.queueConfigs = {};
-    this.queueNames.forEach((queueName: string) => {
-      const workerQueueConfig = new WorkerQueueConfig(queueName);
-      workerQueueConfig.listener = listener;
-      workerQueueConfig.config.MAX_COUNT = 1;
-      this.queueConfigs[queueName] = workerQueueConfig;
+    queueConfigs.forEach((each: WorkerQueueConfig) => {
+      this.queueConfigs[each.queueName] = each.clone();
+      this.queueNames.push(this.queueConfigs[each.queueName].queueName);
     });
     this.sqnsClient = new SQNSClient(options);
     this.initialize(cronInterval);

@@ -26,6 +26,7 @@ import { User } from '../../common/model/user';
 import { RequestClient } from '../../common/request-client/request-client';
 import { SQNSClient } from '../../s-q-n-s-client';
 import { WorkerEventScheduler } from '../../scheduler/scheduler-worker/worker-event-scheduler';
+import { WorkerQueueConfig } from '../../scheduler/scheduler-worker/worker-queue-config';
 import { SNSStorageEngine } from './s-n-s-storage-engine';
 
 const log = logger.instance('SNSManager');
@@ -49,7 +50,8 @@ class SNSManager extends BaseManager {
     this.sNSStorageEngine = new SNSStorageEngine(snsConfig.db);
     this.sqnsClient = new SQNSClient(sqnsClientConfig);
     if (!snsConfig.disableWorker) {
-      this.workerEventScheduler = new WorkerEventScheduler(sqnsClientConfig, [SYSTEM_QUEUE_NAME.SNS], undefined);
+      const workerQueueConfig = new WorkerQueueConfig(SYSTEM_QUEUE_NAME.SNS, undefined);
+      this.workerEventScheduler = new WorkerEventScheduler(sqnsClientConfig, [workerQueueConfig], undefined);
     }
   }
 

@@ -8,6 +8,7 @@ import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
 import { SQNSClient } from '../../../s-q-n-s-client';
 import { WorkerEventScheduler } from '../../../scheduler/scheduler-worker/worker-event-scheduler';
+import { WorkerQueueConfig } from '../../../scheduler/scheduler-worker/worker-queue-config';
 import { DeliveryPolicyHelper } from '../../helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../model/base-storage-engine';
 import { RequestClient } from '../../request-client/request-client';
@@ -50,24 +51,24 @@ describe('mongoDB test cases', () => {
       });
       await new Promise((resolve: (value: unknown) => void) => {
         let count = 0;
+        const workerQueueConfig = new WorkerQueueConfig('queue1', async () => {
+          count += 1;
+          if (count === 2) {
+            return Promise.resolve('this is success message');
+          }
+          if (count === 3) {
+            setTimeout(resolve, 0);
+            return new Promise(() => 0);
+          }
+          return Promise.reject('Error in processing');
+        });
         slaveScheduler = new WorkerEventScheduler(
           {
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
           },
-          ['queue1'],
-          async () => {
-            count += 1;
-            if (count === 2) {
-              return Promise.resolve('this is success message');
-            }
-            if (count === 3) {
-              setTimeout(resolve, 0);
-              return new Promise(() => 0);
-            }
-            return Promise.reject('Error in processing');
-          },
+          [workerQueueConfig],
           '*/2 * * * * *');
       });
       await delay();
@@ -170,24 +171,24 @@ describe('mongoDB test cases', () => {
       });
       await new Promise((resolve: (value: unknown) => void) => {
         let count = 0;
+        const workerQueueConfig = new WorkerQueueConfig('queue1', async () => {
+          count += 1;
+          if (count === 2) {
+            return Promise.resolve('this is success message');
+          }
+          if (count === 3) {
+            setTimeout(resolve, 0);
+            return new Promise(() => 0);
+          }
+          return Promise.reject('Error in processing');
+        });
         slaveScheduler = new WorkerEventScheduler(
           {
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
           },
-          ['queue1'],
-          async () => {
-            count += 1;
-            if (count === 2) {
-              return Promise.resolve('this is success message');
-            }
-            if (count === 3) {
-              setTimeout(resolve, 0);
-              return new Promise(() => 0);
-            }
-            return Promise.reject('Error in processing');
-          },
+          [workerQueueConfig],
           '*/2 * * * * *');
       });
       await delay();
@@ -228,17 +229,17 @@ describe('mongoDB test cases', () => {
 
     it('should update event status as failed when event is not processed successfully', async () => {
       await new Promise((resolve: (value: unknown) => void) => {
+        const workerQueueConfig = new WorkerQueueConfig('queue1', () => {
+          setTimeout(resolve, 0);
+          return Promise.reject('Error in processing');
+        });
         slaveScheduler = new WorkerEventScheduler(
           {
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
             secretAccessKey: Env.secretAccessKey,
           },
-          ['queue1'],
-          () => {
-            setTimeout(resolve, 0);
-            return Promise.reject('Error in processing');
-          },
+          [workerQueueConfig],
           '*/2 * * * * *');
       });
       await delay();
