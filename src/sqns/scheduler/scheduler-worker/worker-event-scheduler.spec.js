@@ -11,6 +11,7 @@ const common_1 = require("../../common/helper/common");
 const request_client_1 = require("../../common/request-client/request-client");
 const s_q_n_s_client_1 = require("../../s-q-n-s-client");
 const worker_event_scheduler_1 = require("./worker-event-scheduler");
+const worker_queue_config_1 = require("./worker-queue-config");
 describe('WorkerEventSchedulerSpec', () => {
     context('installing a Worker scheduler', () => {
         let workerEventScheduler;
@@ -31,18 +32,19 @@ describe('WorkerEventSchedulerSpec', () => {
             const result = [];
             await new Promise((resolve) => {
                 let itemCheck = 2;
-                workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
-                    endpoint: `${test_env_1.Env.URL}/api`,
-                    accessKeyId: test_env_1.Env.accessKeyId,
-                    secretAccessKey: test_env_1.Env.secretAccessKey,
-                }, ['queue1'], async (queueName, item) => {
+                const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig('queue1', async (queueName, item) => {
                     result.push(item);
                     itemCheck -= 1;
                     if (!itemCheck) {
                         resolve();
                     }
                     return 'response';
-                }, '*/2 * * * * *');
+                });
+                workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
+                    endpoint: `${test_env_1.Env.URL}/api`,
+                    accessKeyId: test_env_1.Env.accessKeyId,
+                    secretAccessKey: test_env_1.Env.secretAccessKey,
+                }, [workerQueueConfig], '*/2 * * * * *');
             });
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
             chai_1.expect(stats).to.deep.equal({
@@ -80,19 +82,19 @@ describe('WorkerEventSchedulerSpec', () => {
         it('should process 100 events in the queue', async () => {
             await new Promise((resolve) => {
                 let itemCheck = ITEM_COUNT;
-                workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
-                    endpoint: `${test_env_1.Env.URL}/api`,
-                    accessKeyId: test_env_1.Env.accessKeyId,
-                    secretAccessKey: test_env_1.Env.secretAccessKey,
-                }, ['queue1'], 
                 // eslint-disable-next-line promise/param-names
-                () => new Promise((resolve1) => setTimeout(() => {
+                const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig('queue1', () => new Promise((resolve1) => setTimeout(() => {
                     resolve1();
                     itemCheck -= 1;
                     if (!itemCheck) {
                         resolve();
                     }
-                }, 10)), '*/2 * * * * *');
+                }, 10)));
+                workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
+                    endpoint: `${test_env_1.Env.URL}/api`,
+                    accessKeyId: test_env_1.Env.accessKeyId,
+                    secretAccessKey: test_env_1.Env.secretAccessKey,
+                }, [workerQueueConfig], '*/2 * * * * *');
             });
             await setup_1.delay();
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
@@ -125,14 +127,15 @@ describe('WorkerEventSchedulerSpec', () => {
         it('should re-attempt to check if server is ready.', async () => {
             await new Promise((resolve) => {
                 const timeout = setTimeout(resolve, 6000);
+                const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig('queue1', async () => {
+                    clearTimeout(timeout);
+                    return 'response';
+                });
                 workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
                     endpoint: `${test_env_1.Env.URL}/api/wrong`,
                     accessKeyId: test_env_1.Env.accessKeyId,
                     secretAccessKey: test_env_1.Env.secretAccessKey,
-                }, ['queue1'], async () => {
-                    clearTimeout(timeout);
-                    return 'response';
-                }, '*/2 * * * * *');
+                }, [workerQueueConfig], '*/2 * * * * *');
             });
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
             chai_1.expect(stats).to.deep.equal({
@@ -144,18 +147,19 @@ describe('WorkerEventSchedulerSpec', () => {
         it('should call failure api when request fails.', async () => {
             await new Promise((resolve) => {
                 let count = 0;
-                workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
-                    endpoint: `${test_env_1.Env.URL}/api`,
-                    accessKeyId: test_env_1.Env.accessKeyId,
-                    secretAccessKey: test_env_1.Env.secretAccessKey,
-                }, ['queue1'], () => {
+                const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig('queue1', () => {
                     count += 1;
                     if (count === 2) {
                         setTimeout(resolve, 0);
                         return Promise.resolve('this is success message');
                     }
                     return Promise.reject('Error in processing');
-                }, '*/2 * * * * *');
+                });
+                workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
+                    endpoint: `${test_env_1.Env.URL}/api`,
+                    accessKeyId: test_env_1.Env.accessKeyId,
+                    secretAccessKey: test_env_1.Env.secretAccessKey,
+                }, [workerQueueConfig], '*/2 * * * * *');
             });
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
             chai_1.expect(stats).to.deep.equal({
@@ -199,11 +203,12 @@ describe('WorkerEventSchedulerSpec', () => {
                 Subject: 'Subject',
                 MessageAttributes: { key1: { DataType: 'String', StringValue: 'value' } },
             });
+            const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig(common_1.SYSTEM_QUEUE_NAME.SNS, undefined);
             workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
                 endpoint: `${test_env_1.Env.URL}/api`,
                 accessKeyId: test_env_1.Env.accessKeyId,
                 secretAccessKey: test_env_1.Env.secretAccessKey,
-            }, [common_1.SYSTEM_QUEUE_NAME.SNS], undefined, '*/2 * * * * *');
+            }, [workerQueueConfig], '*/2 * * * * *');
             await new Promise((resolve) => {
                 interval = setInterval(async () => {
                     const published = await client.getPublish({ MessageId: PublishId });
@@ -255,11 +260,12 @@ describe('WorkerEventSchedulerSpec', () => {
                 Subject: 'Subject',
                 MessageAttributes: { key1: { DataType: 'String', StringValue: 'value' } },
             }));
+            const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig(common_1.SYSTEM_QUEUE_NAME.SNS, undefined);
             workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
                 endpoint: `${test_env_1.Env.URL}/api`,
                 accessKeyId: test_env_1.Env.accessKeyId,
                 secretAccessKey: test_env_1.Env.secretAccessKey,
-            }, [common_1.SYSTEM_QUEUE_NAME.SNS], undefined, '*/2 * * * * *');
+            }, [workerQueueConfig], '*/2 * * * * *');
             // eslint-disable-next-line promise/param-names
             await new Promise((resolver) => (callReceivedResolver = resolver));
         });

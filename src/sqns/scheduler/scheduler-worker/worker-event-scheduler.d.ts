@@ -6,7 +6,7 @@ declare class WorkerEventScheduler {
     private sqnsClient;
     private readonly queueConfigs;
     private job;
-    constructor(options: SQNSClientConfig, queueNames: Array<string>, listener: (queueName: string, item: ResponseItem) => Promise<string>, cronInterval?: string);
+    constructor(options: SQNSClientConfig, queueConfigs: Array<WorkerQueueConfig>, cronInterval?: string);
     cancel(): void;
     processSnsEvents(workerQueueConfig: WorkerQueueConfig, responseItem: ResponseItem): Promise<string>;
     snsQueueEventScanSubscription(workerQueueConfig: WorkerQueueConfig, responseItem: ResponseItem): Promise<string>;

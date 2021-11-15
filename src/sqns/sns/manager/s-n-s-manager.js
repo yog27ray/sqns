@@ -10,6 +10,7 @@ const base_manager_1 = require("../../common/model/base-manager");
 const request_client_1 = require("../../common/request-client/request-client");
 const s_q_n_s_client_1 = require("../../s-q-n-s-client");
 const worker_event_scheduler_1 = require("../../scheduler/scheduler-worker/worker-event-scheduler");
+const worker_queue_config_1 = require("../../scheduler/scheduler-worker/worker-queue-config");
 const s_n_s_storage_engine_1 = require("./s-n-s-storage-engine");
 const log = logger_1.logger.instance('SNSManager');
 class SNSManager extends base_manager_1.BaseManager {
@@ -24,7 +25,8 @@ class SNSManager extends base_manager_1.BaseManager {
         this.sNSStorageEngine = new s_n_s_storage_engine_1.SNSStorageEngine(snsConfig.db);
         this.sqnsClient = new s_q_n_s_client_1.SQNSClient(sqnsClientConfig);
         if (!snsConfig.disableWorker) {
-            this.workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler(sqnsClientConfig, [common_1.SYSTEM_QUEUE_NAME.SNS], undefined);
+            const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig(common_1.SYSTEM_QUEUE_NAME.SNS, undefined);
+            this.workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler(sqnsClientConfig, [workerQueueConfig], undefined);
         }
     }
     createTopic(name, displayName, region, deliveryPolicy, user, attributes = { entry: [] }, tags = { member: [] }) {

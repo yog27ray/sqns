@@ -25,17 +25,14 @@ const common_1 = require("../../common/helper/common");
 const delivery_policy_helper_1 = require("../../common/helper/delivery-policy-helper");
 const logger_1 = require("../../common/logger/logger");
 const s_q_n_s_client_1 = require("../../s-q-n-s-client");
-const worker_queue_config_1 = require("./worker-queue-config");
 const log = logger_1.logger.instance('WorkerEventScheduler');
 class WorkerEventScheduler {
-    constructor(options, queueNames, listener, cronInterval) {
-        this.queueNames = queueNames.map((each) => each);
+    constructor(options, queueConfigs, cronInterval) {
+        this.queueNames = [];
         this.queueConfigs = {};
-        this.queueNames.forEach((queueName) => {
-            const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig(queueName);
-            workerQueueConfig.listener = listener;
-            workerQueueConfig.config.MAX_COUNT = 1;
-            this.queueConfigs[queueName] = workerQueueConfig;
+        queueConfigs.forEach((each) => {
+            this.queueConfigs[each.queueName] = each.clone();
+            this.queueNames.push(this.queueConfigs[each.queueName].queueName);
         });
         this.sqnsClient = new s_q_n_s_client_1.SQNSClient(options);
         this.initialize(cronInterval);

@@ -9,6 +9,7 @@ const setup_1 = require("../../../../setup");
 const test_env_1 = require("../../../../test-env");
 const s_q_n_s_client_1 = require("../../../s-q-n-s-client");
 const worker_event_scheduler_1 = require("../../../scheduler/scheduler-worker/worker-event-scheduler");
+const worker_queue_config_1 = require("../../../scheduler/scheduler-worker/worker-queue-config");
 const delivery_policy_helper_1 = require("../../helper/delivery-policy-helper");
 const base_storage_engine_1 = require("../../model/base-storage-engine");
 const request_client_1 = require("../../request-client/request-client");
@@ -48,11 +49,7 @@ describe('mongoDB test cases', () => {
             });
             await new Promise((resolve) => {
                 let count = 0;
-                slaveScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
-                    endpoint: `${test_env_1.Env.URL}/api`,
-                    accessKeyId: test_env_1.Env.accessKeyId,
-                    secretAccessKey: test_env_1.Env.secretAccessKey,
-                }, ['queue1'], async () => {
+                const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig('queue1', async () => {
                     count += 1;
                     if (count === 2) {
                         return Promise.resolve('this is success message');
@@ -62,7 +59,12 @@ describe('mongoDB test cases', () => {
                         return new Promise(() => 0);
                     }
                     return Promise.reject('Error in processing');
-                }, '*/2 * * * * *');
+                });
+                slaveScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
+                    endpoint: `${test_env_1.Env.URL}/api`,
+                    accessKeyId: test_env_1.Env.accessKeyId,
+                    secretAccessKey: test_env_1.Env.secretAccessKey,
+                }, [workerQueueConfig], '*/2 * * * * *');
             });
             await setup_1.delay();
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
@@ -163,11 +165,7 @@ describe('mongoDB test cases', () => {
             });
             await new Promise((resolve) => {
                 let count = 0;
-                slaveScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
-                    endpoint: `${test_env_1.Env.URL}/api`,
-                    accessKeyId: test_env_1.Env.accessKeyId,
-                    secretAccessKey: test_env_1.Env.secretAccessKey,
-                }, ['queue1'], async () => {
+                const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig('queue1', async () => {
                     count += 1;
                     if (count === 2) {
                         return Promise.resolve('this is success message');
@@ -177,7 +175,12 @@ describe('mongoDB test cases', () => {
                         return new Promise(() => 0);
                     }
                     return Promise.reject('Error in processing');
-                }, '*/2 * * * * *');
+                });
+                slaveScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
+                    endpoint: `${test_env_1.Env.URL}/api`,
+                    accessKeyId: test_env_1.Env.accessKeyId,
+                    secretAccessKey: test_env_1.Env.secretAccessKey,
+                }, [workerQueueConfig], '*/2 * * * * *');
             });
             await setup_1.delay();
             const items = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
@@ -213,14 +216,15 @@ describe('mongoDB test cases', () => {
         });
         it('should update event status as failed when event is not processed successfully', async () => {
             await new Promise((resolve) => {
+                const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig('queue1', () => {
+                    setTimeout(resolve, 0);
+                    return Promise.reject('Error in processing');
+                });
                 slaveScheduler = new worker_event_scheduler_1.WorkerEventScheduler({
                     endpoint: `${test_env_1.Env.URL}/api`,
                     accessKeyId: test_env_1.Env.accessKeyId,
                     secretAccessKey: test_env_1.Env.secretAccessKey,
-                }, ['queue1'], () => {
-                    setTimeout(resolve, 0);
-                    return Promise.reject('Error in processing');
-                }, '*/2 * * * * *');
+                }, [workerQueueConfig], '*/2 * * * * *');
             });
             await setup_1.delay();
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
