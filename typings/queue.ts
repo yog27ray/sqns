@@ -1,6 +1,6 @@
 import { EventState } from '../src/sqns/common/model/event-item';
 import { TopicAttributes, TopicTag } from './class-types';
-import { MessageAttributes, SupportedProtocol } from './common';
+import { MessageAttributes } from './common';
 import { DeliveryPolicy } from './delivery-policy';
 import { SendMessageReceived } from './send-message';
 
@@ -9,6 +9,7 @@ export interface CreateQueueRequest {
   Attributes?: Record<string, string>;
   tags?: Record<string, string>;
 }
+
 export interface SNSServerBody {
   deliveryPolicy: DeliveryPolicy;
   requestId: string;
