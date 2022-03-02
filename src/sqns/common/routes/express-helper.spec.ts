@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { Response } from 'express';
 import { ExpressHelper } from './express-helper';
 
 describe('EventHelperSpec', () => {
@@ -6,7 +7,7 @@ describe('EventHelperSpec', () => {
     it('should handle error with and without code', async () => {
       let responseCode: number = 0;
       let responseMessage: string = '';
-      const response: unknown = {
+      const response = {
         status: (code: number): Record<string, unknown> => {
           responseCode = code;
           return {
@@ -15,7 +16,7 @@ describe('EventHelperSpec', () => {
             },
           };
         },
-      };
+      } as unknown as Response;
       let error: Error & { code?: number } = new Error('Test error 1');
       error.code = 100;
       ExpressHelper.errorHandler(error, response);

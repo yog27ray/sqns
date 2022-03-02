@@ -189,7 +189,7 @@ describe('SQNSClient', () => {
           MessageBody: '123',
         });
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
-        expect(result.MD5OfMessageAttributes).to.equal('8bd349963828b39106dd3a35071ccee6');
+        expect(result.MD5OfMessageAttributes).to.equal('7ee801da24425cddc36e76ce83b559c6');
         expect(result.MessageId).to.exist;
       });
 
@@ -216,7 +216,7 @@ describe('SQNSClient', () => {
         expect(messages.Messages.length).to.equal(1);
         expect(messages.Messages[0].MessageId).to.exist;
         expect(messages.Messages[0].ReceiptHandle).to.exist;
-        deleteDynamicDataOfResults(messages);
+        deleteDynamicDataOfResults(messages as Record<string, unknown>);
         expect(messages).to.deep.equal({
           Messages: [{
             MD5OfBody: '202cb962ac59075b964b07152d234b70',
@@ -249,7 +249,7 @@ describe('SQNSClient', () => {
           MessageBody: '123',
         });
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
-        expect(result.MD5OfMessageAttributes).to.equal('2951094a8d0f32172b42c6e00d63a24e');
+        expect(result.MD5OfMessageAttributes).to.equal('69f70f4268fca95f0a727c156756ee51');
         expect(result.MessageId).to.exist;
       });
     });

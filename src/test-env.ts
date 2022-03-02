@@ -39,7 +39,7 @@ async function deleteAllQueues(client: SQNSClient): Promise<void> {
   await Promise.all(queueURLs.map((queueURL: string) => client.deleteQueue({ QueueUrl: queueURL })));
 }
 
-function deleteDynamicDataOfResults(items_: ReceiveMessageResult & { ResponseMetadata?: string }): void {
+function deleteDynamicDataOfResults(items_: Record<string, unknown>): void {
   const items = items_;
   delete items.ResponseMetadata;
   (items.Messages as Array<{ MessageId: string; ReceiptHandle: string; }>)

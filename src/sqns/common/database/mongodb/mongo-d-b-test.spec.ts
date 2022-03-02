@@ -20,8 +20,8 @@ declare interface DBEvent {
   sentTime: string;
   eventTime: string;
   firstSentTime: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 describe('mongoDB test cases', () => {
