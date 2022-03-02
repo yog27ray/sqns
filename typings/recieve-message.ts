@@ -6,7 +6,7 @@ export interface Message {
   ReceiptHandle?: string;
   MD5OfBody?: string;
   Body?: string;
-  Attributes?: { [key: string]: string };
+  Attributes?: Record<string, string>;
   MD5OfMessageAttributes?: string;
   MessageAttributes?: MessageAttributeMap;
 }

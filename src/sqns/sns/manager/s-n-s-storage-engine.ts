@@ -35,15 +35,15 @@ class SNSStorageEngine extends BaseStorageEngine {
     return this._storageAdapter.findTopics({}, skip, 100);
   }
 
-  findSubscriptions(where: { [key: string]: unknown }, skip?: number, limit?: number): Promise<Array<Subscription>> {
+  findSubscriptions(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<Subscription>> {
     return this._storageAdapter.findSubscriptions(where, skip, limit);
   }
 
-  totalTopics(where: { [key: string]: unknown }): Promise<number> {
+  totalTopics(where: Record<string, unknown>): Promise<number> {
     return this._storageAdapter.totalTopics(where);
   }
 
-  totalSubscriptions(where: { [key: string]: unknown }): Promise<number> {
+  totalSubscriptions(where: Record<string, unknown>): Promise<number> {
     return this._storageAdapter.totalSubscriptions(where);
   }
 
@@ -76,7 +76,7 @@ class SNSStorageEngine extends BaseStorageEngine {
   }
 
   createSubscriptionVerificationToken(subscription: Subscription): Promise<SubscriptionVerificationToken> {
-    const token = `${Encryption.createHash('md5', uuid())}${Encryption.createHash('md5', subscription.arn)}`;
+    const token = `${Encryption.createHash('md5', uuid() as string)}${Encryption.createHash('md5', subscription.arn)}`;
     return this._storageAdapter.createSubscriptionVerificationToken(subscription, token);
   }
 

@@ -36,8 +36,8 @@ class StorageToQueueWorker {
     this._queueStorageToQueueScheduler = undefined;
   }
 
-  private baseParams(): () => { [key: string]: any } {
-    return (): { [key: string]: any } => ({ time: new Date() });
+  private baseParams(): () => Record<string, unknown> {
+    return (): Record<string, unknown> => ({ time: new Date() });
   }
 
   private setUpListener(): void {

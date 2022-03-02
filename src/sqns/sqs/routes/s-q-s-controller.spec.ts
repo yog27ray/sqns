@@ -23,8 +23,7 @@ describe('EventManagerMasterSpec', () => {
       try {
         await client.createQueue({ QueueName: 'queue1' });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch (error) {
-        const { code, message } = error;
+      } catch ({ code, message }) {
         expect({ code, message }).to.deep.equal({
           code: 'SignatureDoesNotMatch',
           message: 'The request signature we calculated does not match the signature you provided.',
@@ -36,8 +35,7 @@ describe('EventManagerMasterSpec', () => {
       try {
         await client.listQueues({});
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch (error) {
-        const { code, message } = error;
+      } catch ({ code, message }) {
         expect({ code, message }).to.deep.equal({
           code: 'SignatureDoesNotMatch',
           message: 'The request signature we calculated does not match the signature you provided.',
@@ -54,13 +52,13 @@ describe('EventManagerMasterSpec', () => {
           secretAccessKey: Env.secretAccessKey,
           maxRetries: 0,
         });
-        await new Promise((resolve: (value?: unknown) => void, reject: (e: Error) => void) => {
+        await new Promise((resolve: (value?: unknown) => void, reject: (e: unknown) => void) => {
           sqs.addPermission({
             QueueUrl: `${Env.URL}/api/sqs/sqns/1/queue1`,
             Label: 'label',
             AWSAccountIds: ['accountIds'],
             Actions: ['testAction'],
-          }, (error: any) => {
+          }, (error: unknown) => {
             if (error) {
               reject(error);
               return;
@@ -69,8 +67,7 @@ describe('EventManagerMasterSpec', () => {
           });
         });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch (error) {
-        const { code, message } = error;
+      } catch ({ code, message }) {
         expect({ code, message }).to.deep.equal({
           code: 'Unhandled function',
           message: 'This function is not supported.',

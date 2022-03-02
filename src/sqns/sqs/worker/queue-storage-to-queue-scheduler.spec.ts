@@ -22,7 +22,8 @@ describe('QueueStorageToQueueSchedulerSpec', () => {
               await Promise.reject(Error('Test Error'));
             }
             return [{}, false];
-          }, '*/2 * * * * *');
+          },
+          '*/2 * * * * *');
       });
     });
 

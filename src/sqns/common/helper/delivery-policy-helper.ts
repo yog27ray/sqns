@@ -55,7 +55,7 @@ export class DeliveryPolicyHelper {
     try {
       const channelDeliveryPolicyJSON = JSON.parse(channelDeliveryPolicy);
       DeliveryPolicyHelper.hasAllKeys(
-        channelDeliveryPolicyJSON,
+        channelDeliveryPolicyJSON as Record<string, unknown>,
         DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy as unknown as KeyValue);
       return channelDeliveryPolicyJSON as ChannelDeliveryPolicy;
     } catch (error) {
@@ -87,8 +87,8 @@ export class DeliveryPolicyHelper {
         return;
       }
       deliveryPolicy = JSON.parse(deliveryPolicyStringValue);
-    } catch (error) {
-      SQNSError.invalidDeliveryPolicy(error.message);
+    } catch ({ message }) {
+      SQNSError.invalidDeliveryPolicy(message as string);
     }
     DeliveryPolicyHelper.hasAllKeys(deliveryPolicy, DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY);
     const { backoffFunction } = deliveryPolicy.default.defaultHealthyRetryPolicy;

@@ -91,13 +91,15 @@ describe('WorkerEventSchedulerSpec', () => {
         let itemCheck = ITEM_COUNT;
         // eslint-disable-next-line promise/param-names
         const workerQueueConfig = new WorkerQueueConfig('queue1', () => new Promise((resolve1
-          : (value?: string) => void) => setTimeout(() => {
-          resolve1();
-          itemCheck -= 1;
-          if (!itemCheck) {
-            resolve();
-          }
-        }, 10)));
+          : (value?: string) => void) => {
+          setTimeout(() => {
+            resolve1();
+            itemCheck -= 1;
+            if (!itemCheck) {
+              resolve();
+            }
+          }, 10);
+        }));
         workerEventScheduler = new WorkerEventScheduler(
           {
             endpoint: `${Env.URL}/api`,
@@ -302,7 +304,9 @@ describe('WorkerEventSchedulerSpec', () => {
         '*/2 * * * * *',
       );
       // eslint-disable-next-line promise/param-names
-      await new Promise((resolver: (value: unknown) => void) => (callReceivedResolver = resolver));
+      await new Promise((resolver: (value: unknown) => void) => {
+        callReceivedResolver = resolver;
+      });
     });
 
     afterEach(() => {

@@ -40,7 +40,7 @@ class Topic extends BaseObject {
     this.attributes.entry.push({ key: AttributeName, value: AttributeValue });
   }
 
-  toJSON(): { [key: string]: any } {
+  toJSON(): Record<string, unknown> {
     const json = {};
     Object.getOwnPropertyNames(this).forEach((property: string) => {
       json[property] = this[property];

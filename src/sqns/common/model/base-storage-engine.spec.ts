@@ -3,14 +3,19 @@ import { dropDatabase, setupConfig } from '../../../setup';
 import { Env } from '../../../test-env';
 import { BaseStorageEngine } from './base-storage-engine';
 
+declare interface DBAccessKey {
+  secretKey: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 describe('BaseStorageEngine', () => {
   context('Error Handler', () => {
     it('should return undefined when unknown resource arn is provided', async () => {
       try {
         const baseStorageEngine = new BaseStorageEngine({ database: undefined, config: undefined, uri: undefined });
         await Promise.reject({ code: 99, message: 'Should not be here.', baseStorageEngine });
-      } catch (error) {
-        const { code, message } = error;
+      } catch ({ code, message }) {
         expect({ code, message }).to.deep.equal({
           code: 'DatabaseNotSupported',
           message: 'UnSupported Database',
@@ -34,7 +39,8 @@ describe('BaseStorageEngine', () => {
         accessKey: Env.accessKeyId,
         secretAccessKey: Env.secretAccessKey,
       }]);
-      const adminKeys = await setupConfig.mongoConnection.find(storageAdapter.getDBTableName('AccessKey'));
+      const adminKeys = await setupConfig.mongoConnection
+        .find(storageAdapter.getDBTableName('AccessKey')) as unknown as Array<DBAccessKey>;
       expect(adminKeys.length).to.equal(1);
       expect(adminKeys[0].secretKey).to.equal(Env.secretAccessKey);
       expect(adminKeys[0].createdAt.getTime()).to.equal(adminKeys[0].updatedAt.getTime());
@@ -45,7 +51,8 @@ describe('BaseStorageEngine', () => {
         accessKey: Env.accessKeyId,
         secretAccessKey: 'newSecretKey',
       }]);
-      const adminKeys = await setupConfig.mongoConnection.find(storageAdapter.getDBTableName('AccessKey'));
+      const adminKeys = await setupConfig.mongoConnection
+        .find(storageAdapter.getDBTableName('AccessKey')) as unknown as Array<DBAccessKey>;
       expect(adminKeys.length).to.equal(1);
       expect(adminKeys[0].secretKey).to.equal('newSecretKey');
       expect(adminKeys[0].createdAt.getTime()).to.not.equal(adminKeys[0].updatedAt.getTime());

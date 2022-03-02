@@ -55,15 +55,19 @@ export class BaseClient extends RequestClient {
           resolve(this.transformServerResponse(result) as KeyValue);
         });
       }))
-      .catch((error: any) => new Promise((resolve: (value: unknown) => void, reject: (error: unknown) => void) => {
-        xml2js.parseString(error.error || error.message, (parserError: any, result: any) => {
-          if (parserError) {
-            reject(new SQNSError({ code: error.code, message: error.message }));
-            return;
-          }
-          const { Code: [code], Message: [message] } = result.ErrorResponse.Error[0];
-          reject(new SQNSError({ code, message }));
-        });
+      .catch(({ error, message, code }) => new Promise((
+        resolve: (value: unknown) => void,
+        reject: (error: unknown) => void) => {
+        xml2js.parseString(
+          error || message,
+          (parserError: unknown, result: { ErrorResponse: { Error: Array<{ Code: string; Message: string; }> } }) => {
+            if (parserError) {
+              reject(new SQNSError({ code, message }));
+              return;
+            }
+            const { Code: [errorCode], Message: [errorMessage] } = result.ErrorResponse.Error[0];
+            reject(new SQNSError({ code: errorCode, message: errorMessage }));
+          });
       }));
   }
 

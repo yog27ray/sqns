@@ -1,4 +1,4 @@
-import { ARN, KeyValueString } from '../../../../typings/common';
+import { ARN } from '../../../../typings/common';
 import { SQNSError } from '../../common/auth/s-q-n-s-error';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
@@ -46,7 +46,7 @@ class SQSStorageEngine extends BaseStorageEngine {
     await this._storageAdapter.updateEvent(eventItem.id, { ...eventItem.toJSON() });
   }
 
-  async updateEventState(queue: Queue, id: string, state: EventState, message: { [key: string]: any }): Promise<any> {
+  async updateEventState(queue: Queue, id: string, state: EventState, message: Record<string, unknown>): Promise<any> {
     const event = await this._storageAdapter.findById(id);
     if (!event || !queue || event.queueARN !== queue.arn) {
       return;
@@ -58,7 +58,12 @@ class SQSStorageEngine extends BaseStorageEngine {
     return this._storageAdapter.getQueues(queueARNPrefix);
   }
 
-  createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tag: KeyValueString): Promise<Queue> {
+  createQueue(
+    user: User,
+    queueName: string,
+    region: string,
+    attributes: Record<string, string>,
+    tag: Record<string, string>): Promise<Queue> {
     return this._storageAdapter.createQueue(user, queueName, region, attributes, tag);
   }
 

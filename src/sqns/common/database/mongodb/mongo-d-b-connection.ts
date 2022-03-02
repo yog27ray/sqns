@@ -2,7 +2,7 @@ import { Collection, Db, MongoClient } from 'mongodb';
 import { KeyValue } from '../../../../../typings/common';
 
 class MongoDBConnection {
-  private readonly _option: { [key: string]: any };
+  private readonly _option: Record<string, unknown>;
 
   private readonly _uri: string;
 
@@ -10,7 +10,7 @@ class MongoDBConnection {
 
   private client: MongoClient;
 
-  constructor(uri: string, config: { [key: string]: unknown }) {
+  constructor(uri: string, config: Record<string, unknown>) {
     this._uri = uri;
     this._option = config;
     if (this._uri) {
@@ -19,7 +19,7 @@ class MongoDBConnection {
   }
 
   isConnected(): boolean {
-    return !!this.client && this.client.isConnected();
+    return !!this.client;
   }
 
   async connect(): Promise<any> {
@@ -39,20 +39,20 @@ class MongoDBConnection {
 
   async find(
     tableName: string,
-    query_: any = {},
-    sort: { [key: string]: number } = {},
-    { limit, skip }: { limit?: number; skip?: number } = {}): Promise<Array<any>> {
+    query_: Record<string, unknown> = {},
+    sort: { [key: string]: 1 | -1 } = {},
+    { limit, skip }: { limit?: number; skip?: number } = {}): Promise<Array<Record<string, unknown>>> {
     await this.connect();
     const query = query_;
     if (query.id) {
       query._id = query.id;
       delete query.id;
     }
-    return this.getDB().collection(tableName).find(query)
-      .sort(sort)
+    const dbQuery = this.getDB().collection(tableName).find(query)
       .skip(skip || 0)
-      .limit(limit || 100)
-      .toArray();
+      .limit(limit || 100);
+    Object.keys(sort).forEach((key: string) => dbQuery.sort(key, sort[key]));
+    return dbQuery.toArray();
   }
 
   async findOne(tableName: string, filter_: KeyValue = {}): Promise<KeyValue> {
@@ -74,7 +74,7 @@ class MongoDBConnection {
       return Promise.resolve();
     }
     await this.connect();
-    return new Promise((resolve: (item: { [key: string]: any }) => void, reject: (error: Error) => void) => {
+    return new Promise((resolve: (item: boolean) => void, reject: (error: Error) => void) => {
       this.getDB().dropDatabase((error, result) => {
         if (error) {
           reject(error);
@@ -92,26 +92,27 @@ class MongoDBConnection {
       item._id = item.id;
       delete item.id;
     }
-    const newDocument = await this.getDB().collection(collectionName).insertOne(item);
-    return newDocument.insertedId as string;
+    const dbCollection = this.getDB().collection(collectionName);
+    const newDocument = await dbCollection.insertOne(item as unknown);
+    return newDocument.insertedId as unknown as string;
   }
 
-  async update(collectionName: string, documentId: string, document: { [key: string]: any }): Promise<void> {
+  async update(collectionName: string, documentId: string, document: Record<string, unknown>): Promise<void> {
     await this.connect();
     await this.getDB().collection(collectionName).updateOne({ _id: documentId }, { $set: { ...document, updatedAt: new Date() } });
   }
 
-  async deleteOne(collectionName: string, filter: { [key: string]: any }): Promise<void> {
+  async deleteOne(collectionName: string, filter: Record<string, unknown>): Promise<void> {
     await this.connect();
     await this.getDB().collection(collectionName).deleteOne(filter);
   }
 
-  async count(collectionName: string, filter: { [key: string]: any }): Promise<number> {
+  async count(collectionName: string, filter: Record<string, unknown>): Promise<number> {
     await this.connect();
     return this.getDB().collection(collectionName).countDocuments(filter);
   }
 
-  async deleteMany(collectionName: string, filter: { [key: string]: any }): Promise<void> {
+  async deleteMany(collectionName: string, filter: Record<string, unknown>): Promise<void> {
     await this.connect();
     await this.getDB().collection(collectionName).deleteMany(filter);
   }

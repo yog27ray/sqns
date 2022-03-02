@@ -35,7 +35,7 @@ declare interface GenerateAuthenticationHash {
   host: string;
   originalUrl: string;
   method: string;
-  body: { [key: string]: any };
+  body: Record<string, unknown>;
 }
 
 function rfc3986EncodeURIComponent(str: string): string {
@@ -48,13 +48,13 @@ function generateAuthenticationHash({ service, method, accessKeyId, secretAccess
   const testRequest = {
     method,
     region,
-    body: Object.keys(body).sort().map((key: string) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&'),
+    body: Object.keys(body).sort().map((key: string) => `${key}=${rfc3986EncodeURIComponent(body[key] as string)}`).join('&'),
     search: (): string => '',
     pathname: (): string => decodeURIComponent(originalUrl),
     headers: {
       'X-Amz-Content-Sha256': Encryption.createHash(
         'sha256',
-        Object.keys(body).sort().map((key: string) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&')),
+        Object.keys(body).sort().map((key: string) => `${key}=${rfc3986EncodeURIComponent(body[key] as string)}`).join('&')),
       Host: host,
       Authorization: '',
     },

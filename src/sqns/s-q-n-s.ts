@@ -75,7 +75,7 @@ export class SQNS {
   async resetAll(): Promise<void> {
     this.sqsManager.resetAll();
     await Promise.all(RESERVED_QUEUE_NAME.map(async (queueName: string) => {
-      const queue = await this.sqsManager.getQueue(Queue.arn(undefined, this.region, queueName)).catch(() => undefined);
+      const queue = await this.sqsManager.getQueue(Queue.arn(undefined, this.region, queueName)).catch((): Queue => undefined);
       if (!queue) {
         return;
       }

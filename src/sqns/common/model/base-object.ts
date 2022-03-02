@@ -13,7 +13,7 @@ class BaseObject {
     this.updatedAt = item.updatedAt || this.createdAt;
   }
 
-  toJSON(): { [key: string]: any } {
+  toJSON(): Record<string, unknown> {
     const json = {};
     Object.getOwnPropertyNames(this).forEach((property: string) => {
       json[property] = this[property];

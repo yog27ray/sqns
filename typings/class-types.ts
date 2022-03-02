@@ -55,8 +55,8 @@ export declare interface QueueType extends BaseObjectType {
   companyId: string;
   region: string;
   name: string;
-  attributes: { [key: string]: string };
-  tags: { [key: string]: string };
+  attributes: Record<string, string>;
+  tags: Record<string, string>;
   arn?: ARN;
   DeliveryPolicy?: DeliveryPolicy;
 }

@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
+import { SupportedProtocol } from '../../../../typings/common';
 import { ExpressMiddleware } from '../../../../typings/express';
+import { SNSServerBody } from '../../../../typings/queue';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { Encryption } from '../../common/auth/encryption';
 import { SQNSError } from '../../common/auth/s-q-n-s-error';
@@ -12,7 +14,7 @@ class SNSController {
   constructor(private serverURL: string, private snsManager: SNSManager) {}
 
   snsGet(): ExpressMiddleware {
-    return ExpressHelper.requestHandler(async (req: Request & { serverBody: any; user: User; sqnsBaseURL: string }, res: Response)
+    return ExpressHelper.requestHandler(async (req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string }, res: Response)
       : Promise<any> => {
       switch (req.serverBody.Action) {
         case 'SubscriptionConfirmation': {
@@ -28,7 +30,7 @@ class SNSController {
   }
 
   sns(): ExpressMiddleware {
-    return ExpressHelper.requestHandler(async (req: Request & { serverBody: any; user: User; sqnsBaseURL: string }, res: Response)
+    return ExpressHelper.requestHandler(async (req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string }, res: Response)
       : Promise<any> => {
       switch (req.body.Action) {
         case 'CreateTopic': {
@@ -78,7 +80,8 @@ class SNSController {
         case 'Subscribe': {
           const { requestId, Attributes, Endpoint, Protocol, TopicArn, ReturnSubscriptionArn } = req.serverBody;
           const topic = await this.snsManager.findTopicByARN(TopicArn);
-          const subscription = await this.snsManager.subscribe(req.user, topic, Protocol.toLowerCase(), Endpoint, Attributes);
+          const subscription = await this.snsManager
+            .subscribe(req.user, topic, Protocol.toLowerCase() as SupportedProtocol, Endpoint, Attributes);
           this.snsManager.requestSubscriptionConfirmation(subscription, this.serverURL);
           return res.send(AwsXmlFormat.subscribe(requestId, subscription, ReturnSubscriptionArn));
         }
@@ -119,7 +122,9 @@ class SNSController {
     });
   }
 
-  private async confirmSubscription(req: Request & { serverBody: any; user: User; sqnsBaseURL: string }, res: Response): Promise<void> {
+  private async confirmSubscription(
+    req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string },
+    res: Response): Promise<void> {
     const { requestId, Token } = req.serverBody;
     const subscriptionVerificationToken = await this.snsManager.findSubscriptionVerificationToken(Token);
     let subscription = await this.snsManager.findSubscriptionFromArn(subscriptionVerificationToken.SubscriptionArn);
@@ -127,14 +132,16 @@ class SNSController {
     res.send(AwsXmlFormat.confirmSubscription(requestId, subscription));
   }
 
-  private async removeSubscription(req: Request & { serverBody: any; user: User; sqnsBaseURL: string }, res: Response): Promise<void> {
+  private async removeSubscription(
+    req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string },
+    res: Response): Promise<void> {
     const { requestId, SubscriptionArn } = req.serverBody;
     const subscription = await this.snsManager.findSubscriptionFromArn(SubscriptionArn);
     await this.snsManager.removeSubscriptions([subscription]);
     res.send(AwsXmlFormat.unSubscribeSubscription(requestId));
   }
 
-  private updateDeliveryPolicyAndDisplayName(body_: any): void {
+  private updateDeliveryPolicyAndDisplayName(body_: SNSServerBody): void {
     const body = body_;
     const Attributes = body.Attributes || { entry: [] };
     const deliveryPolicyKeyValue = Attributes.entry.filter(({ key }: { key: string }) => key === 'DeliveryPolicy')[0];

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
+import { SQSServerBody } from '../../../../typings/queue';
 import { SendMessageReceived } from '../../../../typings/send-message';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
@@ -23,7 +24,9 @@ class SQSController {
   }
 
   eventFailure(): ExpressMiddleware {
-    return ExpressHelper.requestHandler(async (req: Request & { serverBody: any; user: User }, res: Response): Promise<any> => {
+    return ExpressHelper.requestHandler(async (
+      req: Request & { serverBody: { failureMessage: string }; user: User },
+      res: Response): Promise<any> => {
       const { queueName, eventId, region } = req.params;
       const failureResponse = req.serverBody.failureMessage || 'Event marked failed without response.';
       const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
@@ -33,7 +36,9 @@ class SQSController {
   }
 
   eventSuccess(): ExpressMiddleware {
-    return ExpressHelper.requestHandler(async (req: Request & { serverBody: any; user: User }, res: Response): Promise<any> => {
+    return ExpressHelper.requestHandler(async (
+      req: Request & { serverBody: { successMessage: string }; user: User },
+      res: Response): Promise<any> => {
       const { queueName, eventId, region } = req.params;
       const successResponse = req.serverBody.successMessage || 'Event marked success without response.';
       const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
@@ -43,12 +48,14 @@ class SQSController {
   }
 
   sqs(): ExpressMiddleware {
-    return ExpressHelper.requestHandler(async (req: Request & { serverBody: any; user: User; sqnsBaseURL: string }, res: Response)
-      : Promise<any> => {
+    return ExpressHelper.requestHandler(async (
+      req: Request & { serverBody: SQSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<any> => {
       switch (req.body.Action) {
         case 'CreateQueue': {
           const { QueueName, region, Attribute, Tag, requestId } = req.serverBody;
-          let queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName)).catch(() => undefined);
+          let queue = await this.eventManager.getQueue(Queue
+            .arn(req.user.organizationId, region, QueueName)).catch((): Queue => undefined);
           if (!queue) {
             queue = await this.eventManager.createQueue(
               req.user,

@@ -29,19 +29,25 @@ if (process.env.PORT) {
 }
 
 function delay(milliSeconds: number = 100): Promise<any> {
-  return new Promise((resolve: (value?: unknown) => void): unknown => setTimeout(resolve, milliSeconds));
+  return new Promise((resolve: (value?: unknown) => void): void => {
+    setTimeout(resolve, milliSeconds);
+  });
 }
 
 async function dropDatabase(): Promise<void> {
   await setupConfig.mongoConnection.dropDatabase();
   await setupConfig.sqns.resetAll();
   const storageAdapter = new BaseStorageEngine(databaseConfig);
-  await new Promise((resolve: (value?: unknown) => void) => setupConfig.mongoConnection
-    .collection(storageAdapter.getDBTableName('Event'))
-    .createIndex({ MessageDeduplicationId: 1 }, {
-      unique: true,
-      partialFilterExpression: { MessageDeduplicationId: { $exists: true } },
-    }, () => resolve()));
+  await new Promise((resolve: (value?: unknown) => void) => {
+    setupConfig.mongoConnection.collection(storageAdapter.getDBTableName('Event'))
+      .createIndex(
+        { MessageDeduplicationId: 1 },
+        {
+          unique: true,
+          partialFilterExpression: { MessageDeduplicationId: { $exists: true } },
+        },
+        () => resolve());
+  });
   await storageAdapter.initialize([{
     accessKey: Env.accessKeyId,
     secretAccessKey: Env.secretAccessKey,

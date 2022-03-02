@@ -152,8 +152,8 @@ export class SQNSClient extends BaseClient {
   }
 
   deleteQueue(params: DeleteQueueRequest): Promise<any> {
-    return new Promise((resolve: (item: { [key: string]: any }) => void, reject: (error: SQNSError) => void) => {
-      this._sqs.deleteQueue(params, (error: SQNSError, result: any) => {
+    return new Promise((resolve: (item: Record<string, unknown>) => void, reject: (error: SQNSError) => void) => {
+      this._sqs.deleteQueue(params, (error: SQNSError, result: Record<string, unknown>) => {
         if (error) {
           reject(error);
           return;

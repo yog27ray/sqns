@@ -215,7 +215,7 @@ class WorkerEventScheduler {
       return [true, response];
     } catch (error) {
       log.error(error);
-      return [false, error.message];
+      return [false, (error as Error).message];
     }
   }
 }

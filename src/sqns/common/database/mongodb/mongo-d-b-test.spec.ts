@@ -14,6 +14,16 @@ import { BaseStorageEngine } from '../../model/base-storage-engine';
 import { RequestClient } from '../../request-client/request-client';
 import { MongoDBAdapter } from './mongo-d-b-adapter';
 
+declare interface DBEvent {
+  _id: string;
+  originalEventTime: string;
+  sentTime: string;
+  eventTime: string;
+  firstSentTime: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 describe('mongoDB test cases', () => {
   context('SlaveEventSchedulerSpec', () => {
     let storageAdapter: BaseStorageEngine;
@@ -58,7 +68,9 @@ describe('mongoDB test cases', () => {
           }
           if (count === 3) {
             setTimeout(resolve, 0);
-            return new Promise(() => 0);
+            return new Promise(() => {
+              const x = 1;
+            });
           }
           return Promise.reject('Error in processing');
         });
@@ -78,11 +90,12 @@ describe('mongoDB test cases', () => {
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
         PRIORITY_999999: 0,
       });
-      const items = await setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
+      const items = await setupConfig.mongoConnection
+        .find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 }) as unknown as Array<DBEvent>;
       expect(moment(items[0].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:00');
       expect(moment(items[1].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:01');
       expect(moment(items[2].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:02');
-      items.forEach((item_: any) => {
+      items.forEach((item_: DBEvent) => {
         const item = item_;
         expect(item._id).to.exist;
         expect(item.createdAt).to.exist;
@@ -178,7 +191,9 @@ describe('mongoDB test cases', () => {
           }
           if (count === 3) {
             setTimeout(resolve, 0);
-            return new Promise(() => 0);
+            return new Promise(() => {
+              const x = 1;
+            });
           }
           return Promise.reject('Error in processing');
         });
@@ -192,8 +207,9 @@ describe('mongoDB test cases', () => {
           '*/2 * * * * *');
       });
       await delay();
-      const items = await setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
-      items.forEach((item: any) => {
+      const items = await setupConfig.mongoConnection
+        .find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 }) as unknown as Array<DBEvent>;
+      items.forEach((item: DBEvent) => {
         expect(moment(item.eventTime).diff(moment(), 'seconds'), 'delay in event min time').to.be.at.least(598);
         expect(moment(item.eventTime).diff(moment(), 'seconds'), 'delay in event max time').to.be.at.most(600);
         expect(moment(item.sentTime).valueOf(), 'sentTime same firstSentTime').to.equal(moment(item.firstSentTime).valueOf());
@@ -249,8 +265,9 @@ describe('mongoDB test cases', () => {
         'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
         PRIORITY_999999: 0,
       });
-      const items = await setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { eventTime: -1 });
-      items.forEach((item_: any) => {
+      const items = await setupConfig.mongoConnection
+        .find(storageAdapter.getDBTableName('Event'), {}, { eventTime: -1 }) as unknown as Array<DBEvent>;
+      items.forEach((item_: DBEvent) => {
         const item = item_;
         delete item.createdAt;
         delete item.updatedAt;
@@ -288,8 +305,8 @@ describe('mongoDB test cases', () => {
       try {
         const adapter = new MongoDBAdapter({ uri: undefined });
         await Promise.reject({ code: 99, message: 'should not reach here', adapter });
-      } catch (error) {
-        expect(error.message).to.deep.equal('Database URI is missing');
+      } catch ({ message }) {
+        expect(message).to.deep.equal('Database URI is missing');
       }
     });
 
@@ -302,8 +319,7 @@ describe('mongoDB test cases', () => {
         });
         await client.markEventFailure('eventId', `${Env.URL}/api/sqs/sqns/1/queue1`, 'failureMessage');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch (error) {
-        const { code, message } = error;
+      } catch ({ code, message }) {
         expect({ code, message }).to.deep.equal({
           code: 'SignatureDoesNotMatch',
           message: 'The request signature we calculated does not match the signature you provided.',
@@ -320,8 +336,7 @@ describe('mongoDB test cases', () => {
         });
         await client.markEventSuccess('eventId', `${Env.URL}/api/wrong/sqs/queue/queue1`, 'failureMessage');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch (error) {
-        const { code, message } = error;
+      } catch ({ code, message }) {
         expect({ code, message }).to.deep.equal({
           code: '404',
           message: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Error</title>\n</head>\n'

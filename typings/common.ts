@@ -10,8 +10,6 @@ export declare type SUPPORTED_CHANNEL_TYPE = SupportedProtocol | 'default';
 
 export declare interface KeyValue<T = unknown> { [key: string]: T; }
 
-export declare interface KeyValueString { [key: string]: string; }
-
 export declare type BASE_CONFIG = (() => KeyValue) | KeyValue;
 
 export interface MessageAttributeValue {

@@ -112,7 +112,7 @@ export class EventItem extends BaseObject {
     this.completionPending = this.state !== EventState.SUCCESS;
   }
 
-  setDelaySeconds(DelaySeconds: number): void {
+  setDelaySeconds(DelaySeconds: string): void {
     if (DelaySeconds === undefined) {
       return;
     }

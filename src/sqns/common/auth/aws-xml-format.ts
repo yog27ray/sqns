@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import xml2js from 'xml2js';
 import { KeyValue, MessageAttributeMap, MessageAttributeValue } from '../../../../typings/common';
+import { ResponseMessage } from '../../../../typings/response-item';
 import { EventItem } from '../model/event-item';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
@@ -82,7 +83,7 @@ class AwsXmlFormat {
     return AwsXmlFormat.jsonToXML('SendMessageResponse', json);
   }
 
-  static generateSendMessageResponse(event: EventItem): { [key: string]: any } {
+  static generateSendMessageResponse(event: EventItem): Record<string, unknown> {
     return {
       MessageId: event.id,
       MD5OfMessageBody: AwsXmlFormat.md5Hash(event.MessageBody),
@@ -91,8 +92,8 @@ class AwsXmlFormat {
   }
 
   static sendMessageBatch(requestId: string, events: Array<EventItem>, batchIds: Array<string>): string {
-    const eventsResponse = events.map((event: any) => AwsXmlFormat.generateSendMessageResponse(event));
-    eventsResponse.forEach((each: any, index: number) => {
+    const eventsResponse = events.map((event: EventItem) => AwsXmlFormat.generateSendMessageResponse(event));
+    eventsResponse.forEach((each: unknown, index: number) => {
       Object.assign(each, { Id: batchIds[index] });
     });
     const json = {
@@ -112,7 +113,7 @@ class AwsXmlFormat {
       delete message.MessageAttribute;
       delete message.Attribute;
     }
-    const json: any = {
+    const json: Record<string, unknown> = {
       ResponseMetadata: { RequestId: requestId },
       FindMessageByIdResult: {
         Message: message,
@@ -131,7 +132,7 @@ class AwsXmlFormat {
       delete message.MessageAttribute;
       delete message.Attribute;
     }
-    const json: any = {
+    const json: Record<string, unknown> = {
       ResponseMetadata: { RequestId: requestId },
       FindMessageByDeduplicationIdResult: {
         Message: message,
@@ -145,12 +146,14 @@ class AwsXmlFormat {
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.eventTime.toISOString();
-      message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
-      message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
+      message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(
+        message.MessageAttribute as Array<{ Name: string; Value: MessageAttributeValue; }>);
+      message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(
+        message.Attribute as Array<{ Name: string; Value: MessageAttributeValue; }>);
       delete message.MessageAttribute;
       delete message.Attribute;
     }
-    const json: any = {
+    const json: Record<string, unknown> = {
       ResponseMetadata: { RequestId: requestId },
       UpdateMessageByIdResult: {
         Message: message,
@@ -164,12 +167,14 @@ class AwsXmlFormat {
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.eventTime.toISOString();
-      message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(message.MessageAttribute);
-      message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(message.Attribute);
+      message.MessageAttributes = AwsXmlFormat.transformNameValueArrayToMap(
+        message.MessageAttribute as Array<{ Name: string; Value: MessageAttributeValue; }>);
+      message.Attributes = AwsXmlFormat.transformNameValueArrayToMap(
+        message.Attribute as Array<{ Name: string; Value: MessageAttributeValue; }>);
       delete message.MessageAttribute;
       delete message.Attribute;
     }
-    const json: any = {
+    const json: Record<string, unknown> = {
       ResponseMetadata: { RequestId: requestId },
       UpdateMessageByDeduplicationIdResult: {
         Message: message,
@@ -178,19 +183,19 @@ class AwsXmlFormat {
     return AwsXmlFormat.jsonToXML('UpdateMessageByDeduplicationIdResponse', json);
   }
 
-  static receiveMessage(requestId: string, messages: Array<any>, AttributeName: Array<string>, MessageAttributeName: Array<string>)
+  static receiveMessage(requestId: string, messages: Array<EventItem>, AttributeName: Array<string>, MessageAttributeName: Array<string>)
     : string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       ResponseMetadata: { RequestId: requestId },
       ReceiveMessageResult: {
-        Message: messages.map((message: any) => AwsXmlFormat.responseMessage(message, AttributeName, MessageAttributeName)),
+        Message: messages.map((message: EventItem) => AwsXmlFormat.responseMessage(message, AttributeName, MessageAttributeName)),
       },
     };
     return AwsXmlFormat.jsonToXML('ReceiveMessageResponse', json);
   }
 
   static createTopic(requestId: string, topic: Topic): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       CreateTopicResult: { TopicArn: topic.arn },
       ResponseMetadata: {
         RequestId: requestId,
@@ -200,28 +205,28 @@ class AwsXmlFormat {
   }
 
   static listTopicsResult(requestId: string, topics: Array<Topic>, skip: number, total: number): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       ListTopicsResult: { Topics: { member: topics.map((topic: Topic) => ({ TopicArn: topic.arn })) } },
       ResponseMetadata: { RequestId: requestId },
     };
     if ((skip + topics.length) < total) {
-      json.ListTopicsResult.NextToken = Encryption.encodeNextToken({ skip: skip + topics.length });
+      (json.ListTopicsResult as { NextToken: string }).NextToken = Encryption.encodeNextToken({ skip: skip + topics.length });
     }
     return AwsXmlFormat.jsonToXML('ListTopicsResponse', json);
   }
 
   static deleteTopic(requestId: string): string {
-    const json: any = { ResponseMetadata: { RequestId: requestId } };
+    const json: Record<string, unknown> = { ResponseMetadata: { RequestId: requestId } };
     return AwsXmlFormat.jsonToXML('DeleteTopicResponse', json);
   }
 
   static setTopicAttributes(requestId: string): string {
-    const json: any = { ResponseMetadata: { RequestId: requestId } };
+    const json: Record<string, unknown> = { ResponseMetadata: { RequestId: requestId } };
     return AwsXmlFormat.jsonToXML('SetTopicAttributesResponse', json);
   }
 
   static publish(requestId: string, publish: Publish): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       PublishResult: { MessageId: publish.id },
       ResponseMetadata: { RequestId: requestId },
     };
@@ -229,7 +234,7 @@ class AwsXmlFormat {
   }
 
   static subscribe(requestId: string, subscription: Subscription, ReturnSubscriptionArn?: boolean): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       SubscribeResult: { SubscriptionArn: this.getSubscriptionARN(subscription, ReturnSubscriptionArn) },
       ResponseMetadata: { RequestId: requestId },
     };
@@ -237,7 +242,7 @@ class AwsXmlFormat {
   }
 
   static confirmSubscription(requestId: string, subscription: Subscription): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       ConfirmSubscriptionResult: { SubscriptionArn: this.getSubscriptionARN(subscription) },
       ResponseMetadata: { RequestId: requestId },
     };
@@ -245,7 +250,7 @@ class AwsXmlFormat {
   }
 
   static unSubscribeSubscription(requestId: string): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       UnsubscribeResult: {},
       ResponseMetadata: { RequestId: requestId },
     };
@@ -263,7 +268,7 @@ class AwsXmlFormat {
         publishJSON[key] = publish[key];
       }
     });
-    const json: any = {
+    const json: Record<string, unknown> = {
       GetPublish: publishJSON,
       ResponseMetadata: { RequestId: requestId },
     };
@@ -271,7 +276,7 @@ class AwsXmlFormat {
   }
 
   static markPublished(requestId: string): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('MarkPublishedResponse', json);
@@ -286,7 +291,7 @@ class AwsXmlFormat {
     entry.push({ key: 'SubscriptionsDeleted', value: '0' });
     entry.push({ key: 'TopicArn', value: topic.arn });
     entry.push({ key: 'EffectiveDeliveryPolicy', value: JSON.stringify(topic.deliveryPolicy) });
-    const json: any = {
+    const json: Record<string, unknown> = {
       GetTopicAttributesResult: { Attributes: { entry } },
       ResponseMetadata: { RequestId: requestId },
     };
@@ -294,7 +299,7 @@ class AwsXmlFormat {
   }
 
   static listSubscriptionsResult(requestId: string, subscriptions: Array<Subscription>, skip: number, total: number): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       ListSubscriptionsResult: {
         Subscriptions: {
           member: subscriptions.map((subscription: Subscription) => ({
@@ -308,13 +313,14 @@ class AwsXmlFormat {
       ResponseMetadata: { RequestId: requestId },
     };
     if ((skip + subscriptions.length) < total) {
-      json.ListSubscriptionsResult.NextToken = Buffer.from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
+      (json.ListSubscriptionsResult as { NextToken: string }).NextToken = Buffer
+        .from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
     }
     return AwsXmlFormat.jsonToXML('ListSubscriptionsResponse', json);
   }
 
   static listSubscriptionsByTopicResult(requestId: string, subscriptions: Array<Subscription>, skip: number, total: number): string {
-    const json: any = {
+    const json: Record<string, unknown> = {
       ListSubscriptionsByTopicResult: {
         Subscriptions: {
           member: subscriptions.map((subscription: Subscription) => ({
@@ -328,7 +334,8 @@ class AwsXmlFormat {
       ResponseMetadata: { RequestId: requestId },
     };
     if ((skip + subscriptions.length) < total) {
-      json.ListSubscriptionsByTopicResult.NextToken = Buffer.from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
+      (json.ListSubscriptionsByTopicResult as { NextToken: string }).NextToken = Buffer
+        .from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
     }
     return AwsXmlFormat.jsonToXML('ListSubscriptionsByTopicResponse', json);
   }
@@ -346,11 +353,11 @@ class AwsXmlFormat {
   }
 
   private static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
-    : { [key: string]: any } {
+    : ResponseMessage {
     if (!event) {
       return undefined;
     }
-    const result: { [key: string]: any } = {
+    const result: ResponseMessage = {
       MessageId: event.id,
       ReceiptHandle: uuid(),
       MD5OfBody: AwsXmlFormat.md5Hash(event.MessageBody),
@@ -362,7 +369,7 @@ class AwsXmlFormat {
       result.MessageAttribute = attributeFields.map((key: string) => ({ Name: key, Value: event.MessageAttribute[key] }));
     }
     if (AttributeName) {
-      const eventSystemAttribute: { [key: string]: any } = {};
+      const eventSystemAttribute: Record<string, unknown> = {};
       Object.keys(event.MessageSystemAttribute)
         .forEach((key: string) => {
           eventSystemAttribute[key] = event.MessageSystemAttribute[key].StringValue;
@@ -381,8 +388,9 @@ class AwsXmlFormat {
     return result;
   }
 
-  private static md5HashJSON(json: { [key: string]: any }): string {
-    const message = Object.keys(json).sort().map((key: string) => `${key}=${rfc3986EncodeURIComponent(json[key])}`).join('&');
+  private static md5HashJSON(json: Record<string, unknown>): string {
+    const message = Object.keys(json).sort()
+      .map((key: string) => `${key}=${rfc3986EncodeURIComponent(JSON.stringify(json[key]))}`).join('&');
     return AwsXmlFormat.md5Hash(message);
   }
 
