@@ -9,7 +9,7 @@
     "coverage": "npm run coverage:mongodb",
     "coverage:mongodb": "DEBUG=no TEST_DB=mongoDB nyc mocha src/setup.ts '**/*.spec.ts' && nyc report --reporter=text-lcov > coverage1.lcov",
     "test": "npm run test:mongodb",
-    "test:mongodb": "TEST_DB=mongoDB mocha src/setup.ts '**/*.spec.ts'"
+    "test:mongodb": "TEST_DB=mongoDB mocha --require ts-node/register/transpile-only src/setup.ts '**/*.spec.ts'"
   },
   "repository": {
     "type": "git",
@@ -59,7 +59,7 @@
     "logger4node": "^0.1.0",
     "moment": "^2.29.1",
     "mongodb": "^4.4.0",
-    "node-fetch": "^3.2.1",
+    "node-fetch": "^2.6.7",
     "node-schedule": "^2.1.0",
     "reflect-metadata": "^0.1.13",
     "uuid": "^8.3.2",

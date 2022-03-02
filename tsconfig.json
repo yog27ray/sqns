@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "declaration": true,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
@@ -15,6 +14,7 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "lib": ["es2019", "dom"],
+    "types": ["reflect-metadata", "mocha"],
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
@@ -27,7 +27,7 @@
   },
   "exclude": [
     "node_modules",
-    "server/setup.ts",
+    "typings",
     "**/*.js"
   ],
   "filesGlob": [],

@@ -14,7 +14,7 @@ export interface SubscribeInput {
   TopicArn: ARN;
   Protocol: SupportedProtocol;
   Endpoint?: string;
-  Attributes?: { [key: string]: string };
+  Attributes?: Record<string, string>;
   ReturnSubscriptionArn?: boolean;
 }
 
@@ -69,7 +69,7 @@ export interface GetSubscriptionInput { SubscriptionArn: ARN; }
 export interface GetSubscriptionResponse {
   Protocol: SupportedProtocol;
   EndPoint: string;
-  Attributes: { [key: string]: string };
+  Attributes: Record<string, string>;
   TopicARN: ARN;
   ARN: ARN;
   UnsubscribeUrl: string;

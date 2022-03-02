@@ -1,3 +1,4 @@
+import { ReceiveMessageResult } from '../typings/recieve-message';
 import { SQNSClient } from './sqns/s-q-n-s-client';
 
 const Env = {
@@ -38,14 +39,15 @@ async function deleteAllQueues(client: SQNSClient): Promise<void> {
   await Promise.all(queueURLs.map((queueURL: string) => client.deleteQueue({ QueueUrl: queueURL })));
 }
 
-function deleteDynamicDataOfResults(items_: { [key: string]: any }): void {
+function deleteDynamicDataOfResults(items_: ReceiveMessageResult & { ResponseMetadata?: string }): void {
   const items = items_;
   delete items.ResponseMetadata;
-  items.Messages.forEach((each_: any) => {
-    const each = each_;
-    delete each.MessageId;
-    delete each.ReceiptHandle;
-  });
+  (items.Messages as Array<{ MessageId: string; ReceiptHandle: string; }>)
+    .forEach((each_: { MessageId: string; ReceiptHandle: string; }) => {
+      const each = each_;
+      delete each.MessageId;
+      delete each.ReceiptHandle;
+    });
 }
 
 export { Env, deleteDynamicDataOfResults, deleteTopics, deleteAllQueues };

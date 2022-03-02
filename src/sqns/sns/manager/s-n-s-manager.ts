@@ -68,15 +68,15 @@ class SNSManager extends BaseManager {
     return this.sNSStorageEngine.findTopics(skip);
   }
 
-  findSubscriptions(where: { [key: string]: unknown }, skip?: number, limit?: number): Promise<Array<Subscription>> {
+  findSubscriptions(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<Subscription>> {
     return this.sNSStorageEngine.findSubscriptions(where, skip, limit);
   }
 
-  totalTopics(where: { [key: string]: unknown } = {}): Promise<number> {
+  totalTopics(where: Record<string, unknown> = {}): Promise<number> {
     return this.sNSStorageEngine.totalTopics(where);
   }
 
-  totalSubscriptions(where: { [key: string]: unknown } = {}): Promise<number> {
+  totalSubscriptions(where: Record<string, unknown> = {}): Promise<number> {
     return this.sNSStorageEngine.totalSubscriptions(where);
   }
 

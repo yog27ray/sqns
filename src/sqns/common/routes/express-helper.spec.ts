@@ -6,8 +6,8 @@ describe('EventHelperSpec', () => {
     it('should handle error with and without code', async () => {
       let responseCode: number = 0;
       let responseMessage: string = '';
-      const response: any = {
-        status: (code: number): { [key: string]: any } => {
+      const response: unknown = {
+        status: (code: number): Record<string, unknown> => {
           responseCode = code;
           return {
             send: (message: string): void => {

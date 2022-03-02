@@ -1,6 +1,7 @@
-import { ARN, KeyValueString, MessageAttributeMap } from '../../../../typings/common';
+import { ARN, MessageAttributeMap } from '../../../../typings/common';
 import { SQSConfig } from '../../../../typings/config';
 import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
+import { SQSPriorities } from '../../../../typings/manager';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { logger } from '../../common/logger/logger';
 import { BaseManager } from '../../common/model/base-manager';
@@ -16,7 +17,7 @@ import { SQSStorageEngine } from './s-q-s-storage-engine';
 const log = logger.instance('EventManager');
 
 export class SQSManager extends BaseManager {
-  static DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
+  static DEFAULT_PRIORITIES: SQSPriorities = { PRIORITY_TOTAL: 0 };
 
   private requestClient = new RequestClient();
 
@@ -26,25 +27,29 @@ export class SQSManager extends BaseManager {
 
   private storageToQueueWorker: StorageToQueueWorker;
 
+  private addEventInQueueListener: (item: EventItem) => void = ((item: EventItem) => {
+    this.addItemInQueue(item);
+  });
+
   private static addToPriorities(queueARN: ARN, priority: number): void {
     const statKey = `PRIORITY_${priority}`;
-    if (isNaN(SQSManager.DEFAULT_PRIORITIES[statKey])) {
+    if (isNaN(SQSManager.DEFAULT_PRIORITIES[statKey] as number)) {
       SQSManager.DEFAULT_PRIORITIES[statKey] = 0;
     }
     if (!SQSManager.DEFAULT_PRIORITIES[queueARN]) {
       SQSManager.DEFAULT_PRIORITIES[queueARN] = { PRIORITY_TOTAL: 0 };
     }
-    if (isNaN(SQSManager.DEFAULT_PRIORITIES[queueARN][statKey])) {
+    if (isNaN((SQSManager.DEFAULT_PRIORITIES[queueARN] as Record<string, number>)[statKey])) {
       SQSManager.DEFAULT_PRIORITIES[queueARN][statKey] = 0;
     }
   }
 
   private static prometheusARN(queueARN: ARN): string {
-    return queueARN.replace(new RegExp(':', 'g'), '_');
+    return queueARN.replace(/:/g, '_');
   }
 
-  get eventStats(): { [key: string]: any } {
-    const priorityStats = JSON.parse(JSON.stringify(SQSManager.DEFAULT_PRIORITIES)) as { [key: string]: any };
+  get eventStats(): Record<string, unknown> {
+    const priorityStats = JSON.parse(JSON.stringify(SQSManager.DEFAULT_PRIORITIES)) as SQSPriorities;
     const queueARNs = this._eventQueue.queueARNs();
     queueARNs.forEach((queueARN: ARN) => {
       Object.values(this._eventQueue.eventIds(queueARN)).forEach((event: EventItem) => {
@@ -60,9 +65,9 @@ export class SQSManager extends BaseManager {
 
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         priorityStats[queueARN][statKey] = (priorityStats[queueARN][statKey] || 0) + 1;
-        priorityStats[queueARN].PRIORITY_TOTAL += 1;
+        (priorityStats[queueARN] as SQSPriorities).PRIORITY_TOTAL += 1;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        priorityStats[statKey] = (priorityStats[statKey] || 0) + 1;
+        priorityStats[statKey] = (priorityStats[statKey] as number || 0) + 1;
         priorityStats.PRIORITY_TOTAL += 1;
       });
     });
@@ -104,7 +109,7 @@ export class SQSManager extends BaseManager {
     if (!this._eventQueue.size(queue.arn)) {
       await Promise.all(this._eventQueue.notifyNeedTaskURLS
         .map((url: string) => this.requestClient.post(url, { body: JSON.stringify({ arn: queue.arn }), json: true })))
-        .catch((error: any) => {
+        .catch((error: unknown) => {
           log.error(error);
         });
       return undefined;
@@ -148,7 +153,12 @@ export class SQSManager extends BaseManager {
     return this._sQSStorageEngine.listQueues(queueARNPrefix);
   }
 
-  createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tag: KeyValueString): Promise<Queue> {
+  createQueue(
+    user: User,
+    queueName: string,
+    region: string,
+    attributes: Record<string, string>,
+    tag: Record<string, string>): Promise<Queue> {
     return this._sQSStorageEngine.createQueue(user, queueName, region, attributes, tag);
   }
 
@@ -165,8 +175,14 @@ export class SQSManager extends BaseManager {
     }
   }
 
-  async sendMessage(queue: Queue, MessageBody: string, MessageAttribute: MessageAttributeMap, MessageSystemAttribute: MessageAttributeMap,
-    DelaySeconds: string = '0', MessageDeduplicationId?: string): Promise<EventItem> {
+  async sendMessage(
+    queue: Queue,
+    MessageBody: string,
+    MessageAttribute: MessageAttributeMap,
+    MessageSystemAttribute: MessageAttributeMap,
+    DelaySeconds_?: string,
+    MessageDeduplicationId?: string): Promise<EventItem> {
+    const DelaySeconds = DelaySeconds_ || '0';
     const deliveryPolicy: ChannelDeliveryPolicy = DeliveryPolicyHelper
       .verifyAndGetChannelDeliveryPolicy(MessageAttribute?.DeliveryPolicy?.StringValue);
     const priority = isNaN(Number(MessageAttribute?.Priority?.StringValue))
@@ -228,10 +244,6 @@ export class SQSManager extends BaseManager {
     const responses = await this.pollN(queue, visibilityTimeout, size - 1);
     responses.unshift(response);
     return responses;
-  }
-
-  private addEventInQueueListener: (item: EventItem) => void = (item: EventItem) => {
-    this.addItemInQueue(item);
   }
 
   private addItemInQueue(eventItem: EventItem): void {

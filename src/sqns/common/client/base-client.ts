@@ -55,8 +55,8 @@ export class BaseClient extends RequestClient {
           resolve(this.transformServerResponse(result) as KeyValue);
         });
       }))
-      .catch((error: any) => new Promise((resolve: (value: unknown) => void, reject: (error: unknown) => void) => {
-        xml2js.parseString(error.error || error.message, (parserError: any, result: any) => {
+      .catch((error: unknown) => new Promise((resolve: (value: unknown) => void, reject: (error: unknown) => void) => {
+        xml2js.parseString(error.error || error.message, (parserError: unknown, result: unknown) => {
           if (parserError) {
             reject(new SQNSError({ code: error.code, message: error.message }));
             return;

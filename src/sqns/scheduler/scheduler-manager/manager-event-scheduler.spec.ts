@@ -30,7 +30,8 @@ describe('ManagerEventSchedulerSpec', () => {
               resolve();
             }
             return [{ page: page + 1 }, results];
-          }, '*/10 * * * * *');
+          },
+          '*/10 * * * * *');
       });
       const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
@@ -59,7 +60,8 @@ describe('ManagerEventSchedulerSpec', () => {
               resolve();
             }
             return [{ page: page + 1 }, result];
-          }, '*/10 * * * * *');
+          },
+          '*/10 * * * * *');
       });
       const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({
@@ -97,7 +99,8 @@ describe('ManagerEventSchedulerSpec', () => {
             }
             maxAttemptCount -= 1;
             return [{ page: page + 1 }, [{ MessageBody: 'type1' }]];
-          }, '*/2 * * * * *');
+          },
+          '*/2 * * * * *');
       });
       const stats = await new RequestClient().get(`${Env.URL}/api/queues/events/stats`, true);
       expect(stats).to.deep.equal({ PRIORITY_TOTAL: 0 });

@@ -1,9 +1,15 @@
 import { v4 as uuid } from 'uuid';
-import { TopicAttributes, TopicTag } from '../../../../../typings/class-types';
-import { KeyValueString } from '../../../../../typings/common';
+import {
+  AccessKeyType,
+  EventItemType, PublishType,
+  QueueType,
+  SubscriptionVerificationTokenType,
+  TopicAttributes,
+  TopicTag, TopicType, UserType,
+} from '../../../../../typings/class-types';
 import { MongoDBConfig } from '../../../../../typings/config';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../../typings/delivery-policy';
-import { SubscriptionAttributes } from '../../../../../typings/subscription';
+import { SubscriptionAttributes, SubscriptionType } from '../../../../../typings/subscription';
 import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../../typings/typings';
 import { logger } from '../../logger/logger';
 import { AccessKey } from '../../model/access-key';
@@ -32,19 +38,19 @@ class MongoDBAdapter implements StorageAdapter {
     SubscriptionVerificationToken: string;
     Publish: string;
   } = {
-    AccessKey: MongoDBAdapter.getTableName('AccessKey'),
-    User: MongoDBAdapter.getTableName('User'),
-    Event: MongoDBAdapter.getTableName('Event'),
-    Queue: MongoDBAdapter.getTableName('Queues'),
-    Topic: MongoDBAdapter.getTableName('Topic'),
-    Subscription: MongoDBAdapter.getTableName('Subscription'),
-    SubscriptionVerificationToken: MongoDBAdapter.getTableName('SubscriptionVerificationToken'),
-    Publish: MongoDBAdapter.getTableName('Publish'),
-  };
+      AccessKey: MongoDBAdapter.getTableName('AccessKey'),
+      User: MongoDBAdapter.getTableName('User'),
+      Event: MongoDBAdapter.getTableName('Event'),
+      Queue: MongoDBAdapter.getTableName('Queues'),
+      Topic: MongoDBAdapter.getTableName('Topic'),
+      Subscription: MongoDBAdapter.getTableName('Subscription'),
+      SubscriptionVerificationToken: MongoDBAdapter.getTableName('SubscriptionVerificationToken'),
+      Publish: MongoDBAdapter.getTableName('Publish'),
+    };
 
   private readonly connection: MongoDBConnection;
 
-  private static dbToSystemItem(row: { [key: string]: any, id?: string }): any {
+  private static dbToSystemItem(row: { [key: string]: unknown, id?: string }): unknown {
     const document = { ...row };
     document.id = document._id as string;
     delete document._id;
@@ -77,7 +83,7 @@ class MongoDBAdapter implements StorageAdapter {
     try {
       await this.connection.insert(MongoDBAdapter.Table.Event, mongoDocument);
     } catch (error) {
-      if (error.code === 11000 && mongoDocument.MessageDeduplicationId) {
+      if ((error as { code: number }).code === 11000 && mongoDocument.MessageDeduplicationId) {
         const dBItem = await this.connection.findOne(MongoDBAdapter.Table.Event, {
           MessageDeduplicationId: mongoDocument.MessageDeduplicationId,
         });
@@ -93,7 +99,7 @@ class MongoDBAdapter implements StorageAdapter {
     if (!insertedMongoDocument) {
       return undefined;
     }
-    return new EventItem(MongoDBAdapter.dbToSystemItem(insertedMongoDocument));
+    return new EventItem(MongoDBAdapter.dbToSystemItem(insertedMongoDocument) as EventItemType);
   }
 
   async findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>> {
@@ -104,7 +110,8 @@ class MongoDBAdapter implements StorageAdapter {
       { eventTime: -1 },
       { limit });
     log.info('DB Fetch', query, 'Result length: ', mongoDocuments.length);
-    return mongoDocuments.map((mongoDocument: any) => new EventItem(MongoDBAdapter.dbToSystemItem(mongoDocument)));
+    return mongoDocuments.map((mongoDocument: unknown) => new EventItem(MongoDBAdapter
+      .dbToSystemItem(mongoDocument as Record<string, unknown>) as EventItemType));
   }
 
   async getQueues(queueARNPrefix: string): Promise<Array<Queue>> {
@@ -113,10 +120,10 @@ class MongoDBAdapter implements StorageAdapter {
       query.arn = { $regex: `^${queueARNPrefix}` };
     }
     const queues = await this.connection.find(MongoDBAdapter.Table.Queue, query, { createdAt: 1 });
-    return queues.map((queue: any) => new Queue(MongoDBAdapter.dbToSystemItem(queue)));
+    return queues.map((queue: unknown) => new Queue(MongoDBAdapter.dbToSystemItem(queue as Record<string, unknown>) as QueueType));
   }
 
-  async updateEvent(id: string, data: { [key: string]: any }): Promise<any> {
+  async updateEvent(id: string, data: Record<string, unknown>): Promise<any> {
     await this.connection.update(MongoDBAdapter.Table.Event, id, data);
   }
 
@@ -125,7 +132,7 @@ class MongoDBAdapter implements StorageAdapter {
     if (!event) {
       return undefined;
     }
-    return new EventItem(MongoDBAdapter.dbToSystemItem(event));
+    return new EventItem(MongoDBAdapter.dbToSystemItem(event as Record<string, unknown>) as EventItemType);
   }
 
   async findByIdForQueue(queue: Queue, id: string): Promise<EventItem> {
@@ -133,7 +140,7 @@ class MongoDBAdapter implements StorageAdapter {
     if (!event) {
       return undefined;
     }
-    return new EventItem(MongoDBAdapter.dbToSystemItem(event));
+    return new EventItem(MongoDBAdapter.dbToSystemItem(event as Record<string, unknown>) as EventItemType);
   }
 
   async findByDeduplicationIdForQueue(queue: Queue, id: string): Promise<EventItem> {
@@ -141,10 +148,15 @@ class MongoDBAdapter implements StorageAdapter {
     if (!event) {
       return undefined;
     }
-    return new EventItem(MongoDBAdapter.dbToSystemItem(event));
+    return new EventItem(MongoDBAdapter.dbToSystemItem(event as Record<string, unknown>) as EventItemType);
   }
 
-  async createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tags: KeyValueString): Promise<Queue> {
+  async createQueue(
+    user: User,
+    queueName: string,
+    region: string,
+    attributes: Record<string, string>,
+    tags: Record<string, string>): Promise<Queue> {
     let queue = await this.getQueue(Queue.arn(user.organizationId, region, queueName));
     if (!queue) {
       queue = new Queue({
@@ -166,7 +178,7 @@ class MongoDBAdapter implements StorageAdapter {
     if (!dbQueue) {
       return undefined;
     }
-    return new Queue(MongoDBAdapter.dbToSystemItem(dbQueue));
+    return new Queue(MongoDBAdapter.dbToSystemItem(dbQueue) as QueueType);
   }
 
   async deleteQueue(queue: Queue): Promise<void> {
@@ -234,7 +246,8 @@ class MongoDBAdapter implements StorageAdapter {
     if (!subscriptionVerificationToken) {
       return undefined;
     }
-    return new SubscriptionVerificationToken(MongoDBAdapter.dbToSystemItem(subscriptionVerificationToken));
+    return new SubscriptionVerificationToken(MongoDBAdapter
+      .dbToSystemItem(subscriptionVerificationToken) as SubscriptionVerificationTokenType);
   }
 
   async createTopic(name: string, displayName: string, region: string, deliveryPolicy: DeliveryPolicy, user: User,
@@ -259,12 +272,14 @@ class MongoDBAdapter implements StorageAdapter {
 
   async findPublishes(query: { [p: string]: unknown }, skip?: number, limit?: number): Promise<Array<Publish>> {
     const publishes = await this.connection.find(MongoDBAdapter.Table.Publish, query, { createdAt: 1 }, { skip, limit });
-    return publishes.map((publish: unknown) => new Publish(MongoDBAdapter.dbToSystemItem(publish)));
+    return publishes.map((publish: unknown) => new Publish(MongoDBAdapter
+      .dbToSystemItem(publish as Record<string, unknown>) as PublishType));
   }
 
   async findSubscriptions(where: { [p: string]: unknown }, skip?: number, limit?: number): Promise<Array<Subscription>> {
     const subscriptions = await this.connection.find(MongoDBAdapter.Table.Subscription, where, { createdAt: 1 }, { skip, limit });
-    return subscriptions.map((subscription: unknown) => new Subscription(MongoDBAdapter.dbToSystemItem(subscription)));
+    return subscriptions.map((subscription: unknown) => new Subscription(MongoDBAdapter
+      .dbToSystemItem(subscription as Record<string, unknown>) as SubscriptionType));
   }
 
   async findTopicARN(arn: ARN): Promise<Topic> {
@@ -272,12 +287,12 @@ class MongoDBAdapter implements StorageAdapter {
     if (!topic) {
       return undefined;
     }
-    return new Topic(MongoDBAdapter.dbToSystemItem(topic));
+    return new Topic(MongoDBAdapter.dbToSystemItem(topic) as TopicType);
   }
 
   async findTopics(where: { [p: string]: unknown }, skip?: number, limit?: number): Promise<Array<Topic>> {
     const topics = await this.connection.find(MongoDBAdapter.Table.Topic, where, { createdAt: 1 }, { skip, limit });
-    return topics.map((topic: unknown) => new Topic(MongoDBAdapter.dbToSystemItem(topic)));
+    return topics.map((topic: unknown) => new Topic(MongoDBAdapter.dbToSystemItem(topic as Record<string, unknown>) as TopicType));
   }
 
   async markPublished(publish_: Publish): Promise<void> {
@@ -306,12 +321,13 @@ class MongoDBAdapter implements StorageAdapter {
 
   async findAccessKeys(where: { [p: string]: unknown }, skip?: number, limit?: number): Promise<Array<AccessKey>> {
     const accessKeys = await this.connection.find(MongoDBAdapter.Table.AccessKey, where, { createdAt: 1 }, { skip, limit });
-    return accessKeys.map((accessKey: unknown) => new AccessKey(MongoDBAdapter.dbToSystemItem(accessKey)));
+    return accessKeys.map((accessKey: unknown) => new AccessKey(MongoDBAdapter
+      .dbToSystemItem(accessKey as Record<string, unknown>) as AccessKeyType));
   }
 
   async findUsers(where: { [p: string]: unknown }, skip?: number, limit?: number): Promise<Array<User>> {
     const users = await this.connection.find(MongoDBAdapter.Table.User, where, { createdAt: 1 }, { skip, limit });
-    return users.map((user: unknown) => new User(MongoDBAdapter.dbToSystemItem(user)));
+    return users.map((user: unknown) => new User(MongoDBAdapter.dbToSystemItem(user as Record<string, unknown>) as UserType));
   }
 
   async accessKey(accessKey: string, secretKey: string, userId: string): Promise<AccessKey> {

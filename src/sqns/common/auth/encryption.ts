@@ -5,12 +5,12 @@ class Encryption {
     return crypto.createHash(algorithm).update(text, 'utf8').digest('hex');
   }
 
-  static encodeNextToken(data: { [key: string]: unknown }): string {
+  static encodeNextToken(data: Record<string, unknown>): string {
     return Buffer.from(JSON.stringify(data)).toString('base64');
   }
 
-  static decodeNextToken(hash: string): { [key: string]: unknown } {
-    return JSON.parse(Buffer.from(hash, 'base64').toString()) as { [key: string]: unknown };
+  static decodeNextToken(hash: string): Record<string, unknown> {
+    return JSON.parse(Buffer.from(hash, 'base64').toString()) as Record<string, unknown>;
   }
 }
 
