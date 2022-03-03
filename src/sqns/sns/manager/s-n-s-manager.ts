@@ -14,7 +14,7 @@ import {
 import { Encryption } from '../../common/auth/encryption';
 import { SQNSError } from '../../common/auth/s-q-n-s-error';
 import { ARNHelper } from '../../common/helper/a-r-n-helper';
-import { SNS_QUEUE_EVENT_TYPES, SUPPORTED_CHANNEL, SUPPORTED_PROTOCOL, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
+import { SNS_QUEUE_EVENT_TYPES, SUPPORTED_CHANNEL, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { logger } from '../../common/logger/logger';
 import { BaseManager } from '../../common/model/base-manager';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
