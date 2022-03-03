@@ -1,4 +1,4 @@
-import { ReceiveMessageResult } from '../typings/recieve-message';
+import { BaseStorageEngine } from './sqns/common/model/base-storage-engine';
 import { SQNSClient } from './sqns/s-q-n-s-client';
 
 const Env = {
@@ -34,9 +34,16 @@ async function deleteTopics(client: SQNSClient): Promise<void> {
   await Promise.all(topicARNs.map((topicARN: string) => client.deleteTopic({ TopicArn: topicARN })));
 }
 
-async function deleteAllQueues(client: SQNSClient): Promise<void> {
-  const queueURLs = await findAllQueues(client);
-  await Promise.all(queueURLs.map((queueURL: string) => client.deleteQueue({ QueueUrl: queueURL })));
+async function deleteAllQueues(client: SQNSClient, storageAdapter: BaseStorageEngine): Promise<void> {
+  try {
+    const queueURLs = await findAllQueues(client);
+    await Promise.all(queueURLs.map((queueURL: string) => client.deleteQueue({ QueueUrl: queueURL })));
+  } catch (error) {
+    await storageAdapter.initialize([{
+      accessKey: Env.accessKeyId,
+      secretAccessKey: Env.secretAccessKey,
+    }]);
+  }
 }
 
 function deleteDynamicDataOfResults(items_: Record<string, unknown>): void {

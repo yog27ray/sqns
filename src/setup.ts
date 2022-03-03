@@ -48,6 +48,7 @@ async function dropDatabase(): Promise<void> {
         },
         () => resolve());
   });
+  console.log('????????????????', 5);
   await storageAdapter.initialize([{
     accessKey: Env.accessKeyId,
     secretAccessKey: Env.secretAccessKey,
@@ -57,7 +58,7 @@ async function dropDatabase(): Promise<void> {
     accessKeyId: Env.accessKeyId,
     secretAccessKey: Env.secretAccessKey,
   });
-  await deleteAllQueues(sqnsClient);
+  await deleteAllQueues(sqnsClient, storageAdapter);
   await deleteTopics(sqnsClient);
 }
 
@@ -89,7 +90,6 @@ before(async () => {
     log.info('Express server listening on %d, in test mode', Env.PORT);
   });
   await waitForServerToBoot();
-  await delay(2000);
 });
 
 // Expose app
