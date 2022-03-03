@@ -48,7 +48,6 @@ async function dropDatabase(): Promise<void> {
         },
         () => resolve());
   });
-  console.log('????????????????', 5);
   await storageAdapter.initialize([{
     accessKey: Env.accessKeyId,
     secretAccessKey: Env.secretAccessKey,
@@ -71,9 +70,8 @@ function waitForServerToBoot(): Promise<unknown> {
 }
 
 before(async () => {
-  // const mongoDB = await MongoMemoryServer.create({ instance: { dbName: 'sqns' } });
-  // const uri = `${mongoDB.getUri()}/sqns`;
-  const uri = 'mongodb://mongo:27017/sqns';
+  const mongoDB = await MongoMemoryServer.create({ instance: { dbName: 'sqns' } });
+  const uri = `${mongoDB.getUri()}/sqns`;
   log.info('TestDB URI:', uri);
   databaseConfig = { database: Database.MONGO_DB, uri, config: { useUnifiedTopology: true } };
   setupConfig.mongoConnection = new MongoDBConnection(databaseConfig.uri, databaseConfig.config);
