@@ -29,9 +29,17 @@ async function findAllQueues(client: SQNSClient, nextToken?: string): Promise<Ar
   return queueUrls;
 }
 
-async function deleteTopics(client: SQNSClient): Promise<void> {
-  const topicARNs = await findAllTopics(client);
-  await Promise.all(topicARNs.map((topicARN: string) => client.deleteTopic({ TopicArn: topicARN })));
+async function deleteTopics(client: SQNSClient, storageAdapter: BaseStorageEngine): Promise<void> {
+  try {
+    const topicARNs = await findAllTopics(client);
+    await Promise.all(topicARNs.map((topicARN: string) => client.deleteTopic({ TopicArn: topicARN })));
+  } catch (error) {
+    await storageAdapter.initialize([{
+      accessKey: Env.accessKeyId,
+      secretAccessKey: Env.secretAccessKey,
+    }]);
+    await deleteTopics(client, storageAdapter);
+  }
 }
 
 async function deleteAllQueues(client: SQNSClient, storageAdapter: BaseStorageEngine): Promise<void> {
@@ -43,6 +51,7 @@ async function deleteAllQueues(client: SQNSClient, storageAdapter: BaseStorageEn
       accessKey: Env.accessKeyId,
       secretAccessKey: Env.secretAccessKey,
     }]);
+    await deleteAllQueues(client, storageAdapter);
   }
 }
 

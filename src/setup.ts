@@ -58,7 +58,7 @@ async function dropDatabase(): Promise<void> {
     secretAccessKey: Env.secretAccessKey,
   });
   await deleteAllQueues(sqnsClient, storageAdapter);
-  await deleteTopics(sqnsClient);
+  await deleteTopics(sqnsClient, storageAdapter);
 }
 
 const requestClient = new RequestClient();

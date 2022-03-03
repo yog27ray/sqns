@@ -357,6 +357,23 @@ describe('WorkerEventSchedulerSpec', () => {
       });
     });
 
+    it('should give error while subscribing to invalid queue name', async () => {
+      try {
+        ({ SubscriptionArn } = await client.subscribe({
+          TopicArn: topic.TopicArn,
+          Attributes: {},
+          Endpoint: `${queueUrl}Invalid`,
+          Protocol: 'sqs',
+        }));
+        await Promise.reject({ code: 99, message: 'should not reach here' });
+      } catch ({ code, message }) {
+        expect({ code, message }).to.deep.equal({
+          code: 'NonExistentQueue',
+          message: 'The specified "subscriptionQueueInvalid" queue does not exist.',
+        });
+      }
+    });
+
     it('should update published events as completed when subscriptions to topic exists', async () => {
       ({ SubscriptionArn } = await client.subscribe({
         TopicArn: topic.TopicArn,
@@ -409,7 +426,7 @@ describe('WorkerEventSchedulerSpec', () => {
       if (interval) {
         clearInterval(interval);
       }
-      workerEventScheduler.cancel();
+      workerEventScheduler?.cancel();
     });
   });
 });
