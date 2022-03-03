@@ -1,14 +1,24 @@
 import { expect } from 'chai';
+import moment from 'moment';
 import nock from 'nock';
 import { ResponseItem } from '../../../../typings/response-item';
 import { ARN, CreateTopicResponse, KeyValue } from '../../../../typings/typings';
-import { delay, dropDatabase } from '../../../setup';
+import { delay, dropDatabase, setupConfig } from '../../../setup';
 import { deleteDynamicDataOfResults, Env } from '../../../test-env';
 import { SYSTEM_QUEUE_NAME } from '../../common/helper/common';
+import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { RequestClient } from '../../common/request-client/request-client';
 import { SQNSClient } from '../../s-q-n-s-client';
 import { WorkerEventScheduler } from './worker-event-scheduler';
 import { WorkerQueueConfig } from './worker-queue-config';
+
+declare interface DBEvent {
+  _id: string;
+  MessageBody: string;
+  MessageAttribute: unknown;
+  eventTime: Date;
+  createdAt: Date;
+}
 
 describe('WorkerEventSchedulerSpec', () => {
   context('installing a Worker scheduler', () => {
@@ -314,6 +324,91 @@ describe('WorkerEventSchedulerSpec', () => {
         clearInterval(interval);
       }
       nock.cleanAll();
+      workerEventScheduler.cancel();
+    });
+  });
+
+  context('processing of sqs subscription', () => {
+    let storageAdapter: BaseStorageEngine;
+    let workerEventScheduler: WorkerEventScheduler;
+    let client: SQNSClient;
+    let interval: NodeJS.Timeout;
+    let PublishId: string;
+    let queueUrl: string;
+    let SubscriptionArn: ARN;
+    let topic: CreateTopicResponse;
+
+    beforeEach(async () => {
+      await dropDatabase();
+      storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
+      client = new SQNSClient({
+        endpoint: `${Env.URL}/api`,
+        accessKeyId: Env.accessKeyId,
+        secretAccessKey: Env.secretAccessKey,
+      });
+      ({ QueueUrl: queueUrl } = await client.createQueue({ QueueName: 'subscriptionQueue' }));
+      topic = await client.createTopic({
+        Name: 'Topic1',
+        Attributes: {
+          DeliveryPolicy: '{"default":{"defaultHealthyRetryPolicy":'
+            + '{"numRetries":1,"numNoDelayRetries":2,"minDelayTarget":3,"maxDelayTarget":4,"numMinDelayRetries":5,"numMaxDelayRetries":6,'
+            + '"backoffFunction":"linear"},"disableOverrides":false}}',
+        },
+      });
+    });
+
+    it('should update published events as completed when subscriptions to topic exists', async () => {
+      ({ SubscriptionArn } = await client.subscribe({
+        TopicArn: topic.TopicArn,
+        Attributes: {},
+        Endpoint: queueUrl,
+        Protocol: 'sqs',
+      }));
+      ({ MessageId: PublishId } = await client.publish({
+        Message: 'This is message',
+        TopicArn: topic.TopicArn,
+        MessageAttributes: { DelaySeconds: { DataType: 'String', StringValue: '20' }, key1: { DataType: 'String', StringValue: 'value' } },
+      }));
+      const workerQueueConfig = new WorkerQueueConfig(SYSTEM_QUEUE_NAME.SNS, undefined);
+      workerEventScheduler = new WorkerEventScheduler(
+        {
+          endpoint: `${Env.URL}/api`,
+          accessKeyId: Env.accessKeyId,
+          secretAccessKey: Env.secretAccessKey,
+        },
+        [workerQueueConfig],
+        '*/2 * * * * *',
+      );
+      // eslint-disable-next-line promise/param-names
+      await new Promise((resolve: (value?: unknown) => void, reject: (error: unknown) => void) => {
+        interval = setInterval(async () => {
+          const items = await setupConfig.mongoConnection.find(
+            storageAdapter.getDBTableName('Event'),
+            { queueARN: 'arn:sqns:sqs:sqns:1:subscriptionQueue' },
+            { originalEventTime: 1 }) as unknown as Array<DBEvent>;
+          if (!items.length) {
+            return;
+          }
+          try {
+            expect(items.length).to.equal(1);
+            expect(items[0].MessageBody).to.equal('This is message');
+            expect(items[0].MessageAttribute).to.deep.equal({
+              DelaySeconds: { DataType: 'String', StringValue: '20' },
+              key1: { DataType: 'String', StringValue: 'value' },
+            });
+            expect(moment(items[0].eventTime).diff(items[0].createdAt, 'seconds')).to.equal(20);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        }, 100);
+      });
+    });
+
+    afterEach(() => {
+      if (interval) {
+        clearInterval(interval);
+      }
       workerEventScheduler.cancel();
     });
   });

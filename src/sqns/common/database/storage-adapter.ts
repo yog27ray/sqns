@@ -38,7 +38,7 @@ interface StorageAdapter {
   removeSubscriptions(subscriptions: Array<Subscription>): Promise<void>;
   updateTopicAttributes(topic: Topic): Promise<void>;
   createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes: SubscriptionAttributes,
-    deliveryPolicy: ChannelDeliveryPolicy): Promise<Subscription>;
+    deliveryPolicy: ChannelDeliveryPolicy, confirmed: boolean): Promise<Subscription>;
   totalSubscriptions(where: Record<string, unknown>): Promise<number>;
   findSubscriptions(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<Subscription>>;
   createSubscriptionVerificationToken(subscription: Subscription, token: string): Promise<SubscriptionVerificationToken>;

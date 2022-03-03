@@ -154,13 +154,7 @@ class SNSManager extends BaseManager {
 
   async subscribe(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes: SubscriptionAttributes)
     : Promise<Subscription> {
-    if (!SUPPORTED_PROTOCOL.includes(protocol)) {
-      SQNSError.invalidSubscriptionProtocol(protocol);
-    }
-    const subscription = await this.sNSStorageEngine.findSubscription(topic, protocol, endPoint);
-    if (subscription) {
-      return subscription;
-    }
+    await this.subscriptionValidation(user, protocol, endPoint);
     return this.sNSStorageEngine.createSubscription(user, topic, protocol, endPoint, Attributes);
   }
 
@@ -219,6 +213,22 @@ class SNSManager extends BaseManager {
 
   cancel(): void {
     this.workerEventScheduler?.cancel();
+  }
+
+  private async subscriptionValidation(user: User, protocol: SupportedProtocol, endPoint: string): Promise<void> {
+    switch (protocol) {
+      case 'sqs': {
+        const arnSplitData = endPoint.split('/').reverse().splice(0, 4).reverse();
+        arnSplitData[2] = user.organizationId;
+        const queueARN = `arn:sqns:${arnSplitData.join(':')}`;
+        await this.sNSStorageEngine.findQueueByARN(queueARN);
+        return;
+      }
+      case 'http':
+      case 'https': return;
+      default:
+        SQNSError.invalidSubscriptionProtocol(protocol);
+    }
   }
 }
 

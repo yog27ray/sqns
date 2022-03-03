@@ -72,7 +72,7 @@ export class DeliveryPolicyHelper {
   static getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy: DeliveryPolicy, subscription: GetSubscriptionResponse)
     : ChannelDeliveryPolicy {
     const effectiveParentDeliveryPolicy = deliveryPolicy[subscription.Protocol] || deliveryPolicy.default;
-    if (!subscription.Attributes.DeliveryPolicy) {
+    if (!subscription.Attributes?.DeliveryPolicy) {
       return effectiveParentDeliveryPolicy.defaultHealthyRetryPolicy;
     }
     return effectiveParentDeliveryPolicy?.disableOverrides
