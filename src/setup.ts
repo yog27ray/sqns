@@ -89,6 +89,7 @@ before(async () => {
     log.info('Express server listening on %d, in test mode', Env.PORT);
   });
   await waitForServerToBoot();
+  await delay(1000);
 });
 
 // Expose app
