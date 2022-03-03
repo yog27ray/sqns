@@ -4,7 +4,7 @@ export declare type PHONE = string;
 export declare type SUPPORTED_BACKOFF_FUNCTIONS_TYPE = 'linear' | 'exponential';
 
 // type SubscriptionProtocol = 'http' | 'https' | 'email' | 'sms' | 'sqs' | 'application';
-export type SupportedProtocol = 'http' | 'https';
+export type SupportedProtocol = 'http' | 'https' | 'sqs';
 
 export declare type SUPPORTED_CHANNEL_TYPE = SupportedProtocol | 'default';
 

@@ -8,6 +8,7 @@ import { SQNSError } from '../../common/auth/s-q-n-s-error';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { Publish } from '../../common/model/publish';
+import { Queue } from '../../common/model/queue';
 import { Subscription } from '../../common/model/subscription';
 import { SubscriptionVerificationToken } from '../../common/model/subscription-verification-token';
 import { Topic } from '../../common/model/topic';
@@ -60,14 +61,15 @@ class SNSStorageEngine extends BaseStorageEngine {
   }
 
   async createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string,
-    Attributes: SubscriptionAttributes): Promise<Subscription> {
+    Attributes: SubscriptionAttributes = { entry: [] }): Promise<Subscription> {
     const subscription = await this.findSubscription(topic, protocol, endPoint);
     if (subscription) {
       return subscription;
     }
     const channelDeliveryPolicy = DeliveryPolicyHelper
       .verifyAndGetChannelDeliveryPolicy(Attributes.entry.find(({ key }: { key: string }) => key === 'DeliveryPolicy')?.value);
-    return this._storageAdapter.createSubscription(user, topic, protocol, endPoint, Attributes, channelDeliveryPolicy);
+    const confirmed = ['sqs'].includes(protocol);
+    return this._storageAdapter.createSubscription(user, topic, protocol, endPoint, Attributes, channelDeliveryPolicy, confirmed);
   }
 
   async findSubscription(topic: Topic, protocol: string, endPoint: string): Promise<Subscription> {
@@ -124,6 +126,14 @@ class SNSStorageEngine extends BaseStorageEngine {
       messageStructure,
       MessageStructureFinal,
       Publish.STATUS_PUBLISHING);
+  }
+
+  async findQueueByARN(queueARN: ARN): Promise<Queue> {
+    const queue = await this._storageAdapter.getQueue(queueARN);
+    if (!queue) {
+      SQNSError.invalidQueueName(queueARN);
+    }
+    return queue;
   }
 }
 

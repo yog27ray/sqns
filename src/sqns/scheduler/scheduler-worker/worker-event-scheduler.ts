@@ -100,6 +100,16 @@ class WorkerEventScheduler {
     const published = await this.sqnsClient.getPublish({ MessageId: messageId });
     const subscription = await this.sqnsClient.getSubscription({ SubscriptionArn: subscriptionArn });
     switch (subscription.Protocol) {
+      case 'sqs': {
+        const message = await this.sqnsClient.sendMessage({
+          QueueUrl: subscription.EndPoint,
+          DelaySeconds: Number((published.MessageAttributes.DelaySeconds || { StringValue: '0' }).StringValue),
+          MessageBody: published.Message,
+          MessageAttributes: published.MessageAttributes,
+          MessageDeduplicationId: `${subscription.ARN}_${subscription.Protocol}_${published.MessageId}`,
+        });
+        return message.MessageId;
+      }
       case 'http':
       case 'https': {
         const headers = subscription.Attributes.headers ? JSON.parse(subscription.Attributes.headers) : {};

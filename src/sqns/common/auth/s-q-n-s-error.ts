@@ -1,3 +1,4 @@
+import { ARN } from '../../../../typings/common';
 import { SQNSErrorType } from '../../../../typings/sqns-error-type';
 
 class SQNSError extends Error {
@@ -5,7 +6,7 @@ class SQNSError extends Error {
 
   detail?: string;
 
-  static invalidQueueName(queueName: string): void {
+  static invalidQueueName(queueName: ARN): void {
     throw new SQNSError({
       code: 'NonExistentQueue',
       message: `The specified "${queueName.split(':').pop()}" queue does not exist.`,

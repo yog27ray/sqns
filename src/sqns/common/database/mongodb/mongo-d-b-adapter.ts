@@ -212,8 +212,14 @@ class MongoDBAdapter implements StorageAdapter {
     return publish;
   }
 
-  async createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes: SubscriptionAttributes,
-    deliveryPolicy: ChannelDeliveryPolicy): Promise<Subscription> {
+  async createSubscription(
+    user: User,
+    topic: Topic,
+    protocol: SupportedProtocol,
+    endPoint: string,
+    Attributes: SubscriptionAttributes,
+    deliveryPolicy: ChannelDeliveryPolicy,
+    confirmed: boolean): Promise<Subscription> {
     const subscription = new Subscription({
       id: uuid(),
       companyId: user.organizationId,
@@ -222,7 +228,7 @@ class MongoDBAdapter implements StorageAdapter {
       Attributes,
       topicARN: topic.arn,
       region: topic.region,
-      confirmed: false,
+      confirmed,
       DeliveryPolicy: deliveryPolicy,
     });
     await this.connection.insert(MongoDBAdapter.Table.Subscription, subscription.toJSON());
