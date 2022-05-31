@@ -1,10 +1,10 @@
-import fetch, { BodyInit, HeadersInit, Response } from 'node-fetch';
+import fetch, { BodyInit, HeaderInit, Response } from 'node-fetch';
 import { SQNSError } from '../auth/s-q-n-s-error';
 
 class RequestClient {
   async post(
     url: string,
-    { body, headers: headers_ = {}, json, jsonBody }: { body?: BodyInit; headers?: HeadersInit; json?: boolean; jsonBody?: boolean } = {})
+    { body, headers: headers_ = {}, json, jsonBody }: { body?: BodyInit; headers?: HeaderInit; json?: boolean; jsonBody?: boolean } = {})
     : Promise<unknown> {
     const headers = headers_;
     if (jsonBody) {
