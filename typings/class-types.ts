@@ -11,6 +11,7 @@ export declare interface BaseObjectType {
 
 export declare interface UserType extends BaseObjectType {
   organizationId: string;
+  skipAuthentication?: boolean;
 }
 
 export declare interface AccessKeyType extends BaseObjectType {

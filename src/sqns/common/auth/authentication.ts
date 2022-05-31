@@ -16,7 +16,7 @@ function getSecretKey(storageEngine: BaseStorageEngine): (accessKeyId: string) =
     const accessKey = await storageEngine.findAccessKey({ accessKey: accessKeyId })
       .catch((error: SQNSError) => {
         if (error.code === 'NotFound') {
-          log.verbose(`AccessKey not found: ${accessKeyId}`);
+          log.error(`AccessKey not found: ${accessKeyId}`);
           SQNSError.invalidSignatureError();
         }
         return Promise.reject(error);
@@ -90,7 +90,23 @@ function authentication(getSecretKeyCallback: (accessKey: string) => Promise<Get
         log.verbose('Matching generated hash:', verificationHash, 'against client hash: ', req.header('Authorization'));
         const isTokenValid = req.header('Authorization') === verificationHash;
         if (!isTokenValid) {
-          SQNSError.invalidSignatureError();
+          log.error('Received Authentication Data:', {
+            accessKeyId,
+            secretAccessKey,
+            region,
+            date: req.header('x-amz-date'),
+            host: req.header('host'),
+            originalUrl: req.originalUrl,
+            method: req.method,
+            body: req.body,
+            service,
+          });
+          log.error('Authorization header received:', req.header('Authorization'));
+          log.error('AccessKey:', accessKey, '\tregion:', region, '\tservice:', service);
+          log.error('Matching generated hash:', verificationHash, 'against client hash: ', req.header('Authorization'));
+          if (!user.skipAuthentication) {
+            SQNSError.invalidSignatureError();
+          }
         }
         Object.assign(req, { user });
         return Promise.resolve();
