@@ -104,7 +104,9 @@ function authentication(getSecretKeyCallback: (accessKey: string) => Promise<Get
           log.error('Authorization header received:', req.header('Authorization'));
           log.error('AccessKey:', accessKey, '\tregion:', region, '\tservice:', service);
           log.error('Matching generated hash:', verificationHash, 'against client hash: ', req.header('Authorization'));
-          SQNSError.invalidSignatureError();
+          if (!user.skipAuthentication) {
+            SQNSError.invalidSignatureError();
+          }
         }
         Object.assign(req, { user });
         return Promise.resolve();
