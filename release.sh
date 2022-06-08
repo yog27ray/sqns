@@ -5,7 +5,9 @@ git checkout dist
 rm -r *
 cd ..
 git checkout master
+git reset --hard
 git pull
+npm ci
 node_modules/eslint/bin/eslint.js  --ext .ts src
 tsc -p ./
 VERSION=$(npm version patch)
