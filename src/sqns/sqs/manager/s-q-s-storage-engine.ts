@@ -33,6 +33,7 @@ class SQSStorageEngine extends BaseStorageEngine {
         processingResponse: message,
         receiveCount: eventItem.receiveCount,
         firstSentTime: eventItem.firstSentTime,
+        maxAttemptCompleted: eventItem.maxAttemptCompleted,
         sentTime: eventItem.sentTime,
         eventTime: eventItem.eventTime,
       });
