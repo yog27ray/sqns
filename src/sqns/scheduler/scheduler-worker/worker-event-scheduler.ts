@@ -23,6 +23,7 @@ class WorkerEventScheduler {
     this.queueNames = [];
     this.queueConfigs = {};
     queueConfigs.forEach((each: WorkerQueueConfig) => {
+      log.debug('QueueConfig: ', each.queueName, 'MaxParallel: ', each.config.MAX_COUNT);
       this.queueConfigs[each.queueName] = each.clone();
       this.queueNames.push(this.queueConfigs[each.queueName].queueName);
     });
@@ -154,15 +155,15 @@ class WorkerEventScheduler {
   private checkIfMoreItemsCanBeProcessed(workerQueueConfig_: WorkerQueueConfig): void {
     const workerQueueConfig = workerQueueConfig_;
     workerQueueConfig.polling = true;
-    if (workerQueueConfig.config.count >= workerQueueConfig.config.MAX_COUNT) {
+    if (workerQueueConfig.count >= workerQueueConfig.config.MAX_COUNT) {
       log.info('Queue:', workerQueueConfig.queueName, 'already maximum task running.');
       return;
     }
-    while (workerQueueConfig.config.count < workerQueueConfig.config.MAX_COUNT && workerQueueConfig.hasMore) {
+    while (workerQueueConfig.count < workerQueueConfig.config.MAX_COUNT && workerQueueConfig.hasMore) {
       log.info('Queue:', workerQueueConfig.queueName, 'Processing new event.');
       this.requestEventToProcessAsynchronous(workerQueueConfig);
     }
-    if (!workerQueueConfig.config.count && !workerQueueConfig.hasMore) {
+    if (!workerQueueConfig.count && !workerQueueConfig.hasMore) {
       log.info('Queue:', workerQueueConfig.queueName, 'No events to process reset status.');
       workerQueueConfig.polling = false;
       workerQueueConfig.hasMore = true;
@@ -179,17 +180,17 @@ class WorkerEventScheduler {
 
   private requestEventToProcessAsynchronous(workerQueueConfig_: WorkerQueueConfig): void {
     const workerQueueConfig = workerQueueConfig_;
-    workerQueueConfig.config.count += 1;
+    workerQueueConfig.incrementCount();
     this.requestEventToProcess(workerQueueConfig)
       .then(() => {
-        workerQueueConfig.config.count -= 1;
+        workerQueueConfig.decrementCount();
         this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
         return 0;
       })
       .catch((error: Error) => {
         log.error(error);
         workerQueueConfig.hasMore = false;
-        workerQueueConfig.config.count -= 1;
+        workerQueueConfig.decrementCount();
         this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
       });
   }

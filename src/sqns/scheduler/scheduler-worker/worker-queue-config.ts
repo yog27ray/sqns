@@ -5,7 +5,7 @@ import { ResponseItem } from '../../../../typings/response-item';
 class WorkerQueueConfig {
   private readonly _queueName: string;
 
-  private _config: ConfigCount = { count: 0, MAX_COUNT: 1 };
+  private readonly _config: ConfigCount;
 
   private _polling: boolean = false;
 
@@ -13,10 +13,16 @@ class WorkerQueueConfig {
 
   private _queue: CreateQueueResult;
 
+  private _count: number = 0;
+
   private readonly _listener: (queueName: string, item: ResponseItem) => Promise<string>;
 
-  constructor(queueName: string, listener: (queueName: string, item: ResponseItem) => Promise<string>) {
+  constructor(
+    queueName: string,
+    listener: (queueName: string, item: ResponseItem) => Promise<string>,
+    config: ConfigCount = { MAX_COUNT: 1 }) {
     this._queueName = queueName;
+    this._config = Object.freeze({ ...config });
     this._listener = listener;
   }
 
@@ -56,10 +62,20 @@ class WorkerQueueConfig {
     this._hasMore = value;
   }
 
+  get count(): number {
+    return this._count;
+  }
+
+  incrementCount(): void {
+    this._count += 1;
+  }
+
+  decrementCount(): void {
+    this._count -= 1;
+  }
+
   clone(): WorkerQueueConfig {
-    const config = new WorkerQueueConfig(this.queueName, this.listener);
-    config._config = { MAX_COUNT: this.config.MAX_COUNT, count: 0 };
-    return config;
+    return new WorkerQueueConfig(this.queueName, this.listener, { MAX_COUNT: this.config.MAX_COUNT });
   }
 }
 
