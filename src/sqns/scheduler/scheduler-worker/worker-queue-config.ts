@@ -23,7 +23,6 @@ class WorkerQueueConfig {
     config: ConfigCount = { MAX_COUNT: 1 }) {
     this._queueName = queueName;
     this._config = Object.freeze({ ...config });
-    this._config.MAX_COUNT = 10;
     this._listener = listener;
   }
 
