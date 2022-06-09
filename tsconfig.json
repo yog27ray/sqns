@@ -23,6 +23,7 @@
     "noImplicitAny": false,
     "strictNullChecks": false,
     "strictFunctionTypes": false,
+    "declaration": true,
     "noImplicitThis": false
   },
   "exclude": [
