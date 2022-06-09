@@ -66,16 +66,12 @@ class WorkerQueueConfig {
     return this._count;
   }
 
-  resetCount(): void {
-    this._count = 0;
-  }
-
   incrementCount(): void {
     this._count += 1;
   }
 
   decrementCount(): void {
-    this._count += 1;
+    this._count -= 1;
   }
 
   clone(): WorkerQueueConfig {
