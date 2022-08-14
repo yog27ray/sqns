@@ -345,4 +345,67 @@ describe('mongoDB test cases', () => {
       }
     });
   });
+
+  context('duplicate event handling', () => {
+    let client: SQNSClient;
+    let storageAdapter: BaseStorageEngine;
+    let queue: SQS.Types.CreateQueueResult;
+    let MessageId: string;
+
+    before(async () => {
+      await dropDatabase();
+      storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
+      client = new SQNSClient({
+        endpoint: `${Env.URL}/api`,
+        accessKeyId: Env.accessKeyId,
+        secretAccessKey: Env.secretAccessKey,
+      });
+      queue = await client.createQueue({ QueueName: 'queue1' });
+      ({ MessageId } = await client.sendMessage({
+        QueueUrl: queue.QueueUrl,
+        MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
+        MessageDeduplicationId: 'uniqueId1',
+        MessageBody: '123',
+        DelaySeconds: 0,
+      }));
+    });
+
+    it('should not reset processing of already processed message.', async () => {
+      const [event] = await setupConfig.mongoConnection.find(
+        storageAdapter.getDBTableName('Event'),
+        { completionPending: true, maxAttemptCompleted: false },
+        { eventTime: -1 }) as unknown as Array<DBEvent>;
+      expect(event).to.exist;
+
+      await client.receiveMessage({ QueueUrl: queue.QueueUrl });
+
+      await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
+
+      const [oldEvent] = await setupConfig.mongoConnection.find(
+        storageAdapter.getDBTableName('Event'),
+        { completionPending: true, maxAttemptCompleted: false },
+        { eventTime: -1 }) as unknown as Array<DBEvent>;
+      expect(oldEvent).to.not.exist;
+
+      const [dbEvent] = await setupConfig.mongoConnection.find(
+        storageAdapter.getDBTableName('Event'),
+        { _id: MessageId },
+        { eventTime: -1 }) as unknown as Array<DBEvent>;
+      await setupConfig.mongoConnection.update(
+        storageAdapter.getDBTableName('Event'),
+        MessageId,
+        { eventTime: new Date(new Date().getTime() - 3600000) });
+
+      await client.sendMessage({
+        QueueUrl: queue.QueueUrl,
+        MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
+        MessageDeduplicationId: 'uniqueId1',
+        MessageBody: '123',
+        DelaySeconds: 0,
+      });
+
+      const { Messages: [newMessage] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl });
+      expect(newMessage).to.not.exist;
+    });
+  });
 });
