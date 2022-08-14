@@ -56,7 +56,7 @@
     "aws-sdk": "2.1194.0",
     "express": "4.18.1",
     "fastpriorityqueue": "0.7.2",
-    "logger4node": "0.1.0",
+    "logger4node": "1.0.0",
     "moment": "2.29.4",
     "mongodb": "4.8.1",
     "node-fetch": "2.6.7",
