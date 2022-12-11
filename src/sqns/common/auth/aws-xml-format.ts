@@ -185,7 +185,7 @@ class AwsXmlFormat {
 
   static receiveMessage(requestId: string, messages: Array<EventItem>, AttributeName: Array<string>, MessageAttributeName: Array<string>)
     : string {
-    const json: Record<string, unknown> = {
+    const json: KeyValue = {
       ResponseMetadata: { RequestId: requestId },
       ReceiveMessageResult: {
         Message: messages.map((message: EventItem) => AwsXmlFormat.responseMessage(message, AttributeName, MessageAttributeName)),

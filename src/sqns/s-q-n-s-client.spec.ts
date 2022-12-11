@@ -221,14 +221,7 @@ describe('SQNSClient', () => {
           Messages: [{
             MD5OfBody: '202cb962ac59075b964b07152d234b70',
             Body: '123',
-            MessageAttributes: {
-              type: {
-                StringValue: 'type1',
-                BinaryListValues: [],
-                StringListValues: [],
-                DataType: 'String',
-              },
-            },
+            MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
           }],
         });
       });
@@ -629,14 +622,7 @@ describe('SQNSClient', () => {
           MaxNumberOfMessages: 1,
         });
         expect(Messages.length).to.deep.equal(1);
-        expect(Messages[0].MessageAttributes).to.deep.equal({
-          name: {
-            StringValue: 'testUser',
-            StringListValues: [],
-            BinaryListValues: [],
-            DataType: 'String',
-          },
-        });
+        expect(Messages[0].MessageAttributes).to.deep.equal({ name: { StringValue: 'testUser', DataType: 'String' } });
       });
 
       it('should resend same message on next receiveMessage call when VisibilityTimeout is zero', async () => {
@@ -1087,7 +1073,7 @@ describe('SQNSClient', () => {
         await delay();
       });
 
-      it('should process event in descending item with descending comparator function for fifo', async () => {
+      it('should process event in descending item with descending comparator function for fifo.', async () => {
         let { Messages: [event] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] });
         expect(Number(event.MessageAttributes.priority.StringValue)).to.equal(1);
         ({ Messages: [event] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
@@ -1439,7 +1425,7 @@ describe('SQNSClient', () => {
 
       it('should delete topic', async () => {
         const topicResponse = await client.deleteTopic({ TopicArn: topicARN });
-        expect(topicResponse).to.exist;
+        expect(topicResponse).to.not.exist;
       });
     });
 
