@@ -34,6 +34,14 @@ function delay(milliSeconds: number = 100): Promise<any> {
   });
 }
 
+const requestClient = new RequestClient();
+function waitForServerToBoot(): Promise<unknown> {
+  return requestClient.get(`http://127.0.0.1:${Env.PORT}/api/sqns/health`).catch(async () => {
+    await delay();
+    return waitForServerToBoot();
+  });
+}
+
 async function dropDatabase(): Promise<void> {
   await setupConfig.mongoConnection.dropDatabase();
   await setupConfig.sqns.resetAll();
@@ -57,16 +65,8 @@ async function dropDatabase(): Promise<void> {
     accessKeyId: Env.accessKeyId,
     secretAccessKey: Env.secretAccessKey,
   });
-  await deleteAllQueues(sqnsClient, storageAdapter);
+  await deleteAllQueues(sqnsClient, storageAdapter, setupConfig.mongoConnection);
   await deleteTopics(sqnsClient, storageAdapter);
-}
-
-const requestClient = new RequestClient();
-function waitForServerToBoot(): Promise<unknown> {
-  return requestClient.get(`http://127.0.0.1:${Env.PORT}/api/sqns/health`).catch(async () => {
-    await delay();
-    return waitForServerToBoot();
-  });
 }
 
 before(async () => {

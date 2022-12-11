@@ -65,9 +65,11 @@ export class SQNS {
   registerExpressRoutes(app: Express): void {
     app.use(this._url.basePath, sqnsRoutes());
     if (this.sqsManager) {
+      log.info('SQS path added.');
       app.use(this._url.basePath, sqsRoutes(this.sqsManager));
     }
     if (this.snsManager) {
+      log.info('SNS path added.');
       app.use(this._url.basePath, snsRoutes(`${this._url.host}${this._url.basePath}`, this.snsManager));
     }
   }
