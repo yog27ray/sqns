@@ -41,7 +41,7 @@
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-typescript": "0.14.0",
     "minimist": "1.2.7",
-    "mocha": "10.1.0",
+    "mocha": "10.2.0",
     "mongodb-memory-server": "8.10.0",
     "morgan": "1.10.0",
     "nock": "13.2.9",
