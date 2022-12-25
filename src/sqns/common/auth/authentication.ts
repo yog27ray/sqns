@@ -38,6 +38,7 @@ function signRequest(authRequest_: AuthRequest, credentials: Credentials, header
   }, {});
   const hash = Encryption.createJSONHmac('sha256', credentials.secretAccessKey, data);
   const algorithm = 'SQNS-HMAC-SHA256';
+  console.log('>>>>data.headers:', data.headers, authRequest.headers);
   const credential = `Credential=${credentials.accessKeyId}/${data.headers['x-sqns-date'].substring(0, 8)}/${
     authRequest.region}/${authRequest.service}/request`;
   const signedHeaders = `SignedHeaders=${headerKeys.join(';')}`;

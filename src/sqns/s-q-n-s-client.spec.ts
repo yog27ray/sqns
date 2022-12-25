@@ -141,7 +141,7 @@ describe('SQNSClient', () => {
         expect(result.MD5OfMessageAttributes).to.equal(result1.MD5OfMessageAttributes);
         expect(result.MessageId).to.equal(result1.MessageId);
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
-        expect(result.MD5OfMessageAttributes).to.equal('7ee801da24425cddc36e76ce83b559c6');
+        expect(result.MD5OfMessageAttributes).to.equal('c1b9ac65410316db3f02fe3a75c21021');
         expect(result.MessageId).to.exist;
         const { Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MaxNumberOfMessages: 10 });
         expect(Messages.length).to.deep.equal(1);
@@ -188,7 +188,7 @@ describe('SQNSClient', () => {
           MessageBody: '123',
         });
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
-        expect(result.MD5OfMessageAttributes).to.equal('7ee801da24425cddc36e76ce83b559c6');
+        expect(result.MD5OfMessageAttributes).to.equal('c1b9ac65410316db3f02fe3a75c21021');
         expect(result.MessageId).to.exist;
       });
 
@@ -241,7 +241,7 @@ describe('SQNSClient', () => {
           MessageBody: '123',
         });
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
-        expect(result.MD5OfMessageAttributes).to.equal('69f70f4268fca95f0a727c156756ee51');
+        expect(result.MD5OfMessageAttributes).to.equal('1f6df54e17f7612231ee7afc7a22e216');
         expect(result.MessageId).to.exist;
       });
     });
@@ -1862,7 +1862,7 @@ describe('SQNSClient', () => {
             originalUrl: request.uri.split(headers.host)[1],
             method: request.method,
             body: request.body || {},
-            headers: request.headers,
+            headers,
           },
           { accessKeyId: Env.accessKeyId, secretAccessKey: Env.secretAccessKey },
           ['x-sqns-date', 'host', 'x-sqns-content-sha256']);
