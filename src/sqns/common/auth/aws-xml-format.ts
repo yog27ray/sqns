@@ -7,7 +7,6 @@ import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';
 import { Topic } from '../model/topic';
-import { rfc3986EncodeURIComponent } from './authentication';
 import { Encryption } from './encryption';
 
 class AwsXmlFormat {
@@ -86,8 +85,8 @@ class AwsXmlFormat {
   static generateSendMessageResponse(event: EventItem): Record<string, unknown> {
     return {
       MessageId: event.id,
-      MD5OfMessageBody: AwsXmlFormat.md5Hash(event.MessageBody),
-      MD5OfMessageAttributes: AwsXmlFormat.md5HashJSON(event.MessageAttribute),
+      MD5OfMessageBody: Encryption.createHash('md5', event.MessageBody),
+      MD5OfMessageAttributes: Encryption.createJSONHash('md5', event.MessageAttribute),
     };
   }
 
@@ -185,7 +184,7 @@ class AwsXmlFormat {
 
   static receiveMessage(requestId: string, messages: Array<EventItem>, AttributeName: Array<string>, MessageAttributeName: Array<string>)
     : string {
-    const json: Record<string, unknown> = {
+    const json: KeyValue = {
       ResponseMetadata: { RequestId: requestId },
       ReceiveMessageResult: {
         Message: messages.map((message: EventItem) => AwsXmlFormat.responseMessage(message, AttributeName, MessageAttributeName)),
@@ -360,7 +359,7 @@ class AwsXmlFormat {
     const result: ResponseMessage = {
       MessageId: event.id,
       ReceiptHandle: uuid(),
-      MD5OfBody: AwsXmlFormat.md5Hash(event.MessageBody),
+      MD5OfBody: Encryption.createHash('md5', event.MessageBody),
       Body: event.MessageBody,
     };
     if (MessageAttributeName) {
@@ -386,16 +385,6 @@ class AwsXmlFormat {
       result.Attribute = attributeFields.map((key: string) => ({ Name: key, Value: attributes[key] }));
     }
     return result;
-  }
-
-  private static md5HashJSON(json: Record<string, unknown>): string {
-    const message = Object.keys(json).sort()
-      .map((key: string) => `${key}=${rfc3986EncodeURIComponent(JSON.stringify(json[key]))}`).join('&');
-    return AwsXmlFormat.md5Hash(message);
-  }
-
-  private static md5Hash(message: string): string {
-    return Encryption.createHash('md5', message);
   }
 
   private static generateSQSURL(queue: Queue, baseURL: string): string {

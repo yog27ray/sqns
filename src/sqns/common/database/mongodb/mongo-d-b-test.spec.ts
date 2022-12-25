@@ -1,9 +1,9 @@
 /* tslint:disable:no-null-keyword */
-import SQS from 'aws-sdk/clients/sqs';
 import { expect } from 'chai';
 import moment from 'moment';
 import { MessageAttributeMap } from '../../../../../typings/common';
 import { ChannelDeliveryPolicy } from '../../../../../typings/delivery-policy';
+import { CreateQueueResult } from '../../../../../typings/queue';
 import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
 import { SQNSClient } from '../../../s-q-n-s-client';
@@ -28,7 +28,7 @@ describe('mongoDB test cases', () => {
   context('SlaveEventSchedulerSpec', () => {
     let storageAdapter: BaseStorageEngine;
     let slaveScheduler: WorkerEventScheduler;
-    let queue: SQS.Types.CreateQueueResult;
+    let queue: CreateQueueResult;
     let client: SQNSClient;
 
     beforeEach(async () => {
@@ -224,7 +224,7 @@ describe('mongoDB test cases', () => {
   context('retry of failed events', () => {
     let storageAdapter: BaseStorageEngine;
     let slaveScheduler: WorkerEventScheduler;
-    let queue: SQS.Types.CreateQueueResult;
+    let queue: CreateQueueResult;
     let client: SQNSClient;
 
     beforeEach(async () => {
@@ -349,7 +349,7 @@ describe('mongoDB test cases', () => {
   context('duplicate event handling', () => {
     let client: SQNSClient;
     let storageAdapter: BaseStorageEngine;
-    let queue: SQS.Types.CreateQueueResult;
+    let queue: CreateQueueResult;
     let MessageId: string;
 
     before(async () => {

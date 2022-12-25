@@ -1,3 +1,4 @@
+import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
 import { BaseStorageEngine } from './sqns/common/model/base-storage-engine';
 import { SQNSClient } from './sqns/s-q-n-s-client';
 
@@ -42,16 +43,27 @@ async function deleteTopics(client: SQNSClient, storageAdapter: BaseStorageEngin
   }
 }
 
-async function deleteAllQueues(client: SQNSClient, storageAdapter: BaseStorageEngine): Promise<void> {
+async function wait(time: number = 1000): Promise<void> {
+  await new Promise((resolve: (item?: unknown) => void) => {
+    setTimeout(() => resolve(), time);
+  });
+}
+
+async function deleteAllQueues(
+  client: SQNSClient,
+  storageAdapter: BaseStorageEngine,
+  mongoDBConnection: MongoDBConnection): Promise<void> {
   try {
     const queueURLs = await findAllQueues(client);
     await Promise.all(queueURLs.map((queueURL: string) => client.deleteQueue({ QueueUrl: queueURL })));
   } catch (error) {
+    await mongoDBConnection.collection(storageAdapter.getDBTableName('AccessKey')).deleteMany({});
     await storageAdapter.initialize([{
       accessKey: Env.accessKeyId,
       secretAccessKey: Env.secretAccessKey,
     }]);
-    await deleteAllQueues(client, storageAdapter);
+    await wait();
+    await deleteAllQueues(client, storageAdapter, mongoDBConnection);
   }
 }
 
@@ -66,4 +78,4 @@ function deleteDynamicDataOfResults(items_: Record<string, unknown>): void {
     });
 }
 
-export { Env, deleteDynamicDataOfResults, deleteTopics, deleteAllQueues };
+export { Env, deleteDynamicDataOfResults, deleteTopics, deleteAllQueues, wait };

@@ -1,12 +1,15 @@
-import SQS from 'aws-sdk/clients/sqs';
 import { expect } from 'chai';
+import moment from 'moment/moment';
+import { CreateQueueResult } from '../../../../typings/queue';
 import { delay, dropDatabase } from '../../../setup';
 import { Env } from '../../../test-env';
+import { signRequest } from '../../common/auth/authentication';
 import { BaseClient } from '../../common/client/base-client';
 import { RequestClient } from '../../common/request-client/request-client';
 import { SQNSClient } from '../../s-q-n-s-client';
 
 const requestClient = new RequestClient();
+
 describe('EventManagerMasterSpec', () => {
   context('errorHandling', () => {
     let client: SQNSClient;
@@ -43,34 +46,91 @@ describe('EventManagerMasterSpec', () => {
       }
     });
 
-    it('should give error function is not supported.', async () => {
+    it('should give error when authentication header is missing.', async () => {
       try {
-        const sqs = new SQS({
-          region: BaseClient.REGION,
-          endpoint: `${Env.URL}/api/sqs`,
-          accessKeyId: Env.accessKeyId,
-          secretAccessKey: Env.secretAccessKey,
-          maxRetries: 0,
-        });
-        await new Promise((resolve: (value?: unknown) => void, reject: (e: unknown) => void) => {
-          sqs.addPermission({
-            QueueUrl: `${Env.URL}/api/sqs/sqns/1/queue1`,
-            Label: 'label',
-            AWSAccountIds: ['accountIds'],
-            Actions: ['testAction'],
-          }, (error: unknown) => {
-            if (error) {
-              reject(error);
-              return;
-            }
-            resolve();
-          });
+        await requestClient.post(`${Env.URL}/api/sqs`, {
+          body: JSON.stringify({ Action: 'AddPermission' }),
         });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
       } catch ({ code, message }) {
         expect({ code, message }).to.deep.equal({
-          code: 'Unhandled function',
-          message: 'This function is not supported.',
+          code: '400',
+          message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            + '<ErrorResponse>\n'
+            + '  <RequestId/>\n'
+            + '  <Error>\n'
+            + '    <Type>Sender</Type>\n'
+            + '    <Code>SignatureDoesNotMatch</Code>\n'
+            + '    <Message>The request signature we calculated does not match the signature you provided.</Message>\n'
+            + '    <Detail/>\n'
+            + '  </Error>\n'
+            + '</ErrorResponse>',
+        });
+      }
+    });
+
+    it('should give error when authentication header is inValid.', async () => {
+      try {
+        await requestClient.post(`${Env.URL}/api/sqs`, {
+          body: JSON.stringify({ Action: 'AddPermission' }),
+          headers: { authorization: '' },
+        });
+        await Promise.reject({ code: 99, message: 'should not reach here.' });
+      } catch ({ code, message }) {
+        expect({ code, message }).to.deep.equal({
+          code: '400',
+          message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            + '<ErrorResponse>\n'
+            + '  <RequestId/>\n'
+            + '  <Error>\n'
+            + '    <Type>Sender</Type>\n'
+            + '    <Code>SignatureDoesNotMatch</Code>\n'
+            + '    <Message>The request signature we calculated does not match the signature you provided.</Message>\n'
+            + '    <Detail/>\n'
+            + '  </Error>\n'
+            + '</ErrorResponse>',
+        });
+      }
+    });
+
+    it('should give error function is not supported.', async () => {
+      try {
+        const request = {
+          headers: {
+            'x-sqns-date': moment().utc().format('YYYYMMDDTHHmmss'),
+            host: '127.0.0.1:1234',
+          },
+          body: { Action: 'AddPermission' },
+        };
+        signRequest(
+          {
+            service: 'sqs',
+            region: BaseClient.REGION,
+            headers: request.headers,
+            originalUrl: '/api/sqs',
+            method: 'POST',
+            body: request.body,
+          },
+          { accessKeyId: Env.accessKeyId, secretAccessKey: Env.secretAccessKey },
+          ['x-sqns-date', 'host', 'x-sqns-content-sha256']);
+        await requestClient.post(`${Env.URL}/api/sqs`, {
+          body: JSON.stringify(request.body),
+          headers: request.headers,
+        });
+        await Promise.reject({ code: 99, message: 'should not reach here.' });
+      } catch ({ code, message }) {
+        expect({ code, message }).to.deep.equal({
+          code: '400',
+          message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+            + '<ErrorResponse>\n'
+            + '  <RequestId/>\n'
+            + '  <Error>\n'
+            + '    <Type>Sender</Type>\n'
+            + '    <Code>Unhandled function</Code>\n'
+            + '    <Message>This function is not supported.</Message>\n'
+            + '    <Detail/>\n'
+            + '  </Error>\n'
+            + '</ErrorResponse>',
         });
       }
     });
@@ -78,8 +138,8 @@ describe('EventManagerMasterSpec', () => {
 
   context('eventStats', () => {
     let client: SQNSClient;
-    let queue1: SQS.Types.CreateQueueResult;
-    let queue2: SQS.Types.CreateQueueResult;
+    let queue1: CreateQueueResult;
+    let queue2: CreateQueueResult;
     before(async () => {
       await dropDatabase();
       client = new SQNSClient({
@@ -155,7 +215,7 @@ describe('EventManagerMasterSpec', () => {
 
   context('eventPoll', () => {
     let client: SQNSClient;
-    let queue: SQS.Types.CreateQueueResult;
+    let queue: CreateQueueResult;
     beforeEach(async () => {
       await dropDatabase();
       client = new SQNSClient({

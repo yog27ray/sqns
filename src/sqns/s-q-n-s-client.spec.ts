@@ -1,4 +1,3 @@
-import SQS from 'aws-sdk/clients/sqs';
 import { expect } from 'chai';
 import moment from 'moment';
 import nock from 'nock';
@@ -16,7 +15,7 @@ import {
 } from '../../typings/typings';
 import { app, delay, dropDatabase, setupConfig } from '../setup';
 import { deleteDynamicDataOfResults, Env } from '../test-env';
-import { generateAuthenticationHash } from './common/auth/authentication';
+import { signRequest } from './common/auth/authentication';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
 import { SYSTEM_QUEUE_NAME } from './common/helper/common';
@@ -53,7 +52,7 @@ describe('SQNSClient', () => {
       });
 
       it('should return queue url protocol as provided in headers', async () => {
-        const result = await new BaseClient('sqs', {
+        const result = await new BaseClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
@@ -142,7 +141,7 @@ describe('SQNSClient', () => {
         expect(result.MD5OfMessageAttributes).to.equal(result1.MD5OfMessageAttributes);
         expect(result.MessageId).to.equal(result1.MessageId);
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
-        expect(result.MD5OfMessageAttributes).to.equal('7ee801da24425cddc36e76ce83b559c6');
+        expect(result.MD5OfMessageAttributes).to.equal('c1b9ac65410316db3f02fe3a75c21021');
         expect(result.MessageId).to.exist;
         const { Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MaxNumberOfMessages: 10 });
         expect(Messages.length).to.deep.equal(1);
@@ -189,7 +188,7 @@ describe('SQNSClient', () => {
           MessageBody: '123',
         });
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
-        expect(result.MD5OfMessageAttributes).to.equal('7ee801da24425cddc36e76ce83b559c6');
+        expect(result.MD5OfMessageAttributes).to.equal('c1b9ac65410316db3f02fe3a75c21021');
         expect(result.MessageId).to.exist;
       });
 
@@ -221,14 +220,7 @@ describe('SQNSClient', () => {
           Messages: [{
             MD5OfBody: '202cb962ac59075b964b07152d234b70',
             Body: '123',
-            MessageAttributes: {
-              type: {
-                StringValue: 'type1',
-                BinaryListValues: [],
-                StringListValues: [],
-                DataType: 'String',
-              },
-            },
+            MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
           }],
         });
       });
@@ -249,7 +241,7 @@ describe('SQNSClient', () => {
           MessageBody: '123',
         });
         expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
-        expect(result.MD5OfMessageAttributes).to.equal('69f70f4268fca95f0a727c156756ee51');
+        expect(result.MD5OfMessageAttributes).to.equal('1f6df54e17f7612231ee7afc7a22e216');
         expect(result.MessageId).to.exist;
       });
     });
@@ -629,14 +621,7 @@ describe('SQNSClient', () => {
           MaxNumberOfMessages: 1,
         });
         expect(Messages.length).to.deep.equal(1);
-        expect(Messages[0].MessageAttributes).to.deep.equal({
-          name: {
-            StringValue: 'testUser',
-            StringListValues: [],
-            BinaryListValues: [],
-            DataType: 'String',
-          },
-        });
+        expect(Messages[0].MessageAttributes).to.deep.equal({ name: { StringValue: 'testUser', DataType: 'String' } });
       });
 
       it('should resend same message on next receiveMessage call when VisibilityTimeout is zero', async () => {
@@ -692,7 +677,7 @@ describe('SQNSClient', () => {
 
     context('sendMessageBatch', () => {
       let client: SQNSClient;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       beforeEach(async () => {
         await dropDatabase();
         client = new SQNSClient({
@@ -799,7 +784,7 @@ describe('SQNSClient', () => {
 
     context('deleteQueue', () => {
       let client: SQNSClient;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       before(async () => {
         await dropDatabase();
         client = new SQNSClient({
@@ -855,7 +840,7 @@ describe('SQNSClient', () => {
 
     context('getQueueUrl', () => {
       let client: SQNSClient;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       before(async () => {
         await dropDatabase();
         client = new SQNSClient({
@@ -886,7 +871,7 @@ describe('SQNSClient', () => {
       let client: SQNSClient;
       let storageAdapter: BaseStorageEngine;
       let MessageId: string;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       beforeEach(async () => {
         await dropDatabase();
         storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
@@ -929,7 +914,7 @@ describe('SQNSClient', () => {
       let client: SQNSClient;
       let storageAdapter: BaseStorageEngine;
       let MessageId: string;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       before(async () => {
         await dropDatabase();
         storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
@@ -1087,7 +1072,7 @@ describe('SQNSClient', () => {
         await delay();
       });
 
-      it('should process event in descending item with descending comparator function for fifo', async () => {
+      it('should process event in descending item with descending comparator function for fifo.', async () => {
         let { Messages: [event] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] });
         expect(Number(event.MessageAttributes.priority.StringValue)).to.equal(1);
         ({ Messages: [event] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MessageAttributeNames: ['ALL'] }));
@@ -1439,7 +1424,7 @@ describe('SQNSClient', () => {
 
       it('should delete topic', async () => {
         const topicResponse = await client.deleteTopic({ TopicArn: topicARN });
-        expect(topicResponse).to.exist;
+        expect(topicResponse).to.not.exist;
       });
     });
 
@@ -1867,21 +1852,21 @@ describe('SQNSClient', () => {
       const requestClient: RequestClient = new RequestClient();
       async function request(request: { uri: string, method: string, body?: KeyValue, headers?: KeyValue<string> }): Promise<any> {
         const headers = {
-          'x-amz-date': moment().utc().format('YYYYMMDDTHHmmss'),
+          'x-sqns-date': moment().utc().format('YYYYMMDDTHHmmss'),
           host: request.uri.split('/')[2],
         };
-        const authorization = generateAuthenticationHash({
-          service: 'sns',
-          accessKeyId: Env.accessKeyId,
-          secretAccessKey: Env.secretAccessKey,
-          region: BaseClient.REGION,
-          date: headers['x-amz-date'],
-          originalUrl: request.uri.split(headers.host)[1],
-          host: headers.host,
-          method: request.method,
-          body: request.body || {},
-        });
-        request.headers = { ...(request.headers || {}), ...headers, authorization };
+        signRequest(
+          {
+            service: 'sns',
+            region: BaseClient.REGION,
+            originalUrl: request.uri.split(headers.host)[1],
+            method: request.method,
+            body: request.body || {},
+            headers,
+          },
+          { accessKeyId: Env.accessKeyId, secretAccessKey: Env.secretAccessKey },
+          ['x-sqns-date', 'host', 'x-sqns-content-sha256']);
+        request.headers = { ...(request.headers || {}), ...headers };
         await (request.method === 'GET'
           ? requestClient.get(request.uri)
           : requestClient.post(request.uri, { headers: request.headers, body: JSON.stringify(request.body) }))
