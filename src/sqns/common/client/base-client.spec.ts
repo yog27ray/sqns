@@ -4,7 +4,7 @@ import { BaseClient } from './base-client';
 describe('BaseClient', () => {
   context('execution of normalizeNestedJSONBody', () => {
     it('should pass with test body 1', () => {
-      const result = new BaseClient('', { endpoint: '', accessKeyId: '', secretAccessKey: '' }).normalizeNestedJSONBody({
+      const result = new BaseClient({ endpoint: '', accessKeyId: '', secretAccessKey: '' }).normalizeNestedJSONBody({
         QueueUrl: 'http://127.0.0.1:1234/api/sqs/sqns/1/queue1.fifo',
         Action: 'SendMessageBatch',
         SendMessageBatchRequestEntry: [{
@@ -34,7 +34,7 @@ describe('BaseClient', () => {
     });
 
     it('should pass with test body 2', () => {
-      const result = new BaseClient('', { endpoint: '', accessKeyId: '', secretAccessKey: '' }).normalizeNestedJSONBody({
+      const result = new BaseClient({ endpoint: '', accessKeyId: '', secretAccessKey: '' }).normalizeNestedJSONBody({
         Name: 'Topic1',
         Attributes: { DisplayName: 'Topic One' },
         Tags: [
@@ -56,7 +56,7 @@ describe('BaseClient', () => {
     });
 
     it('should pass with test body 3', () => {
-      const result = new BaseClient('', { endpoint: '', accessKeyId: '', secretAccessKey: '' }).normalizeNestedJSONBody({
+      const result = new BaseClient({ endpoint: '', accessKeyId: '', secretAccessKey: '' }).normalizeNestedJSONBody({
         Message: 'This is message',
         TopicArn: 'arn:sqns:sns:sqns:1:Topic1',
         TargetArn: 'arn:sqns:sns:sqns:1:Topic1',
