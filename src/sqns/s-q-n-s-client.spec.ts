@@ -1,4 +1,3 @@
-import SQS from 'aws-sdk/clients/sqs';
 import { expect } from 'chai';
 import moment from 'moment';
 import nock from 'nock';
@@ -16,7 +15,7 @@ import {
 } from '../../typings/typings';
 import { app, delay, dropDatabase, setupConfig } from '../setup';
 import { deleteDynamicDataOfResults, Env } from '../test-env';
-import { generateAuthenticationHash } from './common/auth/authentication';
+import { signRequest } from './common/auth/authentication';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
 import { SYSTEM_QUEUE_NAME } from './common/helper/common';
@@ -53,7 +52,7 @@ describe('SQNSClient', () => {
       });
 
       it('should return queue url protocol as provided in headers', async () => {
-        const result = await new BaseClient('sqs', {
+        const result = await new BaseClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
@@ -678,7 +677,7 @@ describe('SQNSClient', () => {
 
     context('sendMessageBatch', () => {
       let client: SQNSClient;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       beforeEach(async () => {
         await dropDatabase();
         client = new SQNSClient({
@@ -785,7 +784,7 @@ describe('SQNSClient', () => {
 
     context('deleteQueue', () => {
       let client: SQNSClient;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       before(async () => {
         await dropDatabase();
         client = new SQNSClient({
@@ -841,7 +840,7 @@ describe('SQNSClient', () => {
 
     context('getQueueUrl', () => {
       let client: SQNSClient;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       before(async () => {
         await dropDatabase();
         client = new SQNSClient({
@@ -872,7 +871,7 @@ describe('SQNSClient', () => {
       let client: SQNSClient;
       let storageAdapter: BaseStorageEngine;
       let MessageId: string;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       beforeEach(async () => {
         await dropDatabase();
         storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
@@ -915,7 +914,7 @@ describe('SQNSClient', () => {
       let client: SQNSClient;
       let storageAdapter: BaseStorageEngine;
       let MessageId: string;
-      let queue: SQS.Types.CreateQueueResult;
+      let queue: CreateQueueResult;
       before(async () => {
         await dropDatabase();
         storageAdapter = new BaseStorageEngine(setupConfig.sqnsConfig.db);
@@ -1853,21 +1852,21 @@ describe('SQNSClient', () => {
       const requestClient: RequestClient = new RequestClient();
       async function request(request: { uri: string, method: string, body?: KeyValue, headers?: KeyValue<string> }): Promise<any> {
         const headers = {
-          'x-amz-date': moment().utc().format('YYYYMMDDTHHmmss'),
+          'x-sqns-date': moment().utc().format('YYYYMMDDTHHmmss'),
           host: request.uri.split('/')[2],
         };
-        const authorization = generateAuthenticationHash({
-          service: 'sns',
-          accessKeyId: Env.accessKeyId,
-          secretAccessKey: Env.secretAccessKey,
-          region: BaseClient.REGION,
-          date: headers['x-amz-date'],
-          originalUrl: request.uri.split(headers.host)[1],
-          host: headers.host,
-          method: request.method,
-          body: request.body || {},
-        });
-        request.headers = { ...(request.headers || {}), ...headers, authorization };
+        signRequest(
+          {
+            service: 'sns',
+            region: BaseClient.REGION,
+            originalUrl: request.uri.split(headers.host)[1],
+            method: request.method,
+            body: request.body || {},
+            headers: request.headers,
+          },
+          { accessKeyId: Env.accessKeyId, secretAccessKey: Env.secretAccessKey },
+          ['x-sqns-date', 'host', 'x-sqns-content-sha256']);
+        request.headers = { ...(request.headers || {}), ...headers };
         await (request.method === 'GET'
           ? requestClient.get(request.uri)
           : requestClient.post(request.uri, { headers: request.headers, body: JSON.stringify(request.body) }))
