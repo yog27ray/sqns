@@ -1,31 +1,31 @@
-import SNS from 'aws-sdk/clients/sns';
-import SQS from 'aws-sdk/clients/sqs';
 import moment from 'moment';
 import xml2js from 'xml2js';
 import { BaseClientRequest } from '../../../../typings/base-client';
 import { ClientConfiguration, KeyValue } from '../../../../typings/typings';
-import { generateAuthenticationHash } from '../auth/authentication';
+import { signRequest } from '../auth/authentication';
 import { SQNSError } from '../auth/s-q-n-s-error';
 import { RequestClient } from '../request-client/request-client';
+import { SNSService } from './s-n-s-service';
+import { SQSService } from './s-q-s-service';
 
 export class BaseClient extends RequestClient {
   static readonly REGION: string = 'sqns';
 
   protected readonly _config: ClientConfiguration;
 
-  protected readonly _sqs: SQS;
+  protected readonly _sqs: SQSService;
 
-  protected readonly _sns: SNS;
+  protected readonly _sns: SNSService;
 
   private _arrayFields = ['member', 'Message', 'SendMessageBatchResultEntry'];
 
   private _arrayToJSONFields = ['Attribute', 'MessageAttribute', 'entry'];
 
-  constructor(service: string, config: ClientConfiguration) {
+  constructor(config: ClientConfiguration) {
     super();
     this._config = { ...config, region: BaseClient.REGION };
-    this._sqs = new SQS({ ...this._config, endpoint: `${config.endpoint}/sqs` });
-    this._sns = new SNS({ ...this._config, endpoint: `${config.endpoint}/sns` });
+    this._sqs = new SQSService({ ...this._config, endpoint: `${config.endpoint}/sqs` });
+    this._sns = new SNSService({ ...this._config, endpoint: `${config.endpoint}/sns` });
   }
 
   processNormalizeJSONBodyOfKey(key: string, value: unknown, snsRequest: boolean): unknown {
@@ -116,24 +116,24 @@ export class BaseClient extends RequestClient {
 
   request(request: BaseClientRequest): Promise<any> {
     const headers = {
-      'x-amz-date': moment().utc().format('YYYYMMDDTHHmmss'),
+      'x-sqns-date': moment().utc().format('YYYYMMDDTHHmmss'),
       host: request.uri.split('/')[2],
     };
     const isSNSRequest = request.uri.startsWith(`${this._config.endpoint}/sns`);
     this.updateRequestBody(request.body, isSNSRequest);
     request.body = this.normalizeNestedJSONBody(request.body, isSNSRequest);
-    const authorization = generateAuthenticationHash({
+    signRequest({
       service: request.uri.split('/').pop(),
-      accessKeyId: this._config.accessKeyId,
-      secretAccessKey: this._config.secretAccessKey,
       region: this._config.region,
-      date: headers['x-amz-date'],
       originalUrl: request.uri.split(headers.host)[1],
-      host: headers.host,
+      headers,
       method: 'POST',
       body: request.body,
-    });
-    request.headers = { ...(request.headers || {}), ...headers, authorization };
+    }, {
+      accessKeyId: this._config.accessKeyId,
+      secretAccessKey: this._config.secretAccessKey,
+    }, ['host', 'x-sqns-content-sha256', 'x-sqns-date']);
+    request.headers = { ...(request.headers || {}), ...headers };
     return this.post(request.uri, { body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
       .then((serverResponse: string) => new Promise((resolve: (result: KeyValue) => void, reject: (error: unknown) => void) => {
         xml2js.parseString(serverResponse, (parserError: Error, result: KeyValue) => {

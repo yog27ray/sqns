@@ -1,5 +1,4 @@
 import { BaseClientRequest } from '../../typings/base-client';
-import { SQNSClientConfig } from '../../typings/client-confriguation';
 import {
   FindMessageByDeduplicationId,
   FindMessageById,
@@ -52,13 +51,9 @@ import {
 import { BaseClient } from './common/client/base-client';
 
 export class SQNSClient extends BaseClient {
-  constructor(options: SQNSClientConfig) {
-    super('', options);
-  }
-
   async createQueue(params: CreateQueueRequest): Promise<CreateQueueResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { ...params, Action: 'CreateQueue' },
     };
     const result = await this.request(request);
@@ -67,7 +62,7 @@ export class SQNSClient extends BaseClient {
 
   async sendMessage(params: SendMessageRequest): Promise<SendMessageResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { ...params, Action: 'SendMessage' },
     };
     const result = await this.request(request);
@@ -76,7 +71,7 @@ export class SQNSClient extends BaseClient {
 
   async findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult> {
     const request = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { Action: 'FindMessageById', ...params },
     };
     const result = await this.request(request);
@@ -86,7 +81,7 @@ export class SQNSClient extends BaseClient {
 
   async findByMessageDeduplicationId(params: FindMessageByDeduplicationId): Promise<FindMessageByDeduplicationIdResult> {
     const request = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { Action: 'FindMessageByDeduplicationId', ...params },
     };
     const result = await this.request(request);
@@ -97,7 +92,7 @@ export class SQNSClient extends BaseClient {
 
   async updateMessageById(params: UpdateMessageById): Promise<UpdateMessageByIdResult> {
     const request = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { Action: 'UpdateMessageById', ...params },
     };
     const result = await this.request(request);
@@ -108,7 +103,7 @@ export class SQNSClient extends BaseClient {
 
   async updateMessageByDeduplicationId(params: UpdateMessageByDeduplicationId): Promise<UpdateMessageByDeduplicationIdResult> {
     const request = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { Action: 'UpdateMessageByDeduplicationId', ...params },
     };
     const result = await this.request(request);
@@ -119,7 +114,7 @@ export class SQNSClient extends BaseClient {
 
   async receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { ...params, Action: 'ReceiveMessage' },
     };
     const result = await this.request(request);
@@ -135,7 +130,7 @@ export class SQNSClient extends BaseClient {
 
   async listQueues(params: ListQueuesRequest = {}): Promise<ListQueuesResponse> {
     const request = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { ...params, Action: 'ListQueues' },
     };
     const response = await this.request(request);
@@ -151,7 +146,7 @@ export class SQNSClient extends BaseClient {
 
   async deleteQueue(params: DeleteQueueRequest): Promise<void> {
     const request = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { ...params, Action: 'DeleteQueue' },
     };
     await this.request(request);
@@ -159,7 +154,7 @@ export class SQNSClient extends BaseClient {
 
   async sendMessageBatch(params: SendMessageBatchRequest): Promise<SendMessageBatchResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { ...params, Action: 'SendMessageBatch' },
     };
     request.body.SendMessageBatchRequestEntry = request.body.Entries;
@@ -179,7 +174,7 @@ export class SQNSClient extends BaseClient {
 
   async getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.endpoint.href,
+      uri: this._sqs.config.endpoint,
       body: { ...params, Action: 'GetQueueUrl' },
     };
     const response = await this.request(request);
@@ -204,7 +199,7 @@ export class SQNSClient extends BaseClient {
 
   async createTopic(params: CreateTopicInput): Promise<CreateTopicResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'CreateTopic' },
     };
     const response = await this.request(request);
@@ -213,7 +208,7 @@ export class SQNSClient extends BaseClient {
 
   async listTopics(params: ListTopicsInput): Promise<ListTopicsResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'ListTopics' },
     };
     const response = await this.request(request);
@@ -226,7 +221,7 @@ export class SQNSClient extends BaseClient {
 
   async getTopicAttributes(params: GetTopicAttributesInput): Promise<GetTopicAttributesResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'GetTopicAttributes' },
     };
     const response = await this.request(request);
@@ -237,7 +232,7 @@ export class SQNSClient extends BaseClient {
 
   async setTopicAttributes(params: SetTopicAttributesInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'SetTopicAttributes' },
     };
     await this.request(request);
@@ -245,7 +240,7 @@ export class SQNSClient extends BaseClient {
 
   async deleteTopic(params: DeleteTopicInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'DeleteTopic' },
     };
     await this.request(request);
@@ -253,7 +248,7 @@ export class SQNSClient extends BaseClient {
 
   async publish(params: PublishInput): Promise<PublishResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'Publish' },
     };
     const response = await this.request(request);
@@ -262,7 +257,7 @@ export class SQNSClient extends BaseClient {
 
   async subscribe(params: SubscribeInput): Promise<SubscribeResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'Subscribe' },
     };
     const response = await this.request(request);
@@ -271,7 +266,7 @@ export class SQNSClient extends BaseClient {
 
   async listSubscriptions(params: ListSubscriptionsInput): Promise<ListSubscriptionsResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'ListSubscriptions' },
     };
     const response = await this.request(request);
@@ -285,7 +280,7 @@ export class SQNSClient extends BaseClient {
 
   async listSubscriptionsByTopic(params: ListSubscriptionsByTopicInput): Promise<ListSubscriptionsByTopicResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'ListSubscriptionsByTopic' },
     };
     const response = await this.request(request);
@@ -299,7 +294,7 @@ export class SQNSClient extends BaseClient {
 
   async confirmSubscription(params: ConfirmSubscriptionInput): Promise<ConfirmSubscriptionResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'ConfirmSubscription' },
     };
     const response = await this.request(request);
@@ -308,7 +303,7 @@ export class SQNSClient extends BaseClient {
 
   async unsubscribe(params: UnsubscribeInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { ...params, Action: 'Unsubscribe' },
     };
     await this.request(request);
@@ -316,7 +311,7 @@ export class SQNSClient extends BaseClient {
 
   async getPublish(params: GetPublishInput): Promise<GetPublishResponse> {
     const request = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { Action: 'GetPublish', ...params },
     };
     const response = await this.request(request);
@@ -328,7 +323,7 @@ export class SQNSClient extends BaseClient {
 
   async getSubscription(params: GetSubscriptionInput): Promise<GetSubscriptionResponse> {
     const request = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { Action: 'GetSubscription', ...params },
     };
     const response = await this.request(request);
@@ -337,7 +332,7 @@ export class SQNSClient extends BaseClient {
 
   async markPublished(params: MarkPublishedInput): Promise<void> {
     const request = {
-      uri: this._sns.endpoint.href,
+      uri: this._sns.config.endpoint,
       body: { Action: 'MarkPublished', ...params },
     };
     await this.request(request);
