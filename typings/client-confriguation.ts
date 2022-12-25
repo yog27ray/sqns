@@ -11,6 +11,6 @@ export interface SQNSClientConfig {
   secretAccessKey: string;
 }
 
-export type SNSServiceConfiguration = ClientConfiguration & { endpoint: string; }
+export type SNSServiceConfiguration = ClientConfiguration & { endpoint: string; };
 
-export type SQSServiceConfiguration = ClientConfiguration & { endpoint: string; }
+export type SQSServiceConfiguration = ClientConfiguration & { endpoint: string; };
