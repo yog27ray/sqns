@@ -62,7 +62,7 @@
     "node-schedule": "2.1.1",
     "reflect-metadata": "0.1.13",
     "uuid": "9.0.0",
-    "xml2js": "0.4.23"
+    "xml2js": "0.5.0"
   },
   "mocha": {
     "color": true,
