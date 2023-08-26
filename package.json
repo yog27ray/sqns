@@ -57,7 +57,7 @@
     "fastpriorityqueue": "0.7.4",
     "logger4node": "1.0.0",
     "moment": "2.29.4",
-    "mongodb": "4.17.1",
+    "mongodb": "5.8.1",
     "node-fetch": "2.6.9",
     "node-schedule": "2.1.1",
     "reflect-metadata": "0.1.13",
