@@ -21,7 +21,7 @@ jobs:
 
     services:
       mongodb-${{ github.run_id }}-${{ github.run_number }}-${{ matrix.cpu }}:
-        image: mongo:${{ matrix.mongodb-version }}
+        image: mongo:${{ matrix.mongo-version }}
         options: >-
           --health-cmd "echo 'db.runCommand("ping").ok' | mongosh --quiet"
           --health-interval 10s
