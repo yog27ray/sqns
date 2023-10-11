@@ -20,14 +20,14 @@ jobs:
         mongo-version: [6.0.10]
 
     services:
-      mongodb-${{ github.run_id }}-${{ github.run_number }}-${{ matrix.cpu }}:
+      mongodb-${{ github.run_id }}-${{ github.run_number }}-${{ matrix.mongo-version }}-${{ matrix.node-version }}:
         image: mongo:${{ matrix.mongo-version }}
         options: >-
           --health-cmd "echo 'db.runCommand("ping").ok' | mongosh --quiet"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-          --name mongo_container_${{ github.run_id }}_${{ github.run_number }}_${{ matrix.node-version }}
+          --name mongo_container_mongodb-${{ github.run_id }}-${{ github.run_number }}-${{ matrix.mongo-version }}-${{ matrix.node-version }}
 
     steps:
     - uses: actions/checkout@v3
@@ -48,7 +48,7 @@ jobs:
       env:
         DEBUG: no
         TEST_DB: mongoDB
-        MONGODB_URI: mongodb://mongodb-${{ github.run_id }}-${{ github.run_number }}-${{ matrix.node-version }}/sqns
+        MONGODB_URI: mongodb://mongodb-${{ github.run_id }}-${{ github.run_number }}-${{ matrix.mongo-version }}-${{ matrix.node-version }}/sqns
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
