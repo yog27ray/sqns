@@ -75,6 +75,8 @@ before(async () => {
     uri: process.env.MONGODB_URI,
     config: { useUnifiedTopology: true },
   };
+  // eslint-disable-next-line no-console
+  console.log('>>:', databaseConfig);
   setupConfig.mongoConnection = new MongoDBConnection(databaseConfig.uri, databaseConfig.config);
   setupConfig.sqnsConfig = {
     adminSecretKeys: [{ accessKey: Env.accessKeyId, secretAccessKey: Env.secretAccessKey }],
