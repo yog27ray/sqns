@@ -4,7 +4,7 @@ import { SQNSClient } from './sqns/s-q-n-s-client';
 
 const port = process.env.PORT || '1234';
 const Env = {
-  URL: 'http://127.0.0.1:1234',
+  URL: `http://127.0.0.1:${port}`,
   PORT: Number(port),
   companyId: '12345',
   accessKeyId: 'accessKeyIdTest',
