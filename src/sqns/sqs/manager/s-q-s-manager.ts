@@ -114,8 +114,9 @@ export class SQSManager extends BaseManager {
         });
       return undefined;
     }
-    const eventItem = this._eventQueue.pop(queue.arn);
+    const eventItem = this._eventQueue.popInitiate(queue.arn);
     await this._sQSStorageEngine.updateEventStateProcessing(queue, eventItem, visibilityTimeout, 'sent to slave');
+    this._eventQueue.popComplete(eventItem);
     if (eventItem.eventTime.getTime() <= new Date().getTime()) {
       const event: EventItem = await this._sQSStorageEngine.findEvent(eventItem.id);
       if (event && event.receiveCount < event.maxReceiveCount) {

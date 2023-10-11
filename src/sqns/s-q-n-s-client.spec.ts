@@ -1563,6 +1563,7 @@ describe('SQNSClient', () => {
           secretAccessKey: Env.secretAccessKey,
         });
         topicArn = (await client.createTopic({ Name: 'Topic1' })).TopicArn;
+        await delay(100);
         await Promise.all(new Array(150).fill(0)
           .map((i: unknown, index: number) => client.subscribe({
             TopicArn: topicArn,

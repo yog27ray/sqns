@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser';
 import express, { Express } from 'express';
 import http from 'http';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 // import morgan from 'morgan';
 import { SQNS, SQNSClient } from '../index';
 import { DatabaseConfig, SQNSConfig } from '../typings/config';
@@ -70,10 +69,14 @@ async function dropDatabase(): Promise<void> {
 }
 
 before(async () => {
-  const mongoDB = await MongoMemoryServer.create({ instance: { dbName: 'sqns' } });
-  const uri = `${mongoDB.getUri()}/sqns`;
-  log.info('TestDB URI:', uri);
-  databaseConfig = { database: Database.MONGO_DB, uri, config: { useUnifiedTopology: true } };
+  log.info('TestDB URI:', process.env.MONGODB_URI);
+  databaseConfig = {
+    database: Database.MONGO_DB,
+    uri: process.env.MONGODB_URI,
+    config: { useUnifiedTopology: true },
+  };
+  // eslint-disable-next-line no-console
+  console.log('>>:', databaseConfig);
   setupConfig.mongoConnection = new MongoDBConnection(databaseConfig.uri, databaseConfig.config);
   setupConfig.sqnsConfig = {
     adminSecretKeys: [{ accessKey: Env.accessKeyId, secretAccessKey: Env.secretAccessKey }],

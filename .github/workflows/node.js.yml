@@ -14,9 +14,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    concurrency:
+      group: ${{ github.event.number }}-build-${{ matrix.node-version }}-${{ matrix.mongodb-version }}
+      cancel-in-progress: true
+
     strategy:
       matrix:
         node-version: [12.x, 14.x, 16.x]
+        mongodb-version: ['4.2', '4.4', '5.0', '6.0']
 
     steps:
     - uses: actions/checkout@v3
@@ -24,13 +29,24 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.10.0
+      with:
+        mongodb-version: ${{ matrix.mongodb-version }}
     - run: npm ci
     - run: node_modules/eslint/bin/eslint.js  --ext .ts src
     - run: node_modules/eslint/bin/eslint.js  --ext .ts typings
     - run: node_modules/tslint/bin/tslint -p ./ -c src/tslint.json
     - run: node_modules/typescript/bin/tsc -p ./
     - run: rm -r dist
-    - run: npm run coverage
+    - name: coverage
+      run: |
+        node_modules/.bin/nyc node_modules/.bin/mocha src/setup.ts '**/*.spec.ts'
+        node_modules/.bin/nyc report --reporter=text-lcov > coverage1.lcov
+      env:
+        DEBUG: no
+        TEST_DB: mongoDB
+        MONGODB_URI: mongodb://localhost:27017/sqns
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
