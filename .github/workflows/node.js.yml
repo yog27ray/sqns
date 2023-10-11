@@ -14,10 +14,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    concurrency:
+      group: ${{ github.event.number }}-build-${{ matrix.node-version }}-${{ matrix.mongodb-version }}
+      cancel-in-progress: true
+
     strategy:
       matrix:
         node-version: [12.x, 14.x, 16.x]
-        mongo-version: [6.0.10]
         mongodb-version: ['4.2', '4.4', '5.0', '6.0']
 
     steps:
