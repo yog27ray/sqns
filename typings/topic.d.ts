@@ -1,9 +1,7 @@
 import { ARN, Tag, Topic } from './common';
 export interface CreateTopicInput {
     Name: string;
-    Attributes?: {
-        [key: string]: string;
-    };
+    Attributes?: Record<string, string>;
     Tags?: Array<Tag>;
 }
 export interface CreateTopicResponse {
@@ -20,9 +18,7 @@ export interface GetTopicAttributesInput {
     TopicArn: ARN;
 }
 export interface GetTopicAttributesResponse {
-    Attributes?: {
-        [key: string]: string;
-    };
+    Attributes?: Record<string, string>;
 }
 export interface DeleteTopicInput {
     TopicArn: ARN;

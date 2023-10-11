@@ -5,7 +5,6 @@ export declare interface MongoDBConfig {
     uri: string;
     [key: string]: unknown;
 }
-export declare type SQS_DATABASE_CONFIG = MongoDBConfig;
 export declare interface AdminSecretKeys {
     secretAccessKey: string;
     accessKey: string;
@@ -54,7 +53,6 @@ export declare type ManagerQueueConfigListener = (queueName: string, nextItemLis
     Array<RequestItem>
 ]>;
 export declare interface ConfigCount {
-    count: number;
     MAX_COUNT: number;
 }
 export declare type QueueStorageToQueueConfigListener = (nextItemListParams: KeyValue) => Promise<[KeyValue, boolean]>;

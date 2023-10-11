@@ -13,15 +13,13 @@ declare class AwsXmlFormat {
     static deleteQueue(requestId: string): string;
     static listQueues(requestId: string, host: string, queues: Array<Queue>): string;
     static sendMessage(requestId: string, event: EventItem): string;
-    static generateSendMessageResponse(event: EventItem): {
-        [key: string]: any;
-    };
+    static generateSendMessageResponse(event: EventItem): Record<string, unknown>;
     static sendMessageBatch(requestId: string, events: Array<EventItem>, batchIds: Array<string>): string;
     static findMessageById(requestId: string, eventItem: EventItem): string;
     static findMessageByDeduplicationId(requestId: string, eventItem: EventItem): string;
     static updateMessageById(requestId: string, eventItem: EventItem): string;
     static updateMessageByDeduplicationId(requestId: string, eventItem: EventItem): string;
-    static receiveMessage(requestId: string, messages: Array<any>, AttributeName: Array<string>, MessageAttributeName: Array<string>): string;
+    static receiveMessage(requestId: string, messages: Array<EventItem>, AttributeName: Array<string>, MessageAttributeName: Array<string>): string;
     static createTopic(requestId: string, topic: Topic): string;
     static listTopicsResult(requestId: string, topics: Array<Topic>, skip: number, total: number): string;
     static deleteTopic(requestId: string): string;
@@ -38,8 +36,6 @@ declare class AwsXmlFormat {
     static getSubscriptionARN(subscription: Subscription, ReturnSubscriptionArn?: boolean): string;
     private static transformNameValueArrayToMap;
     private static responseMessage;
-    private static md5HashJSON;
-    private static md5Hash;
     private static generateSQSURL;
 }
 export { AwsXmlFormat };

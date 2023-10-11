@@ -51,12 +51,14 @@ class SQNS {
         this.sqsManager.comparatorFunction(queueARN, value);
     }
     registerExpressRoutes(app) {
-        app.use(this._url.basePath, routes_1.generateRoutes());
+        app.use(this._url.basePath, (0, routes_1.generateRoutes)());
         if (this.sqsManager) {
-            app.use(this._url.basePath, routes_3.generateRoutes(this.sqsManager));
+            log.info('SQS path added.');
+            app.use(this._url.basePath, (0, routes_3.generateRoutes)(this.sqsManager));
         }
         if (this.snsManager) {
-            app.use(this._url.basePath, routes_2.generateRoutes(`${this._url.host}${this._url.basePath}`, this.snsManager));
+            log.info('SNS path added.');
+            app.use(this._url.basePath, (0, routes_2.generateRoutes)(`${this._url.host}${this._url.basePath}`, this.snsManager));
         }
     }
     async resetAll() {

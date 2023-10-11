@@ -2,11 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SQNSError = void 0;
 class SQNSError extends Error {
-    constructor(error) {
-        super(error.message);
-        this.code = error.code;
-        this.detail = error.detail;
-    }
     static invalidQueueName(queueName) {
         throw new SQNSError({
             code: 'NonExistentQueue',
@@ -81,6 +76,11 @@ class SQNSError extends Error {
             code: 'MinAdminSecretKeys',
             message: 'At-least one admin secret keys must be provided',
         });
+    }
+    constructor(error) {
+        super(error.message);
+        this.code = error.code;
+        this.detail = error.detail;
     }
 }
 exports.SQNSError = SQNSError;

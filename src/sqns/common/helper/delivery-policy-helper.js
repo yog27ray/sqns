@@ -42,8 +42,9 @@ class DeliveryPolicyHelper {
         }
     }
     static getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription) {
+        var _a;
         const effectiveParentDeliveryPolicy = deliveryPolicy[subscription.Protocol] || deliveryPolicy.default;
-        if (!subscription.Attributes.DeliveryPolicy) {
+        if (!((_a = subscription.Attributes) === null || _a === void 0 ? void 0 : _a.DeliveryPolicy)) {
             return effectiveParentDeliveryPolicy.defaultHealthyRetryPolicy;
         }
         return (effectiveParentDeliveryPolicy === null || effectiveParentDeliveryPolicy === void 0 ? void 0 : effectiveParentDeliveryPolicy.disableOverrides)
@@ -58,8 +59,8 @@ class DeliveryPolicyHelper {
             }
             deliveryPolicy = JSON.parse(deliveryPolicyStringValue);
         }
-        catch (error) {
-            s_q_n_s_error_1.SQNSError.invalidDeliveryPolicy(error.message);
+        catch ({ message }) {
+            s_q_n_s_error_1.SQNSError.invalidDeliveryPolicy(message);
         }
         DeliveryPolicyHelper.hasAllKeys(deliveryPolicy, DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY);
         const { backoffFunction } = deliveryPolicy.default.defaultHealthyRetryPolicy;

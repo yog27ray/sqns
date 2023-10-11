@@ -10,9 +10,8 @@ describe('DeliveryPolicyHelper', () => {
                 delivery_policy_helper_1.DeliveryPolicyHelper.calculateNewEventTime(new Date(), channelDeliveryPolicy, { minDelay: 1, attempt: 2 });
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).deep.equal({ code: 'UnhandledBackoffFunction', message: 'Unhandled Backoff Function' });
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).deep.equal({ code: 'UnhandledBackoffFunction', message: 'Unhandled Backoff Function' });
             }
         });
     });
@@ -22,9 +21,8 @@ describe('DeliveryPolicyHelper', () => {
                 delivery_policy_helper_1.DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy('}{');
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).deep.equal({ code: undefined, message: 'Unexpected token } in JSON at position 0' });
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).deep.equal({ code: undefined, message: 'Unexpected token } in JSON at position 0' });
             }
         });
     });
@@ -38,7 +36,7 @@ describe('DeliveryPolicyHelper', () => {
         it('should return subscription DeliveryPolicy', async () => {
             const subscription = { Attributes: { DeliveryPolicy: '{"subscription": 1}' } };
             const result = delivery_policy_helper_1.DeliveryPolicyHelper.getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription);
-            chai_1.expect(result).to.deep.equal({ subscription: 1 });
+            (0, chai_1.expect)(result).to.deep.equal({ subscription: 1 });
         });
         it('should return subscription DeliveryPolicy when DeliveryPolicy has disableOverrides enabled and'
             + ' DeliveryPolicy has subscription protocol', async () => {
@@ -48,7 +46,7 @@ describe('DeliveryPolicyHelper', () => {
             };
             deliveryPolicy.http.disableOverrides = true;
             const result = delivery_policy_helper_1.DeliveryPolicyHelper.getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription);
-            chai_1.expect(result).to.deep.equal({
+            (0, chai_1.expect)(result).to.deep.equal({
                 numRetries: 3,
                 numNoDelayRetries: 0,
                 minDelayTarget: 20,
@@ -66,7 +64,7 @@ describe('DeliveryPolicyHelper', () => {
                 Protocol: 'http',
             };
             const result = delivery_policy_helper_1.DeliveryPolicyHelper.getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription);
-            chai_1.expect(result).to.deep.equal({ subscription: 1 });
+            (0, chai_1.expect)(result).to.deep.equal({ subscription: 1 });
         });
         it('should return subscription DeliveryPolicy when DeliveryPolicy has disableOverrides enabled and'
             + ' DeliveryPolicy does\'t have subscription protocol', async () => {
@@ -76,7 +74,7 @@ describe('DeliveryPolicyHelper', () => {
             };
             deliveryPolicy.default.disableOverrides = true;
             const result = delivery_policy_helper_1.DeliveryPolicyHelper.getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription);
-            chai_1.expect(result).to.deep.equal({
+            (0, chai_1.expect)(result).to.deep.equal({
                 numRetries: 3,
                 numNoDelayRetries: 0,
                 minDelayTarget: 20,
@@ -93,7 +91,7 @@ describe('DeliveryPolicyHelper', () => {
                 Protocol: 'https',
             };
             const result = delivery_policy_helper_1.DeliveryPolicyHelper.getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription);
-            chai_1.expect(result).to.deep.equal({ subscription: 1 });
+            (0, chai_1.expect)(result).to.deep.equal({ subscription: 1 });
         });
         it('should return DeliveryPolicy protocol policy when subscription does\'t have DeliveryPolicy and protocol is present', async () => {
             const subscription = {
@@ -101,7 +99,7 @@ describe('DeliveryPolicyHelper', () => {
                 Protocol: 'http',
             };
             const result = delivery_policy_helper_1.DeliveryPolicyHelper.getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription);
-            chai_1.expect(result).to.deep.equal({
+            (0, chai_1.expect)(result).to.deep.equal({
                 numRetries: 3,
                 numNoDelayRetries: 0,
                 minDelayTarget: 20,
@@ -119,7 +117,7 @@ describe('DeliveryPolicyHelper', () => {
                 Protocol: 'https',
             };
             const result = delivery_policy_helper_1.DeliveryPolicyHelper.getEffectiveChannelDeliveryPolicyForSubscription(deliveryPolicy, subscription);
-            chai_1.expect(result).to.deep.equal({
+            (0, chai_1.expect)(result).to.deep.equal({
                 numRetries: 3,
                 numNoDelayRetries: 0,
                 minDelayTarget: 20,

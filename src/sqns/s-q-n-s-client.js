@@ -3,121 +3,125 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SQNSClient = void 0;
 const base_client_1 = require("./common/client/base-client");
 class SQNSClient extends base_client_1.BaseClient {
-    constructor(options) {
-        super('', options);
+    async createQueue(params) {
+        const request = {
+            uri: this._sqs.config.endpoint,
+            body: { ...params, Action: 'CreateQueue' },
+        };
+        const result = await this.request(request);
+        return result.CreateQueueResponse.CreateQueueResult;
     }
-    createQueue(params) {
-        return new Promise((resolve, reject) => {
-            this._sqs.createQueue(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
-    }
-    sendMessage(params) {
-        return new Promise((resolve, reject) => {
-            this._sqs.sendMessage(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+    async sendMessage(params) {
+        const request = {
+            uri: this._sqs.config.endpoint,
+            body: { ...params, Action: 'SendMessage' },
+        };
+        const result = await this.request(request);
+        return result.SendMessageResponse.SendMessageResult;
     }
     async findByMessageId(params) {
         const request = {
-            uri: this._sqs.endpoint.href,
+            uri: this._sqs.config.endpoint,
             body: { Action: 'FindMessageById', ...params },
         };
-        const { FindMessageByIdResponse: { FindMessageByIdResult } } = await this.request(request);
-        return FindMessageByIdResult;
+        const result = await this.request(request);
+        result.FindMessageByIdResponse.FindMessageByIdResult.Message = result.FindMessageByIdResponse.FindMessageByIdResult.Message[0];
+        return result.FindMessageByIdResponse.FindMessageByIdResult;
     }
     async findByMessageDeduplicationId(params) {
         const request = {
-            uri: this._sqs.endpoint.href,
+            uri: this._sqs.config.endpoint,
             body: { Action: 'FindMessageByDeduplicationId', ...params },
         };
-        const { FindMessageByDeduplicationIdResponse: { FindMessageByDeduplicationIdResult } } = await this.request(request);
-        return FindMessageByDeduplicationIdResult;
+        const result = await this.request(request);
+        result.FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult.Message = result
+            .FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult.Message[0];
+        return result.FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult;
     }
     async updateMessageById(params) {
         const request = {
-            uri: this._sqs.endpoint.href,
+            uri: this._sqs.config.endpoint,
             body: { Action: 'UpdateMessageById', ...params },
         };
-        const { UpdateMessageByIdResponse: { UpdateMessageByIdResult } } = await this.request(request);
-        return UpdateMessageByIdResult;
+        const result = await this.request(request);
+        result.UpdateMessageByIdResponse.UpdateMessageByIdResult.Message = result
+            .UpdateMessageByIdResponse.UpdateMessageByIdResult.Message[0];
+        return result.UpdateMessageByIdResponse.UpdateMessageByIdResult;
     }
     async updateMessageByDeduplicationId(params) {
         const request = {
-            uri: this._sqs.endpoint.href,
+            uri: this._sqs.config.endpoint,
             body: { Action: 'UpdateMessageByDeduplicationId', ...params },
         };
-        const { UpdateMessageByDeduplicationIdResponse: { UpdateMessageByDeduplicationIdResult } } = await this.request(request);
-        return UpdateMessageByDeduplicationIdResult;
+        const result = await this.request(request);
+        result.UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult.Message = result
+            .UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult.Message[0];
+        return result.UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult;
     }
-    receiveMessage(params) {
-        return new Promise((resolve, reject) => {
-            this._sqs.receiveMessage(params, (error, result_) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                const result = result_;
-                result.Messages = result.Messages || [];
-                resolve(result);
-            });
-        });
+    async receiveMessage(params) {
+        const request = {
+            uri: this._sqs.config.endpoint,
+            body: { ...params, Action: 'ReceiveMessage' },
+        };
+        const result = await this.request(request);
+        if (!result.ReceiveMessageResponse.ReceiveMessageResult) {
+            result.ReceiveMessageResponse.ReceiveMessageResult = {};
+        }
+        result.ReceiveMessageResponse.ReceiveMessageResult.Messages = result.ReceiveMessageResponse.ReceiveMessageResult.Message;
+        delete result.ReceiveMessageResponse.ReceiveMessageResult.Message;
+        const response = result.ReceiveMessageResponse.ReceiveMessageResult;
+        response.Messages = response.Messages || [];
+        return response;
     }
-    listQueues(params = {}) {
-        return new Promise((resolve, reject) => {
-            this._sqs.listQueues(params, (error, queuesResult_) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                const queuesResult = queuesResult_;
-                queuesResult.QueueUrls = queuesResult.QueueUrls || [];
-                resolve(queuesResult);
-            });
-        });
+    async listQueues(params = {}) {
+        const request = {
+            uri: this._sqs.config.endpoint,
+            body: { ...params, Action: 'ListQueues' },
+        };
+        const response = await this.request(request);
+        if (!response.ListQueuesResponse.ListQueuesResult) {
+            response.ListQueuesResponse.ListQueuesResult = {};
+        }
+        response.ListQueuesResponse.ListQueuesResult.QueueUrls = response.ListQueuesResponse.ListQueuesResult.QueueUrl;
+        delete response.ListQueuesResponse.ListQueuesResult.QueueUrl;
+        const result = response.ListQueuesResponse.ListQueuesResult;
+        result.QueueUrls = result.QueueUrls || [];
+        return result;
     }
-    deleteQueue(params) {
-        return new Promise((resolve, reject) => {
-            this._sqs.deleteQueue(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+    async deleteQueue(params) {
+        const request = {
+            uri: this._sqs.config.endpoint,
+            body: { ...params, Action: 'DeleteQueue' },
+        };
+        await this.request(request);
     }
-    sendMessageBatch(params) {
-        return new Promise((resolve, reject) => {
-            this._sqs.sendMessageBatch(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
+    async sendMessageBatch(params) {
+        const request = {
+            uri: this._sqs.config.endpoint,
+            body: { ...params, Action: 'SendMessageBatch' },
+        };
+        request.body.SendMessageBatchRequestEntry = request.body.Entries;
+        delete request.body.Entries;
+        const response = await this.request(request);
+        const result = { Successful: [], Failed: [] };
+        response.SendMessageBatchResponse.SendMessageBatchResult.SendMessageBatchResultEntry
+            .forEach((each) => {
+            if (each.MD5OfMessageBody) {
+                result.Successful.push(each);
+            }
+            else {
+                result.Failed.push(each);
+            }
         });
+        return result;
     }
-    getQueueUrl(params) {
-        return new Promise((resolve, reject) => {
-            this._sqs.getQueueUrl(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+    async getQueueUrl(params) {
+        const request = {
+            uri: this._sqs.config.endpoint,
+            body: { ...params, Action: 'GetQueueUrl' },
+        };
+        const response = await this.request(request);
+        return response.GetQueueURLResponse.GetQueueUrlResult;
     }
     async markEventSuccess(MessageId, QueueUrl, successMessage = '') {
         const request = {
@@ -134,139 +138,122 @@ class SQNSClient extends base_client_1.BaseClient {
         await this.request(request);
     }
     async createTopic(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.createTopic(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'CreateTopic' },
+        };
+        const response = await this.request(request);
+        return response.CreateTopicResponse.CreateTopicResult;
     }
     async listTopics(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.listTopics(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'ListTopics' },
+        };
+        const response = await this.request(request);
+        if (!response.ListTopicsResponse.ListTopicsResult.Topics) {
+            response.ListTopicsResponse.ListTopicsResult.Topics = { member: [] };
+        }
+        response.ListTopicsResponse.ListTopicsResult.Topics = response.ListTopicsResponse.ListTopicsResult.Topics.member;
+        return response.ListTopicsResponse.ListTopicsResult;
     }
     async getTopicAttributes(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.getTopicAttributes(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'GetTopicAttributes' },
+        };
+        const response = await this.request(request);
+        response.GetTopicAttributesResponse.GetTopicAttributesResult.Attributes = response
+            .GetTopicAttributesResponse.GetTopicAttributesResult.Attributes.entrys;
+        return response.GetTopicAttributesResponse.GetTopicAttributesResult;
     }
     async setTopicAttributes(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.setTopicAttributes(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'SetTopicAttributes' },
+        };
+        await this.request(request);
     }
     async deleteTopic(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.deleteTopic(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'DeleteTopic' },
+        };
+        await this.request(request);
     }
     async publish(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.publish(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'Publish' },
+        };
+        const response = await this.request(request);
+        return response.PublishResponse.PublishResult;
     }
     async subscribe(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.subscribe(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'Subscribe' },
+        };
+        const response = await this.request(request);
+        return response.SubscribeResponse.SubscribeResult;
     }
     async listSubscriptions(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.listSubscriptions(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'ListSubscriptions' },
+        };
+        const response = await this.request(request);
+        if (!response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions) {
+            response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions = { member: [] };
+        }
+        response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions = response
+            .ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions.member;
+        return response.ListSubscriptionsResponse.ListSubscriptionsResult;
     }
     async listSubscriptionsByTopic(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.listSubscriptionsByTopic(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'ListSubscriptionsByTopic' },
+        };
+        const response = await this.request(request);
+        if (!response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions) {
+            response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions = { member: [] };
+        }
+        response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions = response
+            .ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions.member;
+        return response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult;
     }
     async confirmSubscription(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.confirmSubscription(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'ConfirmSubscription' },
+        };
+        const response = await this.request(request);
+        return response.ConfirmSubscriptionResponse.ConfirmSubscriptionResult;
     }
     async unsubscribe(params) {
-        return new Promise((resolve, reject) => {
-            this._sns.unsubscribe(params, (error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        const request = {
+            uri: this._sns.config.endpoint,
+            body: { ...params, Action: 'Unsubscribe' },
+        };
+        await this.request(request);
     }
     async getPublish(params) {
         var _a;
         const request = {
-            uri: this._sns.endpoint.href,
+            uri: this._sns.config.endpoint,
             body: { Action: 'GetPublish', ...params },
         };
         const response = await this.request(request);
+        if (response.GetPublishResponse.GetPublish.Message) {
+            response.GetPublishResponse.GetPublish.Message = response.GetPublishResponse.GetPublish.Message[0];
+        }
         return (_a = response === null || response === void 0 ? void 0 : response.GetPublishResponse) === null || _a === void 0 ? void 0 : _a.GetPublish;
     }
     async getSubscription(params) {
         var _a;
         const request = {
-            uri: this._sns.endpoint.href,
+            uri: this._sns.config.endpoint,
             body: { Action: 'GetSubscription', ...params },
         };
         const response = await this.request(request);
@@ -274,7 +261,7 @@ class SQNSClient extends base_client_1.BaseClient {
     }
     async markPublished(params) {
         const request = {
-            uri: this._sns.endpoint.href,
+            uri: this._sns.config.endpoint,
             body: { Action: 'MarkPublished', ...params },
         };
         await this.request(request);

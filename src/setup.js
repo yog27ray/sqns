@@ -7,7 +7,6 @@ exports.delay = exports.dropDatabase = exports.setupConfig = exports.app = void 
 const body_parser_1 = __importDefault(require("body-parser"));
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
-const mongodb_memory_server_1 = require("mongodb-memory-server");
 // import morgan from 'morgan';
 const index_1 = require("../index");
 const database_1 = require("./sqns/common/database");
@@ -17,7 +16,7 @@ const base_storage_engine_1 = require("./sqns/common/model/base-storage-engine")
 const request_client_1 = require("./sqns/common/request-client/request-client");
 const test_env_1 = require("./test-env");
 const log = logger_1.logger.instance('TestServer');
-const app = express_1.default();
+const app = (0, express_1.default)();
 exports.app = app;
 // app.use(morgan('dev'));
 app.use(body_parser_1.default.urlencoded({ extended: false }));
@@ -31,19 +30,29 @@ if (process.env.PORT) {
     test_env_1.Env.URL = `http://127.0.0.1:${test_env_1.Env.PORT}`;
 }
 function delay(milliSeconds = 100) {
-    return new Promise((resolve) => setTimeout(resolve, milliSeconds));
+    return new Promise((resolve) => {
+        setTimeout(resolve, milliSeconds);
+    });
 }
 exports.delay = delay;
+const requestClient = new request_client_1.RequestClient();
+function waitForServerToBoot() {
+    return requestClient.get(`http://127.0.0.1:${test_env_1.Env.PORT}/api/sqns/health`).catch(async () => {
+        await delay();
+        return waitForServerToBoot();
+    });
+}
 async function dropDatabase() {
     await setupConfig.mongoConnection.dropDatabase();
     await setupConfig.sqns.resetAll();
     const storageAdapter = new base_storage_engine_1.BaseStorageEngine(databaseConfig);
-    await new Promise((resolve) => setupConfig.mongoConnection
-        .collection(storageAdapter.getDBTableName('Event'))
-        .createIndex({ MessageDeduplicationId: 1 }, {
-        unique: true,
-        partialFilterExpression: { MessageDeduplicationId: { $exists: true } },
-    }, () => resolve()));
+    await new Promise((resolve) => {
+        setupConfig.mongoConnection.collection(storageAdapter.getDBTableName('Event'))
+            .createIndex({ MessageDeduplicationId: 1 }, {
+            unique: true,
+            partialFilterExpression: { MessageDeduplicationId: { $exists: true } },
+        }, () => resolve());
+    });
     await storageAdapter.initialize([{
             accessKey: test_env_1.Env.accessKeyId,
             secretAccessKey: test_env_1.Env.secretAccessKey,
@@ -53,22 +62,19 @@ async function dropDatabase() {
         accessKeyId: test_env_1.Env.accessKeyId,
         secretAccessKey: test_env_1.Env.secretAccessKey,
     });
-    await test_env_1.deleteAllQueues(sqnsClient);
-    await test_env_1.deleteTopics(sqnsClient);
+    await (0, test_env_1.deleteAllQueues)(sqnsClient, storageAdapter, setupConfig.mongoConnection);
+    await (0, test_env_1.deleteTopics)(sqnsClient, storageAdapter);
 }
 exports.dropDatabase = dropDatabase;
-const requestClient = new request_client_1.RequestClient();
-function waitForServerToBoot() {
-    return requestClient.get(`http://127.0.0.1:${test_env_1.Env.PORT}/api/sqns/health`).catch(async () => {
-        await delay();
-        return waitForServerToBoot();
-    });
-}
 before(async () => {
-    const mongoDB = await mongodb_memory_server_1.MongoMemoryServer.create({ instance: { dbName: 'sqns' } });
-    const uri = `${mongoDB.getUri()}/sqns`;
-    log.info('TestDB URI:', uri);
-    databaseConfig = { database: database_1.Database.MONGO_DB, uri, config: { useUnifiedTopology: true } };
+    log.info('TestDB URI:', process.env.MONGODB_URI);
+    databaseConfig = {
+        database: database_1.Database.MONGO_DB,
+        uri: process.env.MONGODB_URI,
+        config: { useUnifiedTopology: true },
+    };
+    // eslint-disable-next-line no-console
+    console.log('>>:', databaseConfig);
     setupConfig.mongoConnection = new mongo_d_b_connection_1.MongoDBConnection(databaseConfig.uri, databaseConfig.config);
     setupConfig.sqnsConfig = {
         adminSecretKeys: [{ accessKey: test_env_1.Env.accessKeyId, secretAccessKey: test_env_1.Env.secretAccessKey }],

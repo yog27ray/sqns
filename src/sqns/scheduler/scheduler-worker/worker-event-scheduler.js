@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -31,6 +35,7 @@ class WorkerEventScheduler {
         this.queueNames = [];
         this.queueConfigs = {};
         queueConfigs.forEach((each) => {
+            log.debug('QueueConfig: ', each.queueName, 'MaxParallel: ', each.config.MAX_COUNT);
             this.queueConfigs[each.queueName] = each.clone();
             this.queueNames.push(this.queueConfigs[each.queueName].queueName);
         });
@@ -105,6 +110,16 @@ class WorkerEventScheduler {
         const published = await this.sqnsClient.getPublish({ MessageId: messageId });
         const subscription = await this.sqnsClient.getSubscription({ SubscriptionArn: subscriptionArn });
         switch (subscription.Protocol) {
+            case 'sqs': {
+                const message = await this.sqnsClient.sendMessage({
+                    QueueUrl: subscription.EndPoint,
+                    DelaySeconds: Number((published.MessageAttributes.DelaySeconds || { StringValue: '0' }).StringValue),
+                    MessageBody: published.Message,
+                    MessageAttributes: published.MessageAttributes,
+                    MessageDeduplicationId: `${subscription.ARN}_${subscription.Protocol}_${published.MessageId}`,
+                });
+                return message.MessageId;
+            }
             case 'http':
             case 'https': {
                 const headers = subscription.Attributes.headers ? JSON.parse(subscription.Attributes.headers) : {};
@@ -147,15 +162,15 @@ class WorkerEventScheduler {
     checkIfMoreItemsCanBeProcessed(workerQueueConfig_) {
         const workerQueueConfig = workerQueueConfig_;
         workerQueueConfig.polling = true;
-        if (workerQueueConfig.config.count >= workerQueueConfig.config.MAX_COUNT) {
+        if (workerQueueConfig.count >= workerQueueConfig.config.MAX_COUNT) {
             log.info('Queue:', workerQueueConfig.queueName, 'already maximum task running.');
             return;
         }
-        while (workerQueueConfig.config.count < workerQueueConfig.config.MAX_COUNT && workerQueueConfig.hasMore) {
+        while (workerQueueConfig.count < workerQueueConfig.config.MAX_COUNT && workerQueueConfig.hasMore) {
             log.info('Queue:', workerQueueConfig.queueName, 'Processing new event.');
             this.requestEventToProcessAsynchronous(workerQueueConfig);
         }
-        if (!workerQueueConfig.config.count && !workerQueueConfig.hasMore) {
+        if (!workerQueueConfig.count && !workerQueueConfig.hasMore) {
             log.info('Queue:', workerQueueConfig.queueName, 'No events to process reset status.');
             workerQueueConfig.polling = false;
             workerQueueConfig.hasMore = true;
@@ -170,17 +185,17 @@ class WorkerEventScheduler {
     }
     requestEventToProcessAsynchronous(workerQueueConfig_) {
         const workerQueueConfig = workerQueueConfig_;
-        workerQueueConfig.config.count += 1;
+        workerQueueConfig.incrementCount();
         this.requestEventToProcess(workerQueueConfig)
             .then(() => {
-            workerQueueConfig.config.count -= 1;
+            workerQueueConfig.decrementCount();
             this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
             return 0;
         })
             .catch((error) => {
             log.error(error);
             workerQueueConfig.hasMore = false;
-            workerQueueConfig.config.count -= 1;
+            workerQueueConfig.decrementCount();
             this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
         });
     }

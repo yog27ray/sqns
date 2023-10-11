@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AwsXmlFormat = void 0;
 const uuid_1 = require("uuid");
 const xml2js_1 = __importDefault(require("xml2js"));
-const authentication_1 = require("./authentication");
 const encryption_1 = require("./encryption");
 class AwsXmlFormat {
     static jsonToXML(rootName, keyValue) {
@@ -76,8 +75,8 @@ class AwsXmlFormat {
     static generateSendMessageResponse(event) {
         return {
             MessageId: event.id,
-            MD5OfMessageBody: AwsXmlFormat.md5Hash(event.MessageBody),
-            MD5OfMessageAttributes: AwsXmlFormat.md5HashJSON(event.MessageAttribute),
+            MD5OfMessageBody: encryption_1.Encryption.createHash('md5', event.MessageBody),
+            MD5OfMessageAttributes: encryption_1.Encryption.createJSONHash('md5', event.MessageAttribute),
         };
     }
     static sendMessageBatch(requestId, events, batchIds) {
@@ -280,7 +279,8 @@ class AwsXmlFormat {
             ResponseMetadata: { RequestId: requestId },
         };
         if ((skip + subscriptions.length) < total) {
-            json.ListSubscriptionsResult.NextToken = Buffer.from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
+            json.ListSubscriptionsResult.NextToken = Buffer
+                .from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
         }
         return AwsXmlFormat.jsonToXML('ListSubscriptionsResponse', json);
     }
@@ -299,7 +299,8 @@ class AwsXmlFormat {
             ResponseMetadata: { RequestId: requestId },
         };
         if ((skip + subscriptions.length) < total) {
-            json.ListSubscriptionsByTopicResult.NextToken = Buffer.from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
+            json.ListSubscriptionsByTopicResult.NextToken = Buffer
+                .from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
         }
         return AwsXmlFormat.jsonToXML('ListSubscriptionsByTopicResponse', json);
     }
@@ -319,8 +320,8 @@ class AwsXmlFormat {
         }
         const result = {
             MessageId: event.id,
-            ReceiptHandle: uuid_1.v4(),
-            MD5OfBody: AwsXmlFormat.md5Hash(event.MessageBody),
+            ReceiptHandle: (0, uuid_1.v4)(),
+            MD5OfBody: encryption_1.Encryption.createHash('md5', event.MessageBody),
             Body: event.MessageBody,
         };
         if (MessageAttributeName) {
@@ -346,13 +347,6 @@ class AwsXmlFormat {
             result.Attribute = attributeFields.map((key) => ({ Name: key, Value: attributes[key] }));
         }
         return result;
-    }
-    static md5HashJSON(json) {
-        const message = Object.keys(json).sort().map((key) => `${key}=${authentication_1.rfc3986EncodeURIComponent(json[key])}`).join('&');
-        return AwsXmlFormat.md5Hash(message);
-    }
-    static md5Hash(message) {
-        return encryption_1.Encryption.createHash('md5', message);
     }
     static generateSQSURL(queue, baseURL) {
         return `${baseURL}/sqs/${queue.region}/${queue.companyId}/${queue.name}`;

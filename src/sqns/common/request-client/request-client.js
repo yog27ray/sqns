@@ -12,11 +12,11 @@ class RequestClient {
         if (jsonBody) {
             headers['Content-Type'] = 'application/json';
         }
-        const response = await node_fetch_1.default(url, { method: 'POST', body, headers });
+        const response = await (0, node_fetch_1.default)(url, { method: 'POST', body, headers });
         return this.transformResponse(response, json);
     }
     async get(url, json) {
-        const response = await node_fetch_1.default(url);
+        const response = await (0, node_fetch_1.default)(url);
         return this.transformResponse(response, json);
     }
     async transformResponse(response, json) {

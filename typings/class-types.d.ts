@@ -9,6 +9,7 @@ export declare interface BaseObjectType {
 }
 export declare interface UserType extends BaseObjectType {
     organizationId: string;
+    skipAuthentication?: boolean;
 }
 export declare interface AccessKeyType extends BaseObjectType {
     secretKey: string;
@@ -51,12 +52,8 @@ export declare interface QueueType extends BaseObjectType {
     companyId: string;
     region: string;
     name: string;
-    attributes: {
-        [key: string]: string;
-    };
-    tags: {
-        [key: string]: string;
-    };
+    attributes: Record<string, string>;
+    tags: Record<string, string>;
     arn?: ARN;
     DeliveryPolicy?: DeliveryPolicy;
 }

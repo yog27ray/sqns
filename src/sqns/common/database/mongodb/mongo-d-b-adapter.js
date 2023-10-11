@@ -14,16 +14,6 @@ const user_1 = require("../../model/user");
 const mongo_d_b_connection_1 = require("./mongo-d-b-connection");
 const log = logger_1.logger.instance('MongoDBAdapter');
 class MongoDBAdapter {
-    constructor(config) {
-        const option = { ...config };
-        log.info('DatabaseConfig', option);
-        if (!option.uri) {
-            throw Error('Database URI is missing');
-        }
-        const { uri } = option;
-        delete option.uri;
-        this.connection = new mongo_d_b_connection_1.MongoDBConnection(uri, option);
-    }
     static dbToSystemItem(row) {
         const document = { ...row };
         document.id = document._id;
@@ -36,9 +26,19 @@ class MongoDBAdapter {
     getDBTableName(tableName) {
         return MongoDBAdapter.getTableName(tableName);
     }
+    constructor(config) {
+        const option = { ...config };
+        log.info('DatabaseConfig', option);
+        if (!option.uri) {
+            throw Error('Database URI is missing');
+        }
+        const { uri } = option;
+        delete option.uri;
+        this.connection = new mongo_d_b_connection_1.MongoDBConnection(uri, option);
+    }
     async addEventItem(queue, eventItem) {
         const mongoDocument = eventItem.toJSON();
-        mongoDocument._id = mongoDocument.id || uuid_1.v4();
+        mongoDocument._id = mongoDocument.id || (0, uuid_1.v4)();
         delete mongoDocument.id;
         try {
             await this.connection.insert(MongoDBAdapter.Table.Event, mongoDocument);
@@ -67,7 +67,8 @@ class MongoDBAdapter {
         const query = { maxAttemptCompleted: false, completionPending: true, eventTime: { $lt: time } };
         const mongoDocuments = await this.connection.find(MongoDBAdapter.Table.Event, query, { eventTime: -1 }, { limit });
         log.info('DB Fetch', query, 'Result length: ', mongoDocuments.length);
-        return mongoDocuments.map((mongoDocument) => new event_item_1.EventItem(MongoDBAdapter.dbToSystemItem(mongoDocument)));
+        return mongoDocuments.map((mongoDocument) => new event_item_1.EventItem(MongoDBAdapter
+            .dbToSystemItem(mongoDocument)));
     }
     async getQueues(queueARNPrefix) {
         const query = {};
@@ -105,7 +106,7 @@ class MongoDBAdapter {
         let queue = await this.getQueue(queue_1.Queue.arn(user.organizationId, region, queueName));
         if (!queue) {
             queue = new queue_1.Queue({
-                id: uuid_1.v4(),
+                id: (0, uuid_1.v4)(),
                 attributes,
                 name: queueName,
                 tags,
@@ -136,7 +137,7 @@ class MongoDBAdapter {
     }
     async createPublish(topicArn, targetArn, Message, PhoneNumber, Subject, messageAttributes, messageStructure, MessageStructureFinal, status) {
         const publish = new publish_1.Publish({
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             topicArn,
             targetArn,
             Message,
@@ -150,16 +151,16 @@ class MongoDBAdapter {
         await this.connection.insert(MongoDBAdapter.Table.Publish, publish.toJSON());
         return publish;
     }
-    async createSubscription(user, topic, protocol, endPoint, Attributes, deliveryPolicy) {
+    async createSubscription(user, topic, protocol, endPoint, Attributes, deliveryPolicy, confirmed) {
         const subscription = new subscription_1.Subscription({
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             companyId: user.organizationId,
             protocol,
             endPoint,
             Attributes,
             topicARN: topic.arn,
             region: topic.region,
-            confirmed: false,
+            confirmed,
             DeliveryPolicy: deliveryPolicy,
         });
         await this.connection.insert(MongoDBAdapter.Table.Subscription, subscription.toJSON());
@@ -167,7 +168,7 @@ class MongoDBAdapter {
     }
     async createSubscriptionVerificationToken(subscription, token) {
         const subscriptionVerificationToken = new subscription_verification_token_1.SubscriptionVerificationToken({
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             token,
             SubscriptionArn: subscription.arn,
             TopicArn: subscription.topicARN,
@@ -181,11 +182,12 @@ class MongoDBAdapter {
         if (!subscriptionVerificationToken) {
             return undefined;
         }
-        return new subscription_verification_token_1.SubscriptionVerificationToken(MongoDBAdapter.dbToSystemItem(subscriptionVerificationToken));
+        return new subscription_verification_token_1.SubscriptionVerificationToken(MongoDBAdapter
+            .dbToSystemItem(subscriptionVerificationToken));
     }
     async createTopic(name, displayName, region, deliveryPolicy, user, attributes, tags) {
         const topic = new topic_1.Topic({
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             companyId: user.organizationId,
             name,
             region,
@@ -202,11 +204,13 @@ class MongoDBAdapter {
     }
     async findPublishes(query, skip, limit) {
         const publishes = await this.connection.find(MongoDBAdapter.Table.Publish, query, { createdAt: 1 }, { skip, limit });
-        return publishes.map((publish) => new publish_1.Publish(MongoDBAdapter.dbToSystemItem(publish)));
+        return publishes.map((publish) => new publish_1.Publish(MongoDBAdapter
+            .dbToSystemItem(publish)));
     }
     async findSubscriptions(where, skip, limit) {
         const subscriptions = await this.connection.find(MongoDBAdapter.Table.Subscription, where, { createdAt: 1 }, { skip, limit });
-        return subscriptions.map((subscription) => new subscription_1.Subscription(MongoDBAdapter.dbToSystemItem(subscription)));
+        return subscriptions.map((subscription) => new subscription_1.Subscription(MongoDBAdapter
+            .dbToSystemItem(subscription)));
     }
     async findTopicARN(arn) {
         const topic = await this.connection.findOne(MongoDBAdapter.Table.Topic, { arn });
@@ -240,19 +244,20 @@ class MongoDBAdapter {
     }
     async findAccessKeys(where, skip, limit) {
         const accessKeys = await this.connection.find(MongoDBAdapter.Table.AccessKey, where, { createdAt: 1 }, { skip, limit });
-        return accessKeys.map((accessKey) => new access_key_1.AccessKey(MongoDBAdapter.dbToSystemItem(accessKey)));
+        return accessKeys.map((accessKey) => new access_key_1.AccessKey(MongoDBAdapter
+            .dbToSystemItem(accessKey)));
     }
     async findUsers(where, skip, limit) {
         const users = await this.connection.find(MongoDBAdapter.Table.User, where, { createdAt: 1 }, { skip, limit });
         return users.map((user) => new user_1.User(MongoDBAdapter.dbToSystemItem(user)));
     }
     async accessKey(accessKey, secretKey, userId) {
-        const accessKeyObject = new access_key_1.AccessKey({ id: uuid_1.v4(), accessKey, secretKey, userId });
+        const accessKeyObject = new access_key_1.AccessKey({ id: (0, uuid_1.v4)(), accessKey, secretKey, userId });
         await this.connection.insert(MongoDBAdapter.Table.AccessKey, accessKeyObject.toJSON());
         return accessKeyObject;
     }
     async createUser(organizationId) {
-        const user = new user_1.User({ id: uuid_1.v4(), organizationId });
+        const user = new user_1.User({ id: (0, uuid_1.v4)(), organizationId });
         await this.connection.insert(MongoDBAdapter.Table.User, user.toJSON());
         return user;
     }

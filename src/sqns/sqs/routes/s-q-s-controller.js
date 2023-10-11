@@ -37,7 +37,8 @@ class SQSController {
             switch (req.body.Action) {
                 case 'CreateQueue': {
                     const { QueueName, region, Attribute, Tag, requestId } = req.serverBody;
-                    let queue = await this.eventManager.getQueue(queue_1.Queue.arn(req.user.organizationId, region, QueueName)).catch(() => undefined);
+                    let queue = await this.eventManager.getQueue(queue_1.Queue
+                        .arn(req.user.organizationId, region, QueueName)).catch(() => undefined);
                     if (!queue) {
                         queue = await this.eventManager.createQueue(req.user, QueueName, region, aws_to_server_transformer_1.AwsToServerTransformer.transformArrayToJSON(Attribute), aws_to_server_transformer_1.AwsToServerTransformer.transformArrayToJSON(Tag));
                     }

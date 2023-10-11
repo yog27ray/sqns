@@ -3,10 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const sqs_1 = __importDefault(require("aws-sdk/clients/sqs"));
 const chai_1 = require("chai");
+const moment_1 = __importDefault(require("moment/moment"));
 const setup_1 = require("../../../setup");
 const test_env_1 = require("../../../test-env");
+const authentication_1 = require("../../common/auth/authentication");
 const base_client_1 = require("../../common/client/base-client");
 const request_client_1 = require("../../common/request-client/request-client");
 const s_q_n_s_client_1 = require("../../s-q-n-s-client");
@@ -15,7 +16,7 @@ describe('EventManagerMasterSpec', () => {
     context('errorHandling', () => {
         let client;
         before(async () => {
-            await setup_1.dropDatabase();
+            await (0, setup_1.dropDatabase)();
             client = new s_q_n_s_client_1.SQNSClient({
                 endpoint: `${test_env_1.Env.URL}/api`,
                 accessKeyId: 'invalidKey',
@@ -27,9 +28,8 @@ describe('EventManagerMasterSpec', () => {
                 await client.createQueue({ QueueName: 'queue1' });
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).to.deep.equal({
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
                     code: 'SignatureDoesNotMatch',
                     message: 'The request signature we calculated does not match the signature you provided.',
                 });
@@ -40,44 +40,96 @@ describe('EventManagerMasterSpec', () => {
                 await client.listQueues({});
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).to.deep.equal({
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
                     code: 'SignatureDoesNotMatch',
                     message: 'The request signature we calculated does not match the signature you provided.',
                 });
             }
         });
-        it('should give error function is not supported.', async () => {
+        it('should give error when authentication header is missing.', async () => {
             try {
-                const sqs = new sqs_1.default({
-                    region: base_client_1.BaseClient.REGION,
-                    endpoint: `${test_env_1.Env.URL}/api/sqs`,
-                    accessKeyId: test_env_1.Env.accessKeyId,
-                    secretAccessKey: test_env_1.Env.secretAccessKey,
-                    maxRetries: 0,
-                });
-                await new Promise((resolve, reject) => {
-                    sqs.addPermission({
-                        QueueUrl: `${test_env_1.Env.URL}/api/sqs/sqns/1/queue1`,
-                        Label: 'label',
-                        AWSAccountIds: ['accountIds'],
-                        Actions: ['testAction'],
-                    }, (error) => {
-                        if (error) {
-                            reject(error);
-                            return;
-                        }
-                        resolve();
-                    });
+                await requestClient.post(`${test_env_1.Env.URL}/api/sqs`, {
+                    body: JSON.stringify({ Action: 'AddPermission' }),
                 });
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).to.deep.equal({
-                    code: 'Unhandled function',
-                    message: 'This function is not supported.',
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
+                    code: '400',
+                    message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+                        + '<ErrorResponse>\n'
+                        + '  <RequestId/>\n'
+                        + '  <Error>\n'
+                        + '    <Type>Sender</Type>\n'
+                        + '    <Code>SignatureDoesNotMatch</Code>\n'
+                        + '    <Message>The request signature we calculated does not match the signature you provided.</Message>\n'
+                        + '    <Detail/>\n'
+                        + '  </Error>\n'
+                        + '</ErrorResponse>',
+                });
+            }
+        });
+        it('should give error when authentication header is inValid.', async () => {
+            try {
+                await requestClient.post(`${test_env_1.Env.URL}/api/sqs`, {
+                    body: JSON.stringify({ Action: 'AddPermission' }),
+                    headers: { authorization: '' },
+                });
+                await Promise.reject({ code: 99, message: 'should not reach here.' });
+            }
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
+                    code: '400',
+                    message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+                        + '<ErrorResponse>\n'
+                        + '  <RequestId/>\n'
+                        + '  <Error>\n'
+                        + '    <Type>Sender</Type>\n'
+                        + '    <Code>SignatureDoesNotMatch</Code>\n'
+                        + '    <Message>The request signature we calculated does not match the signature you provided.</Message>\n'
+                        + '    <Detail/>\n'
+                        + '  </Error>\n'
+                        + '</ErrorResponse>',
+                });
+            }
+        });
+        it('should give error function is not supported.', async () => {
+            try {
+                const request = {
+                    headers: {
+                        'x-sqns-date': (0, moment_1.default)().utc().format('YYYYMMDDTHHmmss'),
+                        host: '127.0.0.1:1234',
+                    },
+                    body: { Action: 'AddPermission' },
+                };
+                (0, authentication_1.signRequest)({
+                    service: 'sqs',
+                    region: base_client_1.BaseClient.REGION,
+                    headers: request.headers,
+                    originalUrl: '/api/sqs',
+                    method: 'POST',
+                    body: request.body,
+                }, { accessKeyId: test_env_1.Env.accessKeyId, secretAccessKey: test_env_1.Env.secretAccessKey }, ['x-sqns-date', 'host', 'x-sqns-content-sha256']);
+                await requestClient.post(`${test_env_1.Env.URL}/api/sqs`, {
+                    body: JSON.stringify(request.body),
+                    headers: request.headers,
+                });
+                await Promise.reject({ code: 99, message: 'should not reach here.' });
+            }
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
+                    code: '400',
+                    message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+                        + '<ErrorResponse>\n'
+                        + '  <RequestId/>\n'
+                        + '  <Error>\n'
+                        + '    <Type>Sender</Type>\n'
+                        + '    <Code>Unhandled function</Code>\n'
+                        + '    <Message>This function is not supported.</Message>\n'
+                        + '    <Detail/>\n'
+                        + '  </Error>\n'
+                        + '</ErrorResponse>',
                 });
             }
         });
@@ -87,7 +139,7 @@ describe('EventManagerMasterSpec', () => {
         let queue1;
         let queue2;
         before(async () => {
-            await setup_1.dropDatabase();
+            await (0, setup_1.dropDatabase)();
             client = new s_q_n_s_client_1.SQNSClient({
                 endpoint: `${test_env_1.Env.URL}/api`,
                 accessKeyId: test_env_1.Env.accessKeyId,
@@ -107,11 +159,11 @@ describe('EventManagerMasterSpec', () => {
                     { Id: '1224', MessageBody: 'type2', MessageAttributes: { priority: { StringValue: '1', DataType: 'String' } } },
                 ],
             });
-            await setup_1.delay();
+            await (0, setup_1.delay)();
         });
         it('should return current event status', async () => {
             const stats = await requestClient.get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
-            chai_1.expect(stats).to.deep.equal({
+            (0, chai_1.expect)(stats).to.deep.equal({
                 PRIORITY_TOTAL: 5,
                 'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
                 PRIORITY_999999: 4,
@@ -126,7 +178,7 @@ describe('EventManagerMasterSpec', () => {
                 words.pop();
                 return words.join(' ');
             }).join('\n');
-            chai_1.expect(statsWithoutTimeStamp).to.deep.equal('arn_sqns_sqs_sqns_1_queue1_queue_priority{label="PRIORITY_999999"} 2\n'
+            (0, chai_1.expect)(statsWithoutTimeStamp).to.deep.equal('arn_sqns_sqs_sqns_1_queue1_queue_priority{label="PRIORITY_999999"} 2\n'
                 + 'arn_sqns_sqs_sqns_1_queue1_queue_priority{label="PRIORITY_TOTAL"} 2\n'
                 + 'arn_sqns_sqs_sqns_1_queue2_queue_priority{label="PRIORITY_1"} 1\n'
                 + 'arn_sqns_sqs_sqns_1_queue2_queue_priority{label="PRIORITY_999999"} 2\n'
@@ -145,7 +197,7 @@ describe('EventManagerMasterSpec', () => {
                 words.pop();
                 return words.join(' ');
             }).join('\n');
-            chai_1.expect(statsWithoutTimeStamp).to.deep.equal('arn_sqns_sqs_sqns_1_queue1_queue_priority{label="PRIORITY_999999"} 0\n'
+            (0, chai_1.expect)(statsWithoutTimeStamp).to.deep.equal('arn_sqns_sqs_sqns_1_queue1_queue_priority{label="PRIORITY_999999"} 0\n'
                 + 'arn_sqns_sqs_sqns_1_queue1_queue_priority{label="PRIORITY_TOTAL"} 0\n'
                 + 'arn_sqns_sqs_sqns_1_queue2_queue_priority{label="PRIORITY_1"} 0\n'
                 + 'arn_sqns_sqs_sqns_1_queue2_queue_priority{label="PRIORITY_999999"} 0\n'
@@ -159,7 +211,7 @@ describe('EventManagerMasterSpec', () => {
         let client;
         let queue;
         beforeEach(async () => {
-            await setup_1.dropDatabase();
+            await (0, setup_1.dropDatabase)();
             client = new s_q_n_s_client_1.SQNSClient({
                 endpoint: `${test_env_1.Env.URL}/api`,
                 accessKeyId: test_env_1.Env.accessKeyId,
@@ -178,22 +230,22 @@ describe('EventManagerMasterSpec', () => {
                     { Id: '1235', MessageBody: 'type1' },
                 ],
             });
-            await setup_1.delay();
+            await (0, setup_1.delay)();
         });
         it('should return highest priority item', async () => {
             const { Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl });
-            chai_1.expect(Messages.length).to.equal(1);
-            chai_1.expect(Messages[0].Body).to.equal('type2');
+            (0, chai_1.expect)(Messages.length).to.equal(1);
+            (0, chai_1.expect)(Messages[0].Body).to.equal('type2');
         });
         it('should return empty error when no event to process.', async () => {
             let { Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl });
-            chai_1.expect(Messages.length).to.equal(1);
+            (0, chai_1.expect)(Messages.length).to.equal(1);
             ({ Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl }));
-            chai_1.expect(Messages.length).to.equal(1);
+            (0, chai_1.expect)(Messages.length).to.equal(1);
             ({ Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl }));
-            chai_1.expect(Messages.length).to.equal(1);
+            (0, chai_1.expect)(Messages.length).to.equal(1);
             ({ Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl }));
-            chai_1.expect(Messages.length).to.equal(0);
+            (0, chai_1.expect)(Messages.length).to.equal(0);
         });
     });
 });

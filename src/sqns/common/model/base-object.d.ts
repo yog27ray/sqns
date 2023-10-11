@@ -4,8 +4,6 @@ declare class BaseObject {
     createdAt?: Date;
     updatedAt?: Date;
     constructor(item: BaseObjectType);
-    toJSON(): {
-        [key: string]: any;
-    };
+    toJSON(): Record<string, unknown>;
 }
 export { BaseObject };

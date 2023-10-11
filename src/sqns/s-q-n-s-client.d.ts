@@ -1,11 +1,9 @@
-import { SQNSClientConfig } from '../../typings/client-confriguation';
 import { FindMessageByDeduplicationId, FindMessageById, GetPublishInput, GetPublishResponse, MarkPublishedInput, UpdateMessageByDeduplicationId, UpdateMessageById } from '../../typings/publish';
 import { FindMessageByDeduplicationIdResult, FindMessageByIdResult, UpdateMessageByDeduplicationIdResult, UpdateMessageByIdResult } from '../../typings/recieve-message';
 import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
 import { ConfirmSubscriptionInput, ConfirmSubscriptionResponse, CreateQueueRequest, CreateQueueResult, CreateTopicInput, CreateTopicResponse, DeleteQueueRequest, DeleteTopicInput, GetQueueUrlRequest, GetQueueUrlResult, GetTopicAttributesInput, GetTopicAttributesResponse, ListQueuesRequest, ListQueuesResponse, ListSubscriptionsByTopicInput, ListSubscriptionsByTopicResponse, ListSubscriptionsInput, ListSubscriptionsResponse, ListTopicsInput, ListTopicsResponse, PublishInput, PublishResponse, ReceiveMessageRequest, ReceiveMessageResult, SendMessageBatchRequest, SendMessageBatchResult, SendMessageRequest, SendMessageResult, SetTopicAttributesInput, SubscribeInput, UnsubscribeInput } from '../../typings/typings';
 import { BaseClient } from './common/client/base-client';
 export declare class SQNSClient extends BaseClient {
-    constructor(options: SQNSClientConfig);
     createQueue(params: CreateQueueRequest): Promise<CreateQueueResult>;
     sendMessage(params: SendMessageRequest): Promise<SendMessageResult>;
     findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult>;
@@ -14,7 +12,7 @@ export declare class SQNSClient extends BaseClient {
     updateMessageByDeduplicationId(params: UpdateMessageByDeduplicationId): Promise<UpdateMessageByDeduplicationIdResult>;
     receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult>;
     listQueues(params?: ListQueuesRequest): Promise<ListQueuesResponse>;
-    deleteQueue(params: DeleteQueueRequest): Promise<any>;
+    deleteQueue(params: DeleteQueueRequest): Promise<void>;
     sendMessageBatch(params: SendMessageBatchRequest): Promise<SendMessageBatchResult>;
     getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult>;
     markEventSuccess(MessageId: string, QueueUrl: string, successMessage?: string): Promise<void>;
@@ -22,14 +20,14 @@ export declare class SQNSClient extends BaseClient {
     createTopic(params: CreateTopicInput): Promise<CreateTopicResponse>;
     listTopics(params: ListTopicsInput): Promise<ListTopicsResponse>;
     getTopicAttributes(params: GetTopicAttributesInput): Promise<GetTopicAttributesResponse>;
-    setTopicAttributes(params: SetTopicAttributesInput): Promise<Record<string, never>>;
-    deleteTopic(params: DeleteTopicInput): Promise<Record<string, never>>;
+    setTopicAttributes(params: SetTopicAttributesInput): Promise<void>;
+    deleteTopic(params: DeleteTopicInput): Promise<void>;
     publish(params: PublishInput): Promise<PublishResponse>;
     subscribe(params: SubscribeInput): Promise<SubscribeResponse>;
     listSubscriptions(params: ListSubscriptionsInput): Promise<ListSubscriptionsResponse>;
     listSubscriptionsByTopic(params: ListSubscriptionsByTopicInput): Promise<ListSubscriptionsByTopicResponse>;
     confirmSubscription(params: ConfirmSubscriptionInput): Promise<ConfirmSubscriptionResponse>;
-    unsubscribe(params: UnsubscribeInput): Promise<Record<string, never>>;
+    unsubscribe(params: UnsubscribeInput): Promise<void>;
     getPublish(params: GetPublishInput): Promise<GetPublishResponse>;
     getSubscription(params: GetSubscriptionInput): Promise<GetSubscriptionResponse>;
     markPublished(params: MarkPublishedInput): Promise<void>;

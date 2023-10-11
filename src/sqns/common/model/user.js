@@ -6,6 +6,7 @@ class User extends base_object_1.BaseObject {
     constructor(item) {
         super(item);
         this.organizationId = item.organizationId;
+        this.skipAuthentication = item.skipAuthentication;
     }
 }
 exports.User = User;

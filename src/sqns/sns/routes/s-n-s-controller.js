@@ -75,7 +75,8 @@ class SNSController {
                 case 'Subscribe': {
                     const { requestId, Attributes, Endpoint, Protocol, TopicArn, ReturnSubscriptionArn } = req.serverBody;
                     const topic = await this.snsManager.findTopicByARN(TopicArn);
-                    const subscription = await this.snsManager.subscribe(req.user, topic, Protocol.toLowerCase(), Endpoint, Attributes);
+                    const subscription = await this.snsManager
+                        .subscribe(req.user, topic, Protocol.toLowerCase(), Endpoint, Attributes);
                     this.snsManager.requestSubscriptionConfirmation(subscription, this.serverURL);
                     return res.send(aws_xml_format_1.AwsXmlFormat.subscribe(requestId, subscription, ReturnSubscriptionArn));
                 }

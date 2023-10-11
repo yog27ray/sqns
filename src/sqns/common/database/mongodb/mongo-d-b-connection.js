@@ -11,7 +11,7 @@ class MongoDBConnection {
         }
     }
     isConnected() {
-        return !!this.client && this.client.isConnected();
+        return !!this.client;
     }
     async connect() {
         if (this.isConnected()) {
@@ -35,11 +35,11 @@ class MongoDBConnection {
             query._id = query.id;
             delete query.id;
         }
-        return this.getDB().collection(tableName).find(query)
-            .sort(sort)
+        const dbQuery = this.getDB().collection(tableName).find(query)
             .skip(skip || 0)
-            .limit(limit || 100)
-            .toArray();
+            .limit(limit || 100);
+        Object.keys(sort).forEach((key) => dbQuery.sort(key, sort[key]));
+        return dbQuery.toArray();
     }
     async findOne(tableName, filter_ = {}) {
         const filter = filter_;
@@ -75,7 +75,8 @@ class MongoDBConnection {
             item._id = item.id;
             delete item.id;
         }
-        const newDocument = await this.getDB().collection(collectionName).insertOne(item);
+        const dbCollection = this.getDB().collection(collectionName);
+        const newDocument = await dbCollection.insertOne(item);
         return newDocument.insertedId;
     }
     async update(collectionName, documentId, document) {

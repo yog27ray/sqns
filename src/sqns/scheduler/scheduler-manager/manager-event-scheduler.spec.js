@@ -8,7 +8,7 @@ const manager_event_scheduler_1 = require("./manager-event-scheduler");
 describe('ManagerEventSchedulerSpec', () => {
     context('installing a manager scheduler', () => {
         let masterScheduler;
-        beforeEach(async () => setup_1.dropDatabase());
+        beforeEach(async () => (0, setup_1.dropDatabase)());
         it('should add job events in the queue', async () => {
             await new Promise((resolve) => {
                 masterScheduler = new manager_event_scheduler_1.ManagerEventScheduler({
@@ -30,7 +30,7 @@ describe('ManagerEventSchedulerSpec', () => {
                 }, '*/10 * * * * *');
             });
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
-            chai_1.expect(stats).to.deep.equal({
+            (0, chai_1.expect)(stats).to.deep.equal({
                 PRIORITY_TOTAL: 2,
                 'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
                 PRIORITY_999999: 2,
@@ -57,7 +57,7 @@ describe('ManagerEventSchedulerSpec', () => {
                 }, '*/10 * * * * *');
             });
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
-            chai_1.expect(stats).to.deep.equal({
+            (0, chai_1.expect)(stats).to.deep.equal({
                 PRIORITY_TOTAL: 2,
                 'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 2, PRIORITY_999999: 2 },
                 PRIORITY_999999: 2,
@@ -71,7 +71,7 @@ describe('ManagerEventSchedulerSpec', () => {
     });
     context('error handling of master scheduler', () => {
         let masterScheduler;
-        beforeEach(async () => setup_1.dropDatabase());
+        beforeEach(async () => (0, setup_1.dropDatabase)());
         it('should re-attempt to check if server is ready.', async () => {
             await new Promise((resolve) => {
                 let maxAttemptCount = 2;
@@ -88,7 +88,7 @@ describe('ManagerEventSchedulerSpec', () => {
                 }, '*/2 * * * * *');
             });
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
-            chai_1.expect(stats).to.deep.equal({ PRIORITY_TOTAL: 0 });
+            (0, chai_1.expect)(stats).to.deep.equal({ PRIORITY_TOTAL: 0 });
         });
         afterEach(async () => {
             if (masterScheduler) {

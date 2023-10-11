@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -31,9 +35,9 @@ function generateRoutes(sqsManager) {
         response.send('success');
     });
     router.get('/queues/events/stats', controller.eventStats());
-    router.post('/sqs/:region/:companyId/:queueName/event/:eventId/success', authentication_1.authentication(authentication_1.getSecretKey(sqsManager.getStorageEngine())), aws_to_server_transformer_1.AwsToServerTransformer.transformRequestBody(), controller.eventSuccess());
-    router.post('/sqs/:region/:companyId/:queueName/event/:eventId/failure', authentication_1.authentication(authentication_1.getSecretKey(sqsManager.getStorageEngine())), aws_to_server_transformer_1.AwsToServerTransformer.transformRequestBody(), controller.eventFailure());
-    router.post('/sqs', authentication_1.authentication(authentication_1.getSecretKey(sqsManager.getStorageEngine())), aws_to_server_transformer_1.AwsToServerTransformer.transformRequestBody(), controller.sqs());
+    router.post('/sqs/:region/:companyId/:queueName/event/:eventId/success', (0, authentication_1.authentication)((0, authentication_1.getSecretKey)(sqsManager.getStorageEngine())), aws_to_server_transformer_1.AwsToServerTransformer.transformRequestBody(), controller.eventSuccess());
+    router.post('/sqs/:region/:companyId/:queueName/event/:eventId/failure', (0, authentication_1.authentication)((0, authentication_1.getSecretKey)(sqsManager.getStorageEngine())), aws_to_server_transformer_1.AwsToServerTransformer.transformRequestBody(), controller.eventFailure());
+    router.post('/sqs', (0, authentication_1.authentication)((0, authentication_1.getSecretKey)(sqsManager.getStorageEngine())), aws_to_server_transformer_1.AwsToServerTransformer.transformRequestBody(), controller.sqs());
     return router;
 }
 exports.generateRoutes = generateRoutes;

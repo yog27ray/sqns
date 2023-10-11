@@ -1,3 +1,5 @@
+import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
+import { BaseStorageEngine } from './sqns/common/model/base-storage-engine';
 import { SQNSClient } from './sqns/s-q-n-s-client';
 declare const Env: {
     URL: string;
@@ -6,9 +8,8 @@ declare const Env: {
     accessKeyId: string;
     secretAccessKey: string;
 };
-declare function deleteTopics(client: SQNSClient): Promise<void>;
-declare function deleteAllQueues(client: SQNSClient): Promise<void>;
-declare function deleteDynamicDataOfResults(items_: {
-    [key: string]: any;
-}): void;
-export { Env, deleteDynamicDataOfResults, deleteTopics, deleteAllQueues };
+declare function deleteTopics(client: SQNSClient, storageAdapter: BaseStorageEngine): Promise<void>;
+declare function wait(time?: number): Promise<void>;
+declare function deleteAllQueues(client: SQNSClient, storageAdapter: BaseStorageEngine, mongoDBConnection: MongoDBConnection): Promise<void>;
+declare function deleteDynamicDataOfResults(items_: Record<string, unknown>): void;
+export { Env, deleteDynamicDataOfResults, deleteTopics, deleteAllQueues, wait };

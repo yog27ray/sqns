@@ -1,8 +1,9 @@
+import { ARN } from '../../../../typings/common';
 import { SQNSErrorType } from '../../../../typings/sqns-error-type';
 declare class SQNSError extends Error {
     code: string;
     detail?: string;
-    static invalidQueueName(queueName: string): void;
+    static invalidQueueName(queueName: ARN): void;
     static invalidTopic(): void;
     static invalidUser(): void;
     static invalidAccessKey(): void;

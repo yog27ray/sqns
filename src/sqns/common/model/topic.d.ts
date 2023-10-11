@@ -12,9 +12,7 @@ declare class Topic extends BaseObject {
     attributes: TopicAttributes;
     constructor(item: TopicType);
     updateAttributes(AttributeName: string, AttributeValue: string): void;
-    toJSON(): {
-        [key: string]: any;
-    };
+    toJSON(): Record<string, unknown>;
     private getARN;
 }
 export { Topic };

@@ -106,13 +106,7 @@ class SNSManager extends base_manager_1.BaseManager {
         return messageStructure;
     }
     async subscribe(user, topic, protocol, endPoint, Attributes) {
-        if (!common_1.SUPPORTED_PROTOCOL.includes(protocol)) {
-            s_q_n_s_error_1.SQNSError.invalidSubscriptionProtocol(protocol);
-        }
-        const subscription = await this.sNSStorageEngine.findSubscription(topic, protocol, endPoint);
-        if (subscription) {
-            return subscription;
-        }
+        await this.subscriptionValidation(user, protocol, endPoint);
         return this.sNSStorageEngine.createSubscription(user, topic, protocol, endPoint, Attributes);
     }
     requestSubscriptionConfirmation(subscription, serverURL) {
@@ -164,6 +158,21 @@ class SNSManager extends base_manager_1.BaseManager {
     cancel() {
         var _a;
         (_a = this.workerEventScheduler) === null || _a === void 0 ? void 0 : _a.cancel();
+    }
+    async subscriptionValidation(user, protocol, endPoint) {
+        switch (protocol) {
+            case 'sqs': {
+                const arnSplitData = endPoint.split('/').reverse().splice(0, 4).reverse();
+                arnSplitData[2] = user.organizationId;
+                const queueARN = `arn:sqns:${arnSplitData.join(':')}`;
+                await this.sNSStorageEngine.findQueueByARN(queueARN);
+                return;
+            }
+            case 'http':
+            case 'https': return;
+            default:
+                s_q_n_s_error_1.SQNSError.invalidSubscriptionProtocol(protocol);
+        }
     }
 }
 exports.SNSManager = SNSManager;

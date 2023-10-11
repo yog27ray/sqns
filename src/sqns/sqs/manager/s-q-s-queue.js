@@ -35,10 +35,11 @@ class SQSQueue {
     findEventInQueue(queueARN, eventItem) {
         return this.eventIds(queueARN)[eventItem.id];
     }
-    pop(queueARN) {
-        const item = this.priorityQueue(queueARN).poll();
-        delete this.eventIds(queueARN)[item.id];
-        return item;
+    popInitiate(queueARN) {
+        return this.priorityQueue(queueARN).poll();
+    }
+    popComplete(eventItem) {
+        delete this.eventIds(eventItem.queueARN)[eventItem.id];
     }
     reset(queueARN) {
         this.priorityQueue(queueARN).reset();

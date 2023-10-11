@@ -10,9 +10,8 @@ describe('SQNS', () => {
                 const sqns = new s_q_n_s_1.SQNS({ ...setup_1.setupConfig.sqnsConfig, adminSecretKeys: [] });
                 await Promise.reject({ code: 99, message: 'should not reach here.', sqns });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).to.deep.equal({
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
                     code: 'MinAdminSecretKeys',
                     message: 'At-least one admin secret keys must be provided',
                 });

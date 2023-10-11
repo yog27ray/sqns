@@ -13,7 +13,8 @@ declare class SQSQueue {
     add(item: EventItem): void;
     isEventPresent(eventItem: EventItem): boolean;
     findEventInQueue(queueARN: ARN, eventItem: EventItem): EventItem;
-    pop(queueARN: ARN): EventItem;
+    popInitiate(queueARN: ARN): EventItem;
+    popComplete(eventItem: EventItem): void;
     reset(queueARN: ARN): void;
     resetAll(): void;
     size(queueARN: ARN): number;

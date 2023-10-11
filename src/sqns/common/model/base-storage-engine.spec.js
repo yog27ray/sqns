@@ -11,9 +11,8 @@ describe('BaseStorageEngine', () => {
                 const baseStorageEngine = new base_storage_engine_1.BaseStorageEngine({ database: undefined, config: undefined, uri: undefined });
                 await Promise.reject({ code: 99, message: 'Should not be here.', baseStorageEngine });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).to.deep.equal({
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
                     code: 'DatabaseNotSupported',
                     message: 'UnSupported Database',
                 });
@@ -26,27 +25,29 @@ describe('BaseStorageEngine', () => {
             storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
         });
         beforeEach(async () => {
-            await setup_1.dropDatabase();
+            await (0, setup_1.dropDatabase)();
         });
         it('should do nothing when secret key is same', async () => {
             await storageAdapter.initialize([{
                     accessKey: test_env_1.Env.accessKeyId,
                     secretAccessKey: test_env_1.Env.secretAccessKey,
                 }]);
-            const adminKeys = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('AccessKey'));
-            chai_1.expect(adminKeys.length).to.equal(1);
-            chai_1.expect(adminKeys[0].secretKey).to.equal(test_env_1.Env.secretAccessKey);
-            chai_1.expect(adminKeys[0].createdAt.getTime()).to.equal(adminKeys[0].updatedAt.getTime());
+            const adminKeys = await setup_1.setupConfig.mongoConnection
+                .find(storageAdapter.getDBTableName('AccessKey'));
+            (0, chai_1.expect)(adminKeys.length).to.equal(1);
+            (0, chai_1.expect)(adminKeys[0].secretKey).to.equal(test_env_1.Env.secretAccessKey);
+            (0, chai_1.expect)(adminKeys[0].createdAt.getTime()).to.equal(adminKeys[0].updatedAt.getTime());
         });
         it('should update secret key when secret key is different', async () => {
             await storageAdapter.initialize([{
                     accessKey: test_env_1.Env.accessKeyId,
                     secretAccessKey: 'newSecretKey',
                 }]);
-            const adminKeys = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('AccessKey'));
-            chai_1.expect(adminKeys.length).to.equal(1);
-            chai_1.expect(adminKeys[0].secretKey).to.equal('newSecretKey');
-            chai_1.expect(adminKeys[0].createdAt.getTime()).to.not.equal(adminKeys[0].updatedAt.getTime());
+            const adminKeys = await setup_1.setupConfig.mongoConnection
+                .find(storageAdapter.getDBTableName('AccessKey'));
+            (0, chai_1.expect)(adminKeys.length).to.equal(1);
+            (0, chai_1.expect)(adminKeys[0].secretKey).to.equal('newSecretKey');
+            (0, chai_1.expect)(adminKeys[0].createdAt.getTime()).to.not.equal(adminKeys[0].updatedAt.getTime());
         });
     });
 });

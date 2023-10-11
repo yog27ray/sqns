@@ -1,4 +1,4 @@
-import { KeyValue, MessageAttributeMap } from './common';
+import { MessageAttributeMap } from './common';
 export interface SendMessage {
     MessageBody: string;
     DelaySeconds?: number;
@@ -6,14 +6,20 @@ export interface SendMessage {
     MessageSystemAttributes?: MessageAttributeMap;
     MessageDeduplicationId?: string;
 }
-export declare type SendMessageRequest = SendMessage & {
+export type SendMessageRequest = SendMessage & {
     QueueUrl: string;
 };
 export interface SendMessageReceived {
     MessageBody: string;
     DelaySeconds: string;
-    MessageAttribute?: Array<KeyValue>;
-    MessageSystemAttribute?: Array<KeyValue>;
+    MessageAttribute?: Array<{
+        Name: string;
+        Value: string;
+    }>;
+    MessageSystemAttribute?: Array<{
+        Name: string;
+        Value: string;
+    }>;
     MessageDeduplicationId?: string;
 }
 export interface SendMessageResult {

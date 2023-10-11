@@ -5,6 +5,12 @@ const common_1 = require("../helper/common");
 const delivery_policy_helper_1 = require("../helper/delivery-policy-helper");
 const base_object_1 = require("./base-object");
 class Queue extends base_object_1.BaseObject {
+    static arn(companyId, region, name) {
+        if (common_1.RESERVED_QUEUE_NAME.includes(name)) {
+            return `arn:sqns:sqs:${region}:sqns:${name}`;
+        }
+        return `arn:sqns:sqs:${region}:${companyId}:${name}`;
+    }
     constructor(item) {
         super(item);
         this.name = item.name;
@@ -15,12 +21,6 @@ class Queue extends base_object_1.BaseObject {
         this.tags = item.tags || {};
         this.arn = item.arn || this.getARN();
         this.DeliveryPolicy = delivery_policy_helper_1.DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy(this.attributes.DeliveryPolicy);
-    }
-    static arn(companyId, region, name) {
-        if (common_1.RESERVED_QUEUE_NAME.includes(name)) {
-            return `arn:sqns:sqs:${region}:sqns:${name}`;
-        }
-        return `arn:sqns:sqs:${region}:${companyId}:${name}`;
     }
     getMaxReceiveCount(maxReceiveCount) {
         if (maxReceiveCount && !isNaN(Number(maxReceiveCount))) {

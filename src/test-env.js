@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAllQueues = exports.deleteTopics = exports.deleteDynamicDataOfResults = exports.Env = void 0;
+exports.wait = exports.deleteAllQueues = exports.deleteTopics = exports.deleteDynamicDataOfResults = exports.Env = void 0;
+const port = process.env.PORT || '1234';
 const Env = {
-    URL: 'http://127.0.0.1:1234',
-    PORT: 1234,
+    URL: `http://127.0.0.1:${port}`,
+    PORT: Number(port),
     companyId: '12345',
     accessKeyId: 'accessKeyIdTest',
     secretAccessKey: 'secretAccessKeyTest',
@@ -27,20 +28,47 @@ async function findAllQueues(client, nextToken) {
     }
     return queueUrls;
 }
-async function deleteTopics(client) {
-    const topicARNs = await findAllTopics(client);
-    await Promise.all(topicARNs.map((topicARN) => client.deleteTopic({ TopicArn: topicARN })));
+async function deleteTopics(client, storageAdapter) {
+    try {
+        const topicARNs = await findAllTopics(client);
+        await Promise.all(topicARNs.map((topicARN) => client.deleteTopic({ TopicArn: topicARN })));
+    }
+    catch (error) {
+        await storageAdapter.initialize([{
+                accessKey: Env.accessKeyId,
+                secretAccessKey: Env.secretAccessKey,
+            }]);
+        await deleteTopics(client, storageAdapter);
+    }
 }
 exports.deleteTopics = deleteTopics;
-async function deleteAllQueues(client) {
-    const queueURLs = await findAllQueues(client);
-    await Promise.all(queueURLs.map((queueURL) => client.deleteQueue({ QueueUrl: queueURL })));
+async function wait(time = 1000) {
+    await new Promise((resolve) => {
+        setTimeout(() => resolve(), time);
+    });
+}
+exports.wait = wait;
+async function deleteAllQueues(client, storageAdapter, mongoDBConnection) {
+    try {
+        const queueURLs = await findAllQueues(client);
+        await Promise.all(queueURLs.map((queueURL) => client.deleteQueue({ QueueUrl: queueURL })));
+    }
+    catch (error) {
+        await mongoDBConnection.collection(storageAdapter.getDBTableName('AccessKey')).deleteMany({});
+        await storageAdapter.initialize([{
+                accessKey: Env.accessKeyId,
+                secretAccessKey: Env.secretAccessKey,
+            }]);
+        await wait();
+        await deleteAllQueues(client, storageAdapter, mongoDBConnection);
+    }
 }
 exports.deleteAllQueues = deleteAllQueues;
 function deleteDynamicDataOfResults(items_) {
     const items = items_;
     delete items.ResponseMetadata;
-    items.Messages.forEach((each_) => {
+    items.Messages
+        .forEach((each_) => {
         const each = each_;
         delete each.MessageId;
         delete each.ReceiptHandle;

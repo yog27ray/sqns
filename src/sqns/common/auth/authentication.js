@@ -1,11 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rfc3986EncodeURIComponent = exports.getSecretKey = exports.generateAuthenticationHash = exports.authentication = void 0;
-const v4_js_1 = __importDefault(require("aws-sdk/lib/signers/v4.js"));
-const moment_1 = __importDefault(require("moment"));
+exports.signRequest = exports.getSecretKey = exports.authentication = void 0;
 const logger_1 = require("../logger/logger");
 const express_helper_1 = require("../routes/express-helper");
 const encryption_1 = require("./encryption");
@@ -16,7 +11,7 @@ function getSecretKey(storageEngine) {
         const accessKey = await storageEngine.findAccessKey({ accessKey: accessKeyId })
             .catch((error) => {
             if (error.code === 'NotFound') {
-                log.verbose(`AccessKey not found: ${accessKeyId}`);
+                log.error(`AccessKey not found: ${accessKeyId}`);
                 s_q_n_s_error_1.SQNSError.invalidSignatureError();
             }
             return Promise.reject(error);
@@ -26,55 +21,65 @@ function getSecretKey(storageEngine) {
     };
 }
 exports.getSecretKey = getSecretKey;
-function rfc3986EncodeURIComponent(str) {
-    return encodeURIComponent(str).replace(/[!'()*]/g, escape);
+function signRequest(authRequest_, credentials, headerKeys_) {
+    log.verbose('Received Authentication Data:', authRequest_);
+    const authRequest = authRequest_;
+    const headerKeys = headerKeys_.map((each) => each).sort();
+    authRequest.headers['x-sqns-content-sha256'] = encryption_1.Encryption.createJSONHash('sha256', authRequest.body);
+    const data = { ...authRequest, accessKeyId: credentials.accessKeyId };
+    data.headers = headerKeys.reduce((result_, key) => {
+        const result = result_;
+        result[key] = authRequest.headers[key];
+        return result;
+    }, {});
+    const hash = encryption_1.Encryption.createJSONHmac('sha256', credentials.secretAccessKey, data);
+    const algorithm = 'SQNS-HMAC-SHA256';
+    const credential = `Credential=${credentials.accessKeyId}/${data.headers['x-sqns-date'].substring(0, 8)}/${authRequest.region}/${authRequest.service}/request`;
+    const signedHeaders = `SignedHeaders=${headerKeys.join(';')}`;
+    const signature = `Signature=${hash}`;
+    authRequest.headers.authorization = `${algorithm} ${credential}, ${signedHeaders}, ${signature}`;
 }
-exports.rfc3986EncodeURIComponent = rfc3986EncodeURIComponent;
-function generateAuthenticationHash({ service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body }) {
-    log.verbose('Received Authentication Data:', { service, method, accessKeyId, secretAccessKey, region, date, host, originalUrl, body });
-    const testRequest = {
-        method,
-        region,
-        body: Object.keys(body).sort().map((key) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&'),
-        search: () => '',
-        pathname: () => decodeURIComponent(originalUrl),
-        headers: {
-            'X-Amz-Content-Sha256': encryption_1.Encryption.createHash('sha256', Object.keys(body).sort().map((key) => `${key}=${rfc3986EncodeURIComponent(body[key])}`).join('&')),
-            Host: host,
-            Authorization: '',
-        },
-    };
-    log.verbose('Matching Against Authentication Data:', testRequest.headers, moment_1.default(date, 'YYYYMMDDTHHmmssZ').toDate());
-    new v4_js_1.default(testRequest, service, { signatureCache: true, operation: {}, signatureVersion: 'v4' })
-        .addAuthorization({ accessKeyId, secretAccessKey }, moment_1.default(date, 'YYYYMMDDTHHmmssZ').toDate());
-    return testRequest.headers.Authorization;
+exports.signRequest = signRequest;
+function verifyRequest(authRequest, credentials, user) {
+    const testHeaders = { ...authRequest.headers };
+    const headerKeys = testHeaders.authorization.split(', ')[1].split('=')[1].split(';');
+    const testAuthRequest = { ...authRequest, headers: testHeaders };
+    signRequest(testAuthRequest, credentials, headerKeys);
+    log.verbose('Matching generated hash:', testAuthRequest.headers.authorization, 'against client hash: ', authRequest.headers.authorization);
+    if (testAuthRequest.headers.authorization === authRequest.headers.authorization) {
+        return;
+    }
+    log.error('Received Authentication Data:', authRequest);
+    log.error('Authorization header received:', authRequest.headers.authorization);
+    log.error('Matching generated hash:', testAuthRequest.headers.authorization, 'against client hash: ', authRequest.headers.authorization);
+    if (!user.skipAuthentication) {
+        s_q_n_s_error_1.SQNSError.invalidSignatureError();
+    }
 }
-exports.generateAuthenticationHash = generateAuthenticationHash;
 function authentication(getSecretKeyCallback) {
     return (req, res, next) => {
         log.verbose('Authorization header received:', req.header('Authorization'));
+        if (!req.header('Authorization') || req.header('Authorization').split(' ').length !== 4) {
+            express_helper_1.ExpressHelper.errorHandler(new s_q_n_s_error_1.SQNSError({
+                code: 'SignatureDoesNotMatch',
+                message: 'The request signature we calculated does not match the signature you provided.',
+            }), res);
+            return;
+        }
         const [accessKey, , region, service] = req.header('Authorization')
             .split(' ')[1].split('=')[1].split('/');
         log.verbose('AccessKey:', accessKey, '\tregion:', region, '\tservice:', service);
         getSecretKeyCallback(accessKey)
             .then(({ accessKeyId, secretAccessKey, user }) => {
             log.verbose('DB AccessKey:', accessKeyId, '\tsecret:', secretAccessKey, '\tuser:', user.id);
-            const verificationHash = generateAuthenticationHash({
-                accessKeyId,
-                secretAccessKey,
+            verifyRequest({
                 region,
-                date: req.header('x-amz-date'),
-                host: req.header('host'),
                 originalUrl: req.originalUrl,
                 method: req.method,
                 body: req.body,
+                headers: req.headers,
                 service,
-            });
-            log.verbose('Matching generated hash:', verificationHash, 'against client hash: ', req.header('Authorization'));
-            const isTokenValid = req.header('Authorization') === verificationHash;
-            if (!isTokenValid) {
-                s_q_n_s_error_1.SQNSError.invalidSignatureError();
-            }
+            }, { accessKeyId, secretAccessKey }, user);
             Object.assign(req, { user });
             return Promise.resolve();
         })

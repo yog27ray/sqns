@@ -43,7 +43,7 @@ class SNSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
     updateTopicAttributes(topic) {
         return this._storageAdapter.updateTopicAttributes(topic);
     }
-    async createSubscription(user, topic, protocol, endPoint, Attributes) {
+    async createSubscription(user, topic, protocol, endPoint, Attributes = { entry: [] }) {
         var _a;
         const subscription = await this.findSubscription(topic, protocol, endPoint);
         if (subscription) {
@@ -51,14 +51,15 @@ class SNSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
         }
         const channelDeliveryPolicy = delivery_policy_helper_1.DeliveryPolicyHelper
             .verifyAndGetChannelDeliveryPolicy((_a = Attributes.entry.find(({ key }) => key === 'DeliveryPolicy')) === null || _a === void 0 ? void 0 : _a.value);
-        return this._storageAdapter.createSubscription(user, topic, protocol, endPoint, Attributes, channelDeliveryPolicy);
+        const confirmed = ['sqs'].includes(protocol);
+        return this._storageAdapter.createSubscription(user, topic, protocol, endPoint, Attributes, channelDeliveryPolicy, confirmed);
     }
     async findSubscription(topic, protocol, endPoint) {
         const [subscription] = await this._storageAdapter.findSubscriptions({ topicARN: topic.arn, protocol, endPoint }, 0, 1);
         return subscription;
     }
     createSubscriptionVerificationToken(subscription) {
-        const token = `${encryption_1.Encryption.createHash('md5', uuid_1.v4())}${encryption_1.Encryption.createHash('md5', subscription.arn)}`;
+        const token = `${encryption_1.Encryption.createHash('md5', (0, uuid_1.v4)())}${encryption_1.Encryption.createHash('md5', subscription.arn)}`;
         return this._storageAdapter.createSubscriptionVerificationToken(subscription, token);
     }
     async findSubscriptionVerificationToken(token) {
@@ -90,6 +91,13 @@ class SNSStorageEngine extends base_storage_engine_1.BaseStorageEngine {
     }
     publish(topicArn, targetArn, Message, PhoneNumber, Subject, messageAttributes, messageStructure, MessageStructureFinal) {
         return this._storageAdapter.createPublish(topicArn, targetArn, Message, PhoneNumber, Subject, messageAttributes, messageStructure, MessageStructureFinal, publish_1.Publish.STATUS_PUBLISHING);
+    }
+    async findQueueByARN(queueARN) {
+        const queue = await this._storageAdapter.getQueue(queueARN);
+        if (!queue) {
+            s_q_n_s_error_1.SQNSError.invalidQueueName(queueARN);
+        }
+        return queue;
     }
 }
 exports.SNSStorageEngine = SNSStorageEngine;

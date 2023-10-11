@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* tslint:disable:no-null-keyword */
 const chai_1 = require("chai");
 const moment_1 = __importDefault(require("moment"));
 const setup_1 = require("../../../../setup");
@@ -21,7 +22,7 @@ describe('mongoDB test cases', () => {
         let queue;
         let client;
         beforeEach(async () => {
-            await setup_1.dropDatabase();
+            await (0, setup_1.dropDatabase)();
             storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
             client = new s_q_n_s_client_1.SQNSClient({
                 endpoint: `${test_env_1.Env.URL}/api`,
@@ -56,7 +57,9 @@ describe('mongoDB test cases', () => {
                     }
                     if (count === 3) {
                         setTimeout(resolve, 0);
-                        return new Promise(() => 0);
+                        return new Promise(() => {
+                            const x = 1;
+                        });
                     }
                     return Promise.reject('Error in processing');
                 });
@@ -66,27 +69,28 @@ describe('mongoDB test cases', () => {
                     secretAccessKey: test_env_1.Env.secretAccessKey,
                 }, [workerQueueConfig], '*/2 * * * * *');
             });
-            await setup_1.delay();
+            await (0, setup_1.delay)();
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
-            chai_1.expect(stats).to.deep.equal({
+            (0, chai_1.expect)(stats).to.deep.equal({
                 PRIORITY_TOTAL: 0,
                 'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
                 PRIORITY_999999: 0,
             });
-            const items = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
-            chai_1.expect(moment_1.default(items[0].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:00');
-            chai_1.expect(moment_1.default(items[1].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:01');
-            chai_1.expect(moment_1.default(items[2].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:02');
+            const items = await setup_1.setupConfig.mongoConnection
+                .find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
+            (0, chai_1.expect)((0, moment_1.default)(items[0].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:00');
+            (0, chai_1.expect)((0, moment_1.default)(items[1].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:01');
+            (0, chai_1.expect)((0, moment_1.default)(items[2].originalEventTime).utc().format('YYYY-MM-DDTHH:mm')).to.equal('1970-01-01T00:02');
             items.forEach((item_) => {
                 const item = item_;
-                chai_1.expect(item._id).to.exist;
-                chai_1.expect(item.createdAt).to.exist;
-                chai_1.expect(item.updatedAt).to.exist;
-                chai_1.expect(moment_1.default(item.eventTime).diff(moment_1.default(), 'seconds'), 'delay in event min time').to.be.at.least(58);
-                chai_1.expect(moment_1.default(item.eventTime).diff(moment_1.default(), 'seconds'), 'delay in event max time').to.be.at.most(60);
-                chai_1.expect(moment_1.default(item.sentTime).valueOf(), 'sentTime same firstSentTime').to.equal(moment_1.default(item.firstSentTime).valueOf());
-                chai_1.expect(moment_1.default(item.sentTime).valueOf(), 'sentTime min value').is.greaterThan(moment_1.default().add(-5, 'second').valueOf());
-                chai_1.expect(moment_1.default(item.sentTime).valueOf(), 'sent time max value').is.at.most(moment_1.default().valueOf());
+                (0, chai_1.expect)(item._id).to.exist;
+                (0, chai_1.expect)(item.createdAt).to.exist;
+                (0, chai_1.expect)(item.updatedAt).to.exist;
+                (0, chai_1.expect)((0, moment_1.default)(item.eventTime).diff((0, moment_1.default)(), 'seconds'), 'delay in event min time').to.be.at.least(58);
+                (0, chai_1.expect)((0, moment_1.default)(item.eventTime).diff((0, moment_1.default)(), 'seconds'), 'delay in event max time').to.be.at.most(60);
+                (0, chai_1.expect)((0, moment_1.default)(item.sentTime).valueOf(), 'sentTime same firstSentTime').to.equal((0, moment_1.default)(item.firstSentTime).valueOf());
+                (0, chai_1.expect)((0, moment_1.default)(item.sentTime).valueOf(), 'sentTime min value').is.greaterThan((0, moment_1.default)().add(-5, 'second').valueOf());
+                (0, chai_1.expect)((0, moment_1.default)(item.sentTime).valueOf(), 'sent time max value').is.at.most((0, moment_1.default)().valueOf());
                 delete item._id;
                 delete item.eventTime;
                 delete item.originalEventTime;
@@ -95,7 +99,7 @@ describe('mongoDB test cases', () => {
                 delete item.createdAt;
                 delete item.updatedAt;
             });
-            chai_1.expect(JSON.parse(JSON.stringify(items))).to.deep.equal([{
+            (0, chai_1.expect)(JSON.parse(JSON.stringify(items))).to.deep.equal([{
                     priority: 999999,
                     receiveCount: 1,
                     MessageSystemAttribute: {},
@@ -172,7 +176,9 @@ describe('mongoDB test cases', () => {
                     }
                     if (count === 3) {
                         setTimeout(resolve, 0);
-                        return new Promise(() => 0);
+                        return new Promise(() => {
+                            const x = 1;
+                        });
                     }
                     return Promise.reject('Error in processing');
                 });
@@ -182,14 +188,15 @@ describe('mongoDB test cases', () => {
                     secretAccessKey: test_env_1.Env.secretAccessKey,
                 }, [workerQueueConfig], '*/2 * * * * *');
             });
-            await setup_1.delay();
-            const items = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
+            await (0, setup_1.delay)();
+            const items = await setup_1.setupConfig.mongoConnection
+                .find(storageAdapter.getDBTableName('Event'), {}, { originalEventTime: 1 });
             items.forEach((item) => {
-                chai_1.expect(moment_1.default(item.eventTime).diff(moment_1.default(), 'seconds'), 'delay in event min time').to.be.at.least(598);
-                chai_1.expect(moment_1.default(item.eventTime).diff(moment_1.default(), 'seconds'), 'delay in event max time').to.be.at.most(600);
-                chai_1.expect(moment_1.default(item.sentTime).valueOf(), 'sentTime same firstSentTime').to.equal(moment_1.default(item.firstSentTime).valueOf());
-                chai_1.expect(moment_1.default(item.sentTime).valueOf(), 'sentTime min value').is.greaterThan(moment_1.default().add(-5, 'second').valueOf());
-                chai_1.expect(moment_1.default(item.sentTime).valueOf(), 'sent time max value').is.at.most(moment_1.default().valueOf());
+                (0, chai_1.expect)((0, moment_1.default)(item.eventTime).diff((0, moment_1.default)(), 'seconds'), 'delay in event min time').to.be.at.least(598);
+                (0, chai_1.expect)((0, moment_1.default)(item.eventTime).diff((0, moment_1.default)(), 'seconds'), 'delay in event max time').to.be.at.most(600);
+                (0, chai_1.expect)((0, moment_1.default)(item.sentTime).valueOf(), 'sentTime same firstSentTime').to.equal((0, moment_1.default)(item.firstSentTime).valueOf());
+                (0, chai_1.expect)((0, moment_1.default)(item.sentTime).valueOf(), 'sentTime min value').is.greaterThan((0, moment_1.default)().add(-5, 'second').valueOf());
+                (0, chai_1.expect)((0, moment_1.default)(item.sentTime).valueOf(), 'sent time max value').is.at.most((0, moment_1.default)().valueOf());
             });
         });
         afterEach(() => slaveScheduler === null || slaveScheduler === void 0 ? void 0 : slaveScheduler.cancel());
@@ -200,7 +207,7 @@ describe('mongoDB test cases', () => {
         let queue;
         let client;
         beforeEach(async () => {
-            await setup_1.dropDatabase();
+            await (0, setup_1.dropDatabase)();
             storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
             client = new s_q_n_s_client_1.SQNSClient({
                 endpoint: `${test_env_1.Env.URL}/api`,
@@ -212,7 +219,7 @@ describe('mongoDB test cases', () => {
                 QueueUrl: queue.QueueUrl,
                 Entries: [{ Id: '123', MessageBody: '123' }],
             });
-            await setup_1.delay();
+            await (0, setup_1.delay)();
         });
         it('should update event status as failed when event is not processed successfully', async () => {
             await new Promise((resolve) => {
@@ -226,14 +233,15 @@ describe('mongoDB test cases', () => {
                     secretAccessKey: test_env_1.Env.secretAccessKey,
                 }, [workerQueueConfig], '*/2 * * * * *');
             });
-            await setup_1.delay();
+            await (0, setup_1.delay)();
             const stats = await new request_client_1.RequestClient().get(`${test_env_1.Env.URL}/api/queues/events/stats`, true);
-            chai_1.expect(stats).to.deep.equal({
+            (0, chai_1.expect)(stats).to.deep.equal({
                 PRIORITY_TOTAL: 0,
                 'arn:sqns:sqs:sqns:1:queue1': { PRIORITY_TOTAL: 0, PRIORITY_999999: 0 },
                 PRIORITY_999999: 0,
             });
-            const items = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), {}, { eventTime: -1 });
+            const items = await setup_1.setupConfig.mongoConnection
+                .find(storageAdapter.getDBTableName('Event'), {}, { eventTime: -1 });
             items.forEach((item_) => {
                 const item = item_;
                 delete item.createdAt;
@@ -244,7 +252,7 @@ describe('mongoDB test cases', () => {
                 delete item.firstSentTime;
                 delete item.originalEventTime;
             });
-            chai_1.expect(JSON.parse(JSON.stringify(items))).to.deep.equal([{
+            (0, chai_1.expect)(JSON.parse(JSON.stringify(items))).to.deep.equal([{
                     priority: 999999,
                     receiveCount: 1,
                     data: {},
@@ -264,14 +272,14 @@ describe('mongoDB test cases', () => {
         afterEach(() => slaveScheduler === null || slaveScheduler === void 0 ? void 0 : slaveScheduler.cancel());
     });
     context('error handling of mark event success or failure api', () => {
-        beforeEach(async () => setup_1.dropDatabase());
+        beforeEach(async () => (0, setup_1.dropDatabase)());
         it('should give error when uri is not present mongoDBAdapter', async () => {
             try {
                 const adapter = new mongo_d_b_adapter_1.MongoDBAdapter({ uri: undefined });
                 await Promise.reject({ code: 99, message: 'should not reach here', adapter });
             }
-            catch (error) {
-                chai_1.expect(error.message).to.deep.equal('Database URI is missing');
+            catch ({ message }) {
+                (0, chai_1.expect)(message).to.deep.equal('Database URI is missing');
             }
         });
         it('should give signature miss-match error when client credential are wrong', async () => {
@@ -284,9 +292,8 @@ describe('mongoDB test cases', () => {
                 await client.markEventFailure('eventId', `${test_env_1.Env.URL}/api/sqs/sqns/1/queue1`, 'failureMessage');
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).to.deep.equal({
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
                     code: 'SignatureDoesNotMatch',
                     message: 'The request signature we calculated does not match the signature you provided.',
                 });
@@ -302,14 +309,55 @@ describe('mongoDB test cases', () => {
                 await client.markEventSuccess('eventId', `${test_env_1.Env.URL}/api/wrong/sqs/queue/queue1`, 'failureMessage');
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch (error) {
-                const { code, message } = error;
-                chai_1.expect({ code, message }).to.deep.equal({
+            catch ({ code, message }) {
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
                     code: '404',
                     message: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Error</title>\n</head>\n'
                         + '<body>\n<pre>Cannot POST /api/wrong/sqs/queue/queue1/event/eventId/success</pre>\n</body>\n</html>\n',
                 });
             }
+        });
+    });
+    context('duplicate event handling', () => {
+        let client;
+        let storageAdapter;
+        let queue;
+        let MessageId;
+        before(async () => {
+            await (0, setup_1.dropDatabase)();
+            storageAdapter = new base_storage_engine_1.BaseStorageEngine(setup_1.setupConfig.sqnsConfig.db);
+            client = new s_q_n_s_client_1.SQNSClient({
+                endpoint: `${test_env_1.Env.URL}/api`,
+                accessKeyId: test_env_1.Env.accessKeyId,
+                secretAccessKey: test_env_1.Env.secretAccessKey,
+            });
+            queue = await client.createQueue({ QueueName: 'queue1' });
+            ({ MessageId } = await client.sendMessage({
+                QueueUrl: queue.QueueUrl,
+                MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
+                MessageDeduplicationId: 'uniqueId1',
+                MessageBody: '123',
+                DelaySeconds: 0,
+            }));
+        });
+        it('should not reset processing of already processed message.', async () => {
+            const [event] = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), { completionPending: true, maxAttemptCompleted: false }, { eventTime: -1 });
+            (0, chai_1.expect)(event).to.exist;
+            await client.receiveMessage({ QueueUrl: queue.QueueUrl });
+            await client.markEventSuccess(MessageId, queue.QueueUrl, 'test success message');
+            const [oldEvent] = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), { completionPending: true, maxAttemptCompleted: false }, { eventTime: -1 });
+            (0, chai_1.expect)(oldEvent).to.not.exist;
+            const [dbEvent] = await setup_1.setupConfig.mongoConnection.find(storageAdapter.getDBTableName('Event'), { _id: MessageId }, { eventTime: -1 });
+            await setup_1.setupConfig.mongoConnection.update(storageAdapter.getDBTableName('Event'), MessageId, { eventTime: new Date(new Date().getTime() - 3600000) });
+            await client.sendMessage({
+                QueueUrl: queue.QueueUrl,
+                MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
+                MessageDeduplicationId: 'uniqueId1',
+                MessageBody: '123',
+                DelaySeconds: 0,
+            });
+            const { Messages: [newMessage] } = await client.receiveMessage({ QueueUrl: queue.QueueUrl });
+            (0, chai_1.expect)(newMessage).to.not.exist;
         });
     });
 });

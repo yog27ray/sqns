@@ -11,17 +11,6 @@ const s_q_s_queue_1 = require("./s-q-s-queue");
 const s_q_s_storage_engine_1 = require("./s-q-s-storage-engine");
 const log = logger_1.logger.instance('EventManager');
 class SQSManager extends base_manager_1.BaseManager {
-    constructor(sqsConfig) {
-        super();
-        this.requestClient = new request_client_1.RequestClient();
-        this.addEventInQueueListener = (item) => {
-            this.addItemInQueue(item);
-        };
-        this._eventQueue = new s_q_s_queue_1.SQSQueue();
-        this._eventQueue.notifyNeedTaskURLS = sqsConfig.requestTasks || [];
-        this._sQSStorageEngine = new s_q_s_storage_engine_1.SQSStorageEngine(sqsConfig.db);
-        this.storageToQueueWorker = new storage_to_queue_worker_1.StorageToQueueWorker(this._sQSStorageEngine, this.addEventInQueueListener, sqsConfig.cronInterval);
-    }
     static addToPriorities(queueARN, priority) {
         const statKey = `PRIORITY_${priority}`;
         if (isNaN(SQSManager.DEFAULT_PRIORITIES[statKey])) {
@@ -35,7 +24,7 @@ class SQSManager extends base_manager_1.BaseManager {
         }
     }
     static prometheusARN(queueARN) {
-        return queueARN.replace(new RegExp(':', 'g'), '_');
+        return queueARN.replace(/:/g, '_');
     }
     get eventStats() {
         const priorityStats = JSON.parse(JSON.stringify(SQSManager.DEFAULT_PRIORITIES));
@@ -77,6 +66,17 @@ class SQSManager extends base_manager_1.BaseManager {
         });
         return `${prometheusRows.sort().join('\n')}\n`;
     }
+    constructor(sqsConfig) {
+        super();
+        this.requestClient = new request_client_1.RequestClient();
+        this.addEventInQueueListener = ((item) => {
+            this.addItemInQueue(item);
+        });
+        this._eventQueue = new s_q_s_queue_1.SQSQueue();
+        this._eventQueue.notifyNeedTaskURLS = sqsConfig.requestTasks || [];
+        this._sQSStorageEngine = new s_q_s_storage_engine_1.SQSStorageEngine(sqsConfig.db);
+        this.storageToQueueWorker = new storage_to_queue_worker_1.StorageToQueueWorker(this._sQSStorageEngine, this.addEventInQueueListener, sqsConfig.cronInterval);
+    }
     comparatorFunction(queueARN, value) {
         this._eventQueue.comparatorFunction(queueARN, value);
     }
@@ -89,8 +89,9 @@ class SQSManager extends base_manager_1.BaseManager {
             });
             return undefined;
         }
-        const eventItem = this._eventQueue.pop(queue.arn);
+        const eventItem = this._eventQueue.popInitiate(queue.arn);
         await this._sQSStorageEngine.updateEventStateProcessing(queue, eventItem, visibilityTimeout, 'sent to slave');
+        this._eventQueue.popComplete(eventItem);
         if (eventItem.eventTime.getTime() <= new Date().getTime()) {
             const event = await this._sQSStorageEngine.findEvent(eventItem.id);
             if (event && event.receiveCount < event.maxReceiveCount) {
@@ -132,8 +133,9 @@ class SQSManager extends base_manager_1.BaseManager {
             SQSManager.DEFAULT_PRIORITIES = { PRIORITY_TOTAL: 0 };
         }
     }
-    async sendMessage(queue, MessageBody, MessageAttribute, MessageSystemAttribute, DelaySeconds = '0', MessageDeduplicationId) {
+    async sendMessage(queue, MessageBody, MessageAttribute, MessageSystemAttribute, DelaySeconds_, MessageDeduplicationId) {
         var _a, _b, _c, _d;
+        const DelaySeconds = DelaySeconds_ || '0';
         const deliveryPolicy = delivery_policy_helper_1.DeliveryPolicyHelper
             .verifyAndGetChannelDeliveryPolicy((_a = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.DeliveryPolicy) === null || _a === void 0 ? void 0 : _a.StringValue);
         const priority = isNaN(Number((_b = MessageAttribute === null || MessageAttribute === void 0 ? void 0 : MessageAttribute.Priority) === null || _b === void 0 ? void 0 : _b.StringValue))
@@ -156,7 +158,9 @@ class SQSManager extends base_manager_1.BaseManager {
             return inQueueEvent;
         }
         const insertedEventItem = await this._sQSStorageEngine.addEventItem(queue, eventItem);
-        if (insertedEventItem.eventTime.getTime() <= new Date().getTime()) {
+        if (insertedEventItem.completionPending
+            && !insertedEventItem.maxAttemptCompleted
+            && (insertedEventItem.eventTime.getTime() <= new Date().getTime())) {
             this.addItemInQueue(insertedEventItem);
             await this._sQSStorageEngine.findEvent(insertedEventItem.id);
         }

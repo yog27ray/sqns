@@ -5,17 +5,15 @@ declare class MongoDBConnection {
     private readonly _uri;
     private readonly _dBName;
     private client;
-    constructor(uri: string, config: {
-        [key: string]: unknown;
-    });
+    constructor(uri: string, config: Record<string, unknown>);
     isConnected(): boolean;
     connect(): Promise<any>;
-    find(tableName: string, query_?: any, sort?: {
-        [key: string]: number;
+    find(tableName: string, query_?: Record<string, unknown>, sort?: {
+        [key: string]: 1 | -1;
     }, { limit, skip }?: {
         limit?: number;
         skip?: number;
-    }): Promise<Array<any>>;
+    }): Promise<Array<Record<string, unknown>>>;
     findOne(tableName: string, filter_?: KeyValue): Promise<KeyValue>;
     collection(tableName: string): Collection;
     dropDatabase(): Promise<any>;
@@ -23,18 +21,10 @@ declare class MongoDBConnection {
         id?: string;
         _id?: string;
     }): Promise<string>;
-    update(collectionName: string, documentId: string, document: {
-        [key: string]: any;
-    }): Promise<void>;
-    deleteOne(collectionName: string, filter: {
-        [key: string]: any;
-    }): Promise<void>;
-    count(collectionName: string, filter: {
-        [key: string]: any;
-    }): Promise<number>;
-    deleteMany(collectionName: string, filter: {
-        [key: string]: any;
-    }): Promise<void>;
+    update(collectionName: string, documentId: string, document: Record<string, unknown>): Promise<void>;
+    deleteOne(collectionName: string, filter: Record<string, unknown>): Promise<void>;
+    count(collectionName: string, filter: Record<string, unknown>): Promise<number>;
+    deleteMany(collectionName: string, filter: Record<string, unknown>): Promise<void>;
     private getDB;
 }
 export { MongoDBConnection };

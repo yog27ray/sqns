@@ -1,9 +1,10 @@
 import { ExpressMiddleware } from '../../../../typings/express';
 declare class AwsToServerTransformer {
     static transformRequestBody(): ExpressMiddleware;
-    static transformArrayToJSON(itemArray: Array<any>): {
-        [key: string]: any;
-    };
+    static transformArrayToJSON<T = string>(itemArray: Array<{
+        Name: string;
+        Value: string;
+    }>): Record<string, T>;
     private static extractNestedJSON;
     private static transformJSONArrayToNestedJSON;
     private static transformPlainJSONToNestedJSON;

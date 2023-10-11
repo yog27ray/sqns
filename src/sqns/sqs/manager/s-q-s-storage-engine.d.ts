@@ -1,4 +1,4 @@
-import { ARN, KeyValueString } from '../../../../typings/common';
+import { ARN } from '../../../../typings/common';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { EventItem, EventState } from '../../common/model/event-item';
 import { Queue } from '../../common/model/queue';
@@ -8,11 +8,9 @@ declare class SQSStorageEngine extends BaseStorageEngine {
     findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>>;
     updateEventStateProcessing(queue: Queue, eventItem_: EventItem, visibilityTimeout: number, message: string): Promise<any>;
     updateEvent(queue: Queue, eventItem: EventItem): Promise<any>;
-    updateEventState(queue: Queue, id: string, state: EventState, message: {
-        [key: string]: any;
-    }): Promise<any>;
+    updateEventState(queue: Queue, id: string, state: EventState, message: Record<string, unknown>): Promise<any>;
     listQueues(queueARNPrefix: ARN): Promise<Array<Queue>>;
-    createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tag: KeyValueString): Promise<Queue>;
+    createQueue(user: User, queueName: string, region: string, attributes: Record<string, string>, tag: Record<string, string>): Promise<Queue>;
     getQueue(queueARN: ARN): Promise<Queue>;
     deleteQueue(queue: Queue): Promise<void>;
     findEvent(id: string): Promise<EventItem>;

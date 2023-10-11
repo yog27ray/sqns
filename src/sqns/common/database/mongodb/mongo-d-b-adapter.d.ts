@@ -1,5 +1,4 @@
 import { TopicAttributes, TopicTag } from '../../../../../typings/class-types';
-import { KeyValueString } from '../../../../../typings/common';
 import { MongoDBConfig } from '../../../../../typings/config';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../../typings/subscription';
@@ -24,18 +23,16 @@ declare class MongoDBAdapter implements StorageAdapter {
     addEventItem(queue: Queue, eventItem: EventItem): Promise<EventItem>;
     findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>>;
     getQueues(queueARNPrefix: string): Promise<Array<Queue>>;
-    updateEvent(id: string, data: {
-        [key: string]: any;
-    }): Promise<any>;
+    updateEvent(id: string, data: Record<string, unknown>): Promise<any>;
     findById(id: string): Promise<EventItem>;
     findByIdForQueue(queue: Queue, id: string): Promise<EventItem>;
     findByDeduplicationIdForQueue(queue: Queue, id: string): Promise<EventItem>;
-    createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tags: KeyValueString): Promise<Queue>;
+    createQueue(user: User, queueName: string, region: string, attributes: Record<string, string>, tags: Record<string, string>): Promise<Queue>;
     getQueue(queueArn: ARN): Promise<Queue>;
     deleteQueue(queue: Queue): Promise<void>;
     confirmSubscription(subscription_: Subscription): Promise<Subscription>;
     createPublish(topicArn: ARN, targetArn: ARN, Message: string, PhoneNumber: string, Subject: string, messageAttributes: MessageAttributes, messageStructure: string, MessageStructureFinal: MessageStructure, status: string): Promise<Publish>;
-    createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes: SubscriptionAttributes, deliveryPolicy: ChannelDeliveryPolicy): Promise<Subscription>;
+    createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes: SubscriptionAttributes, deliveryPolicy: ChannelDeliveryPolicy, confirmed: boolean): Promise<Subscription>;
     createSubscriptionVerificationToken(subscription: Subscription, token: string): Promise<SubscriptionVerificationToken>;
     findSubscriptionVerificationTokenByToken(token: string): Promise<SubscriptionVerificationToken>;
     createTopic(name: string, displayName: string, region: string, deliveryPolicy: DeliveryPolicy, user: User, attributes: TopicAttributes, tags: TopicTag): Promise<Topic>;

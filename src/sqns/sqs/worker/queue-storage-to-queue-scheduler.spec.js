@@ -5,7 +5,7 @@ const queue_storage_to_queue_scheduler_1 = require("./queue-storage-to-queue-sch
 describe('QueueStorageToQueueSchedulerSpec', () => {
     context('error handling of queue storage to queue scheduler', () => {
         let queueStorageToQueueScheduler;
-        beforeEach(async () => setup_1.dropDatabase());
+        beforeEach(async () => (0, setup_1.dropDatabase)());
         it('should re-attempt to check if server is ready.', async () => {
             await new Promise((resolve, reject) => {
                 let attempt = 2;

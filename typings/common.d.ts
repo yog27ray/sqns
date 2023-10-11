@@ -1,13 +1,10 @@
 export declare type ARN = string;
 export declare type PHONE = string;
 export declare type SUPPORTED_BACKOFF_FUNCTIONS_TYPE = 'linear' | 'exponential';
-export declare type SupportedProtocol = 'http' | 'https';
+export type SupportedProtocol = 'http' | 'https' | 'sqs';
 export declare type SUPPORTED_CHANNEL_TYPE = SupportedProtocol | 'default';
 export declare interface KeyValue<T = unknown> {
     [key: string]: T;
-}
-export declare interface KeyValueString {
-    [key: string]: string;
 }
 export declare type BASE_CONFIG = (() => KeyValue) | KeyValue;
 export interface MessageAttributeValue {

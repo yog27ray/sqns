@@ -8,12 +8,12 @@ class AwsToServerTransformer {
             req.sqnsBaseURL = `${req.headers['x-forwarded-proto'] || req.protocol}://${req.get('host')}${req.baseUrl}`;
             if (req.method === 'GET') {
                 req.serverBody = AwsToServerTransformer.transformPlainJSONToNestedJSON(req.query);
-                Object.assign(req.serverBody, { requestId: uuid_1.v4() });
+                Object.assign(req.serverBody, { requestId: (0, uuid_1.v4)() });
             }
             else {
                 const [, , region] = req.header('Authorization').split(' ')[1].split('=')[1].split('/');
                 req.serverBody = AwsToServerTransformer.transformPlainJSONToNestedJSON(req.body);
-                Object.assign(req.serverBody, { requestId: uuid_1.v4(), region });
+                Object.assign(req.serverBody, { requestId: (0, uuid_1.v4)(), region });
             }
             if (req.body.QueueUrl) {
                 Object.assign(req.serverBody, { queueName: req.body.QueueUrl.split('/').pop() });
@@ -47,9 +47,9 @@ class AwsToServerTransformer {
                 if (!subJSONArray.length) {
                     return result;
                 }
-                result[index - 1] = subJSONArray.length === 1 && subJSONArray[0].length === 1
+                result[index - 1] = (subJSONArray.length === 1 && subJSONArray[0].length === 1
                     ? subJSONArray[0][0]
-                    : AwsToServerTransformer.transformJSONArrayToNestedJSON(subJSONArray);
+                    : AwsToServerTransformer.transformJSONArrayToNestedJSON(subJSONArray));
                 index += 1;
             }
         }

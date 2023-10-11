@@ -9,3 +9,9 @@ export interface SQNSClientConfig {
     accessKeyId: string;
     secretAccessKey: string;
 }
+export type SNSServiceConfiguration = ClientConfiguration & {
+    endpoint: string;
+};
+export type SQSServiceConfiguration = ClientConfiguration & {
+    endpoint: string;
+};

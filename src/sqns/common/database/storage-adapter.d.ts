@@ -1,5 +1,4 @@
 import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
-import { KeyValueString } from '../../../../typings/common';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SubscriptionAttributes } from '../../../../typings/subscription';
 import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
@@ -16,49 +15,35 @@ interface StorageAdapter {
     createUser(organizationId: string): Promise<User>;
     accessKey(accessKey: string, secretAccessKey: string, userId: string): Promise<AccessKey>;
     updateAccessKey(accessKey: AccessKey): Promise<AccessKey>;
-    findAccessKeys(where: {
-        [key: string]: unknown;
-    }, skip?: number, limit?: number): Promise<Array<AccessKey>>;
-    findUsers(where: {
-        [key: string]: unknown;
-    }, skip?: number, limit?: number): Promise<Array<User>>;
+    findAccessKeys(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<AccessKey>>;
+    findUsers(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<User>>;
     addEventItem(queue: Queue, item: EventItem): Promise<EventItem>;
     findByIdForQueue(queue: Queue, id: string): Promise<EventItem>;
     findByDeduplicationIdForQueue(queue: Queue, id: string): Promise<EventItem>;
     findById(id: string): Promise<EventItem>;
     findEventsToProcess(time: Date, limit: number): Promise<Array<EventItem>>;
-    updateEvent(id: string, data: {
-        [key: string]: any;
-    }): Promise<void>;
+    updateEvent(id: string, data: Record<string, unknown>): Promise<void>;
     getQueues(queueARNPrefix?: ARN): Promise<Array<Queue>>;
-    createQueue(user: User, queueName: string, region: string, attributes: KeyValueString, tag: KeyValueString): Promise<Queue>;
+    createQueue(user: User, queueName: string, region: string, attributes: Record<string, string>, tag: Record<string, string>): Promise<Queue>;
     getQueue(queueName: ARN): Promise<Queue>;
     deleteQueue(queue: Queue): Promise<void>;
     createTopic(name: string, displayName: string, region: string, deliveryPolicy: DeliveryPolicy, user: User, attributes: TopicAttributes, tags: TopicTag): Promise<Topic>;
     findTopicARN(topicARN: ARN): Promise<Topic>;
-    findTopics(where: {
-        [key: string]: unknown;
-    }, skip?: number, limit?: number): Promise<Array<Topic>>;
+    findTopics(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<Topic>>;
     totalTopics(where: {
         [p: string]: unknown;
     }): Promise<number>;
     deleteTopic(topic: Topic): Promise<void>;
     removeSubscriptions(subscriptions: Array<Subscription>): Promise<void>;
     updateTopicAttributes(topic: Topic): Promise<void>;
-    createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes: SubscriptionAttributes, deliveryPolicy: ChannelDeliveryPolicy): Promise<Subscription>;
-    totalSubscriptions(where: {
-        [key: string]: unknown;
-    }): Promise<number>;
-    findSubscriptions(where: {
-        [key: string]: unknown;
-    }, skip?: number, limit?: number): Promise<Array<Subscription>>;
+    createSubscription(user: User, topic: Topic, protocol: SupportedProtocol, endPoint: string, Attributes: SubscriptionAttributes, deliveryPolicy: ChannelDeliveryPolicy, confirmed: boolean): Promise<Subscription>;
+    totalSubscriptions(where: Record<string, unknown>): Promise<number>;
+    findSubscriptions(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<Subscription>>;
     createSubscriptionVerificationToken(subscription: Subscription, token: string): Promise<SubscriptionVerificationToken>;
-    findSubscriptionVerificationTokenByToken(token: any): Promise<SubscriptionVerificationToken>;
+    findSubscriptionVerificationTokenByToken(token: unknown): Promise<SubscriptionVerificationToken>;
     confirmSubscription(subscription: Subscription): Promise<Subscription>;
     markPublished(publish: Publish): Promise<void>;
     createPublish(topicArn: ARN, targetArn: ARN, Message: string, PhoneNumber: string, Subject: string, messageAttributes: MessageAttributes, messageStructure: string, MessageStructureFinal: MessageStructure, status: string): Promise<Publish>;
-    findPublishes(where: {
-        [key: string]: unknown;
-    }, skip?: number, limit?: number): Promise<Array<Publish>>;
+    findPublishes(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<Publish>>;
 }
 export { StorageAdapter };

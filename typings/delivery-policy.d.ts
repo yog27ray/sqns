@@ -8,7 +8,7 @@ export declare interface ChannelDeliveryPolicy {
     numMaxDelayRetries: number;
     backoffFunction: SUPPORTED_BACKOFF_FUNCTIONS_TYPE;
 }
-export declare type DeliveryPolicy = {
+export type DeliveryPolicy = {
     [key in SUPPORTED_CHANNEL_TYPE]?: {
         defaultHealthyRetryPolicy: ChannelDeliveryPolicy;
         disableOverrides: boolean;
