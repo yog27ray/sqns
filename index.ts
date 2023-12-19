@@ -10,6 +10,7 @@ import { UpdateMessageByDeduplicationId, UpdateMessageById } from './typings/pub
 import { FindMessageByIdResult, UpdateMessageByDeduplicationIdResult, UpdateMessageByIdResult } from './typings/recieve-message';
 import { ResponseItem } from './typings/response-item';
 import { MessageAttributeMap, SendMessage, SendMessageRequest } from './typings/typings';
+import { logger } from './src/sqns/common/logger/logger';
 
 export {
   EventState,
@@ -29,4 +30,5 @@ export {
   SendMessageRequest,
   MessageAttributeMap,
   WorkerQueueConfig,
+  logger,
 };
