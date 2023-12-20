@@ -1984,11 +1984,18 @@ describe('SQNSClient', () => {
         } catch ({ code, message }) {
           // eslint-disable-next-line no-console
           console.log('>>>>', process.versions.node.split('.')[0]);
+          const nodeVersion = Number(process.versions.node.split('.')[0]);
+          let errorMessage: string;
+          if (nodeVersion <= 18) {
+            errorMessage = 'Unexpected token : in JSON at position 6';
+          } else if (nodeVersion <= 20) {
+            errorMessage = 'Unexpected non-whitespace character after JSON at position 6';
+          } else {
+            errorMessage = 'Unexpected non-whitespace character after JSON at position 6 (line 1 column 7)';
+          }
           expect({ code, message }).to.deep.equal({
             code: 'InvalidDeliveryPolicy',
-            message: Number(process.versions.node.split('.')[0]) < 18
-              ? 'Unexpected token : in JSON at position 6'
-              : 'Unexpected non-whitespace character after JSON at position 6',
+            message: errorMessage,
           });
         }
       });
