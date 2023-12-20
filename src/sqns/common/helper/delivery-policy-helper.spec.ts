@@ -22,6 +22,8 @@ describe('DeliveryPolicyHelper', () => {
         DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy('}{');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
       } catch ({ code, message }) {
+        // eslint-disable-next-line no-console
+        console.log('>>>>', process.versions.node.split('.')[0]);
         expect({ code, message }).to.deep.equal({
           code: undefined,
           message: Number(process.versions.node.split('.')[0]) < 18
