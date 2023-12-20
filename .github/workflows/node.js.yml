@@ -20,9 +20,8 @@ jobs:
 
     strategy:
       matrix:
-#        node-version: [12.x, 14.x, 16.x]
-        node-version: [15.x, 16.x, 18.x, 19.x, 20.x, 21.x]
-        mongodb-version: ['4.2', '4.4', '5.0', '6.0']
+        node-version: [18.x, 20.x, 21.x]
+        mongodb-version: ['4.4', '5.0', '6.0'] #  https://www.mongodb.com/support-policy/lifecycles
 
     steps:
     - uses: actions/checkout@v4
