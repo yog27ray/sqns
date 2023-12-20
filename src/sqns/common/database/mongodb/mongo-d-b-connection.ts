@@ -1,4 +1,4 @@
-import { Collection, Db, MongoClient } from 'mongodb';
+import { Collection, Condition, Db, MongoClient, ObjectId } from 'mongodb';
 import { KeyValue } from '../../../../../typings/common';
 
 class MongoDBConnection {
@@ -28,8 +28,6 @@ class MongoDBConnection {
     }
     let client: MongoClient;
     if (!this.client) {
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
       client = new MongoClient(this._uri, this._option);
     } else {
       ({ client } = this);
@@ -74,15 +72,7 @@ class MongoDBConnection {
       return Promise.resolve();
     }
     await this.connect();
-    return new Promise((resolve: (item: boolean) => void, reject: (error: Error) => void) => {
-      this.getDB().dropDatabase((error, result) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(result);
-      });
-    });
+    return this.getDB().dropDatabase();
   }
 
   async insert(collectionName: string, item_: KeyValue & { id?: string; _id?: string }): Promise<string> {
@@ -99,7 +89,10 @@ class MongoDBConnection {
 
   async update(collectionName: string, documentId: string, document: Record<string, unknown>): Promise<void> {
     await this.connect();
-    await this.getDB().collection(collectionName).updateOne({ _id: documentId }, { $set: { ...document, updatedAt: new Date() } });
+    await this.getDB().collection(collectionName)
+      .updateOne(
+        { _id: documentId as unknown as Condition<ObjectId> },
+        { $set: { ...document, updatedAt: new Date() } });
   }
 
   async deleteOne(collectionName: string, filter: Record<string, unknown>): Promise<void> {

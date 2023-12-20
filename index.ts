@@ -1,4 +1,5 @@
 import { Database } from './src/sqns/common/database';
+import { logger } from './src/sqns/common/logger/logger';
 import { EventState } from './src/sqns/common/model/event-item';
 import { SQNS } from './src/sqns/s-q-n-s';
 import { SQNSClient } from './src/sqns/s-q-n-s-client';
@@ -29,4 +30,5 @@ export {
   SendMessageRequest,
   MessageAttributeMap,
   WorkerQueueConfig,
+  logger,
 };

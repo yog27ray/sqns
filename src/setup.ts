@@ -45,16 +45,13 @@ async function dropDatabase(): Promise<void> {
   await setupConfig.mongoConnection.dropDatabase();
   await setupConfig.sqns.resetAll();
   const storageAdapter = new BaseStorageEngine(databaseConfig);
-  await new Promise((resolve: (value?: unknown) => void) => {
-    setupConfig.mongoConnection.collection(storageAdapter.getDBTableName('Event'))
-      .createIndex(
-        { MessageDeduplicationId: 1 },
-        {
-          unique: true,
-          partialFilterExpression: { MessageDeduplicationId: { $exists: true } },
-        },
-        () => resolve());
-  });
+  await setupConfig.mongoConnection.collection(storageAdapter.getDBTableName('Event'))
+    .createIndex(
+      { MessageDeduplicationId: 1 },
+      {
+        unique: true,
+        partialFilterExpression: { MessageDeduplicationId: { $exists: true } },
+      });
   await storageAdapter.initialize([{
     accessKey: Env.accessKeyId,
     secretAccessKey: Env.secretAccessKey,
@@ -73,7 +70,7 @@ before(async () => {
   databaseConfig = {
     database: Database.MONGO_DB,
     uri: process.env.MONGODB_URI,
-    config: { useUnifiedTopology: true },
+    config: {},
   };
   // eslint-disable-next-line no-console
   console.log('>>:', databaseConfig);
