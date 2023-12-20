@@ -1986,7 +1986,7 @@ describe('SQNSClient', () => {
           // eslint-disable-next-line no-nested-ternary
           const errorMessage: string = (nodeVersion <= 18)
             ? 'Unexpected token : in JSON at position 6'
-            : (nodeVersion <= 18
+            : (nodeVersion <= 20
               ? 'Unexpected non-whitespace character after JSON at position 6'
               : 'Unexpected non-whitespace character after JSON at position 6 (line 1 column 7)');
           expect({ code, message }).to.deep.equal({
