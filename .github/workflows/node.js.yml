@@ -19,6 +19,7 @@ jobs:
       cancel-in-progress: true
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [18.x, 20.x, 21.x] # https://endoflife.date/nodejs
         mongodb-version: ['4.4', '5.0', '6.0'] #  https://www.mongodb.com/support-policy/lifecycles
