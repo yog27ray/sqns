@@ -22,7 +22,17 @@ describe('DeliveryPolicyHelper', () => {
         DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy('}{');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
       } catch ({ code, message }) {
-        expect({ code, message }).deep.equal({ code: undefined, message: 'Unexpected token } in JSON at position 0' });
+        if (message === 'Unexpected token } in JSON at position 0') {
+          expect({ code, message }).to.deep.equal({
+            code: undefined,
+            message: 'Unexpected token } in JSON at position 0',
+          });
+        } else {
+          expect({ code, message }).to.deep.equal({
+            code: undefined,
+            message: 'Unexpected token \'}\', "}{" is not valid JSON',
+          });
+        }
       }
     });
   });
