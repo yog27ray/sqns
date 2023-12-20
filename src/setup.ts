@@ -70,7 +70,7 @@ before(async () => {
   databaseConfig = {
     database: Database.MONGO_DB,
     uri: process.env.MONGODB_URI,
-    config: { useUnifiedTopology: true },
+    config: {},
   };
   // eslint-disable-next-line no-console
   console.log('>>:', databaseConfig);

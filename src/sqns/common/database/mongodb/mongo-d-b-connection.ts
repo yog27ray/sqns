@@ -28,8 +28,6 @@ class MongoDBConnection {
     }
     let client: MongoClient;
     if (!this.client) {
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
       client = new MongoClient(this._uri, this._option);
     } else {
       ({ client } = this);
