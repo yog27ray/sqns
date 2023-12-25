@@ -57,7 +57,7 @@
     "logger4node": "1.0.3",
     "moment": "2.29.4",
     "mongodb": "6.3.0",
-    "node-fetch": "2.7.0",
+    "node-fetch": "3.3.2",
     "node-schedule": "2.1.1",
     "reflect-metadata": "0.2.1",
     "uuid": "9.0.1",
