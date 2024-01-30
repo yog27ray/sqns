@@ -1891,12 +1891,13 @@ describe('SQNSClient', () => {
           .catch(({ statusCode, message, error }) => new Promise((
             resolve: (value: unknown) => void,
             reject: (error: SQNSError) => void) => {
-            parseString(message, (parserError: unknown) => {
+            parseString(message, (parserError: unknown, result: { ErrorResponse: { Error: Array<{ Code: string, Message: string }> } }) => {
               if (parserError) {
                 reject(new SQNSError({ code: statusCode, message: error }));
                 return;
               }
-              reject(new SQNSError(error as unknown as SQNSErrorType));
+              const { Code: [code], Message: [message] } = result.ErrorResponse.Error[0];
+              reject(new SQNSError({ code, message }));
             });
           }));
       }
