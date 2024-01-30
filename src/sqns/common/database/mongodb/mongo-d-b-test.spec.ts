@@ -305,7 +305,8 @@ describe('mongoDB test cases', () => {
       try {
         const adapter = new MongoDBAdapter({ uri: undefined });
         await Promise.reject({ code: 99, message: 'should not reach here', adapter });
-      } catch ({ message }) {
+      } catch (error) {
+        const { message } = error as { message: string; };
         expect(message).to.deep.equal('Database URI is missing');
       }
     });
@@ -319,7 +320,8 @@ describe('mongoDB test cases', () => {
         });
         await client.markEventFailure('eventId', `${Env.URL}/api/sqs/sqns/1/queue1`, 'failureMessage');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: 'SignatureDoesNotMatch',
           message: 'The request signature we calculated does not match the signature you provided.',
@@ -336,7 +338,8 @@ describe('mongoDB test cases', () => {
         });
         await client.markEventSuccess('eventId', `${Env.URL}/api/wrong/sqs/queue/queue1`, 'failureMessage');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: '404',
           message: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Error</title>\n</head>\n'

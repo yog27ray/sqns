@@ -366,7 +366,8 @@ describe('WorkerEventSchedulerSpec', () => {
           Protocol: 'sqs',
         }));
         await Promise.reject({ code: 99, message: 'should not reach here' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: 'NonExistentQueue',
           message: 'The specified "subscriptionQueueInvalid" queue does not exist.',

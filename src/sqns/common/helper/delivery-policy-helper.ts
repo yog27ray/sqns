@@ -87,8 +87,9 @@ export class DeliveryPolicyHelper {
         return;
       }
       deliveryPolicy = JSON.parse(deliveryPolicyStringValue);
-    } catch ({ message }) {
-      SQNSError.invalidDeliveryPolicy(message as string);
+    } catch (error) {
+      const { message } = error as { message: string; };
+      SQNSError.invalidDeliveryPolicy(message);
     }
     DeliveryPolicyHelper.hasAllKeys(deliveryPolicy, DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY);
     const { backoffFunction } = deliveryPolicy.default.defaultHealthyRetryPolicy;
