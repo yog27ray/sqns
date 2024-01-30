@@ -83,6 +83,7 @@ before(async () => {
   setupConfig.sqns = new SQNS(setupConfig.sqnsConfig);
   setupConfig.sqns.cancel();
   setupConfig.sqns.registerExpressRoutes(app);
+  RequestClient.setMaxRetryAttempt(0);
   const server = http.createServer(app);
   server.listen(Env.PORT, '0.0.0.0', () => {
     log.info('Express server listening on %d, in test mode', Env.PORT);
