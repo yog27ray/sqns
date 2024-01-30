@@ -10,7 +10,8 @@ describe('DeliveryPolicyHelper', () => {
         const channelDeliveryPolicy = { backoffFunction: 'unsupportedFunction' } as unknown as ChannelDeliveryPolicy;
         DeliveryPolicyHelper.calculateNewEventTime(new Date(), channelDeliveryPolicy, { minDelay: 1, attempt: 2 });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).deep.equal({ code: 'UnhandledBackoffFunction', message: 'Unhandled Backoff Function' });
       }
     });
@@ -21,7 +22,8 @@ describe('DeliveryPolicyHelper', () => {
       try {
         DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy('}{');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: undefined,
           message: Number(process.versions.node.split('.')[0]) <= 18

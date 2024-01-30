@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "lib": ["es2019", "dom"],
-    "types": ["reflect-metadata", "mocha"],
+    "types": ["mocha"],
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,

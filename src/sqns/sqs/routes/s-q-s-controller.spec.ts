@@ -26,7 +26,8 @@ describe('EventManagerMasterSpec', () => {
       try {
         await client.createQueue({ QueueName: 'queue1' });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: 'SignatureDoesNotMatch',
           message: 'The request signature we calculated does not match the signature you provided.',
@@ -38,7 +39,8 @@ describe('EventManagerMasterSpec', () => {
       try {
         await client.listQueues({});
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: 'SignatureDoesNotMatch',
           message: 'The request signature we calculated does not match the signature you provided.',
@@ -52,7 +54,8 @@ describe('EventManagerMasterSpec', () => {
           body: JSON.stringify({ Action: 'AddPermission' }),
         });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: '400',
           message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
@@ -76,7 +79,8 @@ describe('EventManagerMasterSpec', () => {
           headers: { authorization: '' },
         });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: '400',
           message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
@@ -118,7 +122,8 @@ describe('EventManagerMasterSpec', () => {
           headers: request.headers,
         });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
-      } catch ({ code, message }) {
+      } catch (error) {
+        const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: '400',
           message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
