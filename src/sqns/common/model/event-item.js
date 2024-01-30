@@ -8,7 +8,7 @@ var EventState;
     EventState["FAILURE"] = "FAILURE";
     EventState["PENDING"] = "PENDING";
     EventState["PROCESSING"] = "PROCESSING";
-})(EventState = exports.EventState || (exports.EventState = {}));
+})(EventState || (exports.EventState = EventState = {}));
 class EventItem extends base_object_1.BaseObject {
     constructor(item) {
         super(item);

@@ -1,4 +1,5 @@
 import { Database } from './src/sqns/common/database';
+import { logger } from './src/sqns/common/logger/logger';
 import { EventState } from './src/sqns/common/model/event-item';
 import { SQNS } from './src/sqns/s-q-n-s';
 import { SQNSClient } from './src/sqns/s-q-n-s-client';
@@ -10,4 +11,4 @@ import { UpdateMessageByDeduplicationId, UpdateMessageById } from './typings/pub
 import { FindMessageByIdResult, UpdateMessageByDeduplicationIdResult, UpdateMessageByIdResult } from './typings/recieve-message';
 import { ResponseItem } from './typings/response-item';
 import { MessageAttributeMap, SendMessage, SendMessageRequest } from './typings/typings';
-export { EventState, UpdateMessageByDeduplicationId, UpdateMessageByDeduplicationIdResult, UpdateMessageById, UpdateMessageByIdResult, ManagerEventScheduler, WorkerEventScheduler, FindMessageByIdResult, SendMessage, SQNSClient, SQNS, SQNSClientConfig, Database, ResponseItem, SendMessageRequest, MessageAttributeMap, WorkerQueueConfig, };
+export { EventState, UpdateMessageByDeduplicationId, UpdateMessageByDeduplicationIdResult, UpdateMessageById, UpdateMessageByIdResult, ManagerEventScheduler, WorkerEventScheduler, FindMessageByIdResult, SendMessage, SQNSClient, SQNS, SQNSClientConfig, Database, ResponseItem, SendMessageRequest, MessageAttributeMap, WorkerQueueConfig, logger, };

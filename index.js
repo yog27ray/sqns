@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WorkerQueueConfig = exports.Database = exports.SQNS = exports.SQNSClient = exports.WorkerEventScheduler = exports.ManagerEventScheduler = exports.EventState = void 0;
+exports.logger = exports.WorkerQueueConfig = exports.Database = exports.SQNS = exports.SQNSClient = exports.WorkerEventScheduler = exports.ManagerEventScheduler = exports.EventState = void 0;
 const database_1 = require("./src/sqns/common/database");
 Object.defineProperty(exports, "Database", { enumerable: true, get: function () { return database_1.Database; } });
+const logger_1 = require("./src/sqns/common/logger/logger");
+Object.defineProperty(exports, "logger", { enumerable: true, get: function () { return logger_1.logger; } });
 const event_item_1 = require("./src/sqns/common/model/event-item");
 Object.defineProperty(exports, "EventState", { enumerable: true, get: function () { return event_item_1.EventState; } });
 const s_q_n_s_1 = require("./src/sqns/s-q-n-s");

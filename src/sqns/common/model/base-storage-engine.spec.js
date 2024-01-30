@@ -11,7 +11,8 @@ describe('BaseStorageEngine', () => {
                 const baseStorageEngine = new base_storage_engine_1.BaseStorageEngine({ database: undefined, config: undefined, uri: undefined });
                 await Promise.reject({ code: 99, message: 'Should not be here.', baseStorageEngine });
             }
-            catch ({ code, message }) {
+            catch (error) {
+                const { code, message } = error;
                 (0, chai_1.expect)({ code, message }).to.deep.equal({
                     code: 'DatabaseNotSupported',
                     message: 'UnSupported Database',

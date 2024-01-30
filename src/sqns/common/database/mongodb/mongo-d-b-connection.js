@@ -19,8 +19,6 @@ class MongoDBConnection {
         }
         let client;
         if (!this.client) {
-            // useNewUrlParser: true,
-            // useUnifiedTopology: true,
             client = new mongodb_1.MongoClient(this._uri, this._option);
         }
         else {
@@ -58,15 +56,7 @@ class MongoDBConnection {
             return Promise.resolve();
         }
         await this.connect();
-        return new Promise((resolve, reject) => {
-            this.getDB().dropDatabase((error, result) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(result);
-            });
-        });
+        return this.getDB().dropDatabase();
     }
     async insert(collectionName, item_) {
         await this.connect();
@@ -81,7 +71,8 @@ class MongoDBConnection {
     }
     async update(collectionName, documentId, document) {
         await this.connect();
-        await this.getDB().collection(collectionName).updateOne({ _id: documentId }, { $set: { ...document, updatedAt: new Date() } });
+        await this.getDB().collection(collectionName)
+            .updateOne({ _id: documentId }, { $set: { ...document, updatedAt: new Date() } });
     }
     async deleteOne(collectionName, filter) {
         await this.connect();

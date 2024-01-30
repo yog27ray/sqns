@@ -10,7 +10,8 @@ describe('DeliveryPolicyHelper', () => {
                 delivery_policy_helper_1.DeliveryPolicyHelper.calculateNewEventTime(new Date(), channelDeliveryPolicy, { minDelay: 1, attempt: 2 });
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch ({ code, message }) {
+            catch (error) {
+                const { code, message } = error;
                 (0, chai_1.expect)({ code, message }).deep.equal({ code: 'UnhandledBackoffFunction', message: 'Unhandled Backoff Function' });
             }
         });
@@ -21,8 +22,14 @@ describe('DeliveryPolicyHelper', () => {
                 delivery_policy_helper_1.DeliveryPolicyHelper.verifyAndGetChannelDeliveryPolicy('}{');
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch ({ code, message }) {
-                (0, chai_1.expect)({ code, message }).deep.equal({ code: undefined, message: 'Unexpected token } in JSON at position 0' });
+            catch (error) {
+                const { code, message } = error;
+                (0, chai_1.expect)({ code, message }).to.deep.equal({
+                    code: undefined,
+                    message: Number(process.versions.node.split('.')[0]) <= 18
+                        ? 'Unexpected token } in JSON at position 0'
+                        : 'Unexpected token \'}\', "}{" is not valid JSON',
+                });
             }
         });
     });

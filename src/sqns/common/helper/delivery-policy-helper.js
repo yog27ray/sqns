@@ -59,7 +59,8 @@ class DeliveryPolicyHelper {
             }
             deliveryPolicy = JSON.parse(deliveryPolicyStringValue);
         }
-        catch ({ message }) {
+        catch (error) {
+            const { message } = error;
             s_q_n_s_error_1.SQNSError.invalidDeliveryPolicy(message);
         }
         DeliveryPolicyHelper.hasAllKeys(deliveryPolicy, DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY);

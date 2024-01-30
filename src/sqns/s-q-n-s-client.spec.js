@@ -159,7 +159,8 @@ describe('SQNSClient', () => {
                     await client.sendMessage({ QueueUrl: `${queue.QueueUrl}1`, MessageBody: '123' });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)(code).to.equal('NonExistentQueue');
                     (0, chai_1.expect)(message).to.equal('The specified "queue11" queue does not exist.');
                 }
@@ -603,7 +604,8 @@ describe('SQNSClient', () => {
                     await client.receiveMessage({ QueueUrl: `${queue.QueueUrl}1` });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)(code).to.equal('NonExistentQueue');
                     (0, chai_1.expect)(message).to.equal('The specified "queue11" queue does not exist.');
                 }
@@ -654,7 +656,8 @@ describe('SQNSClient', () => {
                     });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)(code).to.equal('NonExistentQueue');
                     (0, chai_1.expect)(message).to.equal('The specified "queue11" queue does not exist.');
                 }
@@ -752,7 +755,8 @@ describe('SQNSClient', () => {
                     await client.deleteQueue({ QueueUrl: `${test_env_1.Env.URL}/api/sqs/${common_1.SYSTEM_QUEUE_NAME.SNS}` });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({ code: 'ReservedQueueName', message: 'Reserved queue name' });
                 }
             });
@@ -761,7 +765,8 @@ describe('SQNSClient', () => {
                     await client.deleteQueue({ QueueUrl: `${test_env_1.Env.URL}/api/sqs/queue11` });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)(code).to.equal('NonExistentQueue');
                     (0, chai_1.expect)(message).to.equal('The specified "queue11" queue does not exist.');
                 }
@@ -772,7 +777,8 @@ describe('SQNSClient', () => {
                     await client.getQueueUrl({ QueueName: 'queue1' });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)(code).to.equal('NonExistentQueue');
                     (0, chai_1.expect)(message).to.equal('The specified "queue1" queue does not exist.');
                 }
@@ -784,7 +790,8 @@ describe('SQNSClient', () => {
                     await client.getQueueUrl({ QueueName: 'queue1.fifo' });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)(code).to.equal('NonExistentQueue');
                     (0, chai_1.expect)(message).to.equal('The specified "queue1.fifo" queue does not exist.');
                 }
@@ -807,7 +814,8 @@ describe('SQNSClient', () => {
                     await client.getQueueUrl({ QueueName: 'queue11' });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)(code).to.equal('NonExistentQueue');
                     (0, chai_1.expect)(message).to.equal('The specified "queue11" queue does not exist.');
                 }
@@ -1084,7 +1092,8 @@ describe('SQNSClient', () => {
                     await client.createQueue({ QueueName: 'queue1' });
                     await Promise.reject({ code: 99, message: 'Should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).deep.equal({
                         code: 'SignatureDoesNotMatch',
                         message: 'The request signature we calculated does not match the signature you provided.',
@@ -1276,7 +1285,8 @@ describe('SQNSClient', () => {
                     await client.getTopicAttributes({ TopicArn: 'invalid' });
                     await Promise.reject({ code: 99, message: 'should not reach here' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'NotFound',
                         message: 'Topic does not exist.',
@@ -1378,7 +1388,8 @@ describe('SQNSClient', () => {
                     });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: '412',
                         message: '"unsupported" is not supported channel.',
@@ -1398,7 +1409,8 @@ describe('SQNSClient', () => {
                     });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: '412',
                         message: '"default" value "1" is not string.',
@@ -1428,7 +1440,8 @@ describe('SQNSClient', () => {
                     });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'InvalidParameter',
                         message: 'Invalid parameter: Does not support this protocol string: app',
@@ -1552,7 +1565,8 @@ describe('SQNSClient', () => {
                     await client.confirmSubscription({ Token: 'InvalidToken', TopicArn: 'InvalidTopicArn' });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({ code: 'InvalidParameter', message: 'Invalid token' });
                 }
             });
@@ -1678,7 +1692,8 @@ describe('SQNSClient', () => {
                     await client.getPublish({ MessageId: 'InvalidMessageId' });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({ code: 'NotFound', message: 'Publish does not exist.' });
                 }
             });
@@ -1698,7 +1713,8 @@ describe('SQNSClient', () => {
                     await client.getSubscription({ SubscriptionArn: 'InvalidSubscriptionARN' });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({ code: 'NotFound', message: 'Subscription does not exist.' });
                 }
             });
@@ -1767,7 +1783,8 @@ describe('SQNSClient', () => {
                     await request({ uri: `${test_env_1.Env.URL}/api/sns`, method: 'POST', body: { Action: 'NotSupportedAction' } });
                     await Promise.reject({ code: 99, message: 'should not reach here' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'UnhandledFunction',
                         message: '"NotSupportedAction" function is not supported.',
@@ -1779,7 +1796,8 @@ describe('SQNSClient', () => {
                     await request({ uri: `${test_env_1.Env.URL}/api/sns?Action=NotSupportedAction`, method: 'GET' });
                     await Promise.reject({ code: 99, message: 'should not reach here' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'UnhandledFunction',
                         message: '"NotSupportedAction" function is not supported.',
@@ -1797,7 +1815,8 @@ describe('SQNSClient', () => {
                     await client.getPublish({ MessageId: 'test' });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'Error',
                         message: 'Non-whitespace before first tag.\nLine: 0\nColumn: 1\nChar: {',
@@ -1854,10 +1873,18 @@ describe('SQNSClient', () => {
                     });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const nodeVersion = Number(process.versions.node.split('.')[0]);
+                    // eslint-disable-next-line no-nested-ternary
+                    const errorMessage = (nodeVersion <= 18)
+                        ? 'Unexpected token : in JSON at position 6'
+                        : (nodeVersion <= 20
+                            ? 'Unexpected non-whitespace character after JSON at position 6'
+                            : 'Unexpected non-whitespace character after JSON at position 6 (line 1 column 7)');
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'InvalidDeliveryPolicy',
-                        message: 'Unexpected token : in JSON at position 6',
+                        message: errorMessage,
                     });
                 }
             });
@@ -1875,7 +1902,8 @@ describe('SQNSClient', () => {
                     });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'InvalidDeliveryPolicy',
                         message: 'Different keys',
@@ -1896,7 +1924,8 @@ describe('SQNSClient', () => {
                     });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'InvalidDeliveryPolicy',
                         message: '"numRetries1" missing.',
@@ -1917,7 +1946,8 @@ describe('SQNSClient', () => {
                     });
                     await Promise.reject({ code: 99, message: 'should not reach here.' });
                 }
-                catch ({ code, message }) {
+                catch (error) {
+                    const { code, message } = error;
                     (0, chai_1.expect)({ code, message }).to.deep.equal({
                         code: 'InvalidDeliveryPolicy',
                         message: '"unsupportedBackOffFunction" backoffFunction invalid.',

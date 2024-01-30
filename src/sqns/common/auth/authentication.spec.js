@@ -20,7 +20,8 @@ describe('Authentication', () => {
                 await (0, authentication_1.getSecretKey)(new TempStorageEngine(setup_1.setupConfig.sqnsConfig.db))('dbAccessErrorKey');
                 await Promise.reject({ code: 99, message: 'should not reach here.' });
             }
-            catch ({ code, message }) {
+            catch (error) {
+                const { code, message } = error;
                 (0, chai_1.expect)({ code, message }).deep.equal({ code: 'DatabaseError', message: 'Database find error.' });
             }
         });
