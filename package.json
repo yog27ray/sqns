@@ -46,7 +46,7 @@
     "nock": "13.5.1",
     "node-tslint-rules": "1.20.3",
     "nyc": "15.1.0",
-    "serialize-javascript": "6.0.1",
+    "serialize-javascript": "6.0.2",
     "ts-node": "10.9.2",
     "tslint": "6.1.3",
     "typescript": "5.3.3"
