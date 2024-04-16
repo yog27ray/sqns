@@ -41,7 +41,7 @@
     "eslint-plugin-promise": "6.1.1",
     "eslint-plugin-typescript": "0.14.0",
     "minimist": "1.2.8",
-    "mocha": "10.2.0",
+    "mocha": "10.4.0",
     "morgan": "1.10.0",
     "nock": "13.5.1",
     "node-tslint-rules": "1.20.3",
