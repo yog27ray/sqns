@@ -5,15 +5,15 @@ const logger = new Logger4Node('sqns');
 
 function updateLogging(logging: SQNSLoggingConfig = {}): void {
   if (logging.json) {
-    Logger4Node.setJsonLogging(logging.json);
+    logger.setJsonLogging(logging.json);
     return;
   }
-  Logger4Node.setJsonLogging(false);
+  logger.setJsonLogging(false);
   if (logging.stringOnly) {
-    Logger4Node.setOnlyStringLogging(logging.stringOnly);
+    logger.setStringLogging(logging.stringOnly);
     return;
   }
-  Logger4Node.setOnlyStringLogging(false);
+  logger.setStringLogging(false);
 }
 
 export { logger, updateLogging };
