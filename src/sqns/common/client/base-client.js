@@ -8,6 +8,7 @@ const moment_1 = __importDefault(require("moment"));
 const xml2js_1 = __importDefault(require("xml2js"));
 const authentication_1 = require("../auth/authentication");
 const s_q_n_s_error_1 = require("../auth/s-q-n-s-error");
+const logger_1 = require("../logger/logger");
 const request_client_1 = require("../request-client/request-client");
 const s_n_s_service_1 = require("./s-n-s-service");
 const s_q_s_service_1 = require("./s-q-s-service");
@@ -19,6 +20,7 @@ class BaseClient extends request_client_1.RequestClient {
         this._config = { ...config, region: BaseClient.REGION };
         this._sqs = new s_q_s_service_1.SQSService({ ...this._config, endpoint: `${config.endpoint}/sqs` });
         this._sns = new s_n_s_service_1.SNSService({ ...this._config, endpoint: `${config.endpoint}/sns` });
+        (0, logger_1.updateLogging)(config.logging);
     }
     processNormalizeJSONBodyOfKey(key, value, snsRequest) {
         const result = {};

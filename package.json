@@ -1,6 +1,6 @@
 {
   "name": "sqns",
-  "version": "2.3.5",
+  "version": "2.3.6",
   "description": "",
   "main": "index.js",
   "types": "typings/index.d.ts",
@@ -54,7 +54,7 @@
   "dependencies": {
     "express": "4.19.2",
     "fastpriorityqueue": "0.7.4",
-    "logger4node": "1.0.9",
+    "logger4node": "1.0.12",
     "moment": "2.30.1",
     "mongodb": "6.3.0",
     "node-fetch": "2.7.0",

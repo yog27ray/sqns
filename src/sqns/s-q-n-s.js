@@ -38,6 +38,7 @@ class SQNS {
                 queueAccessKey: config.adminSecretKeys[0].accessKey,
                 queueSecretAccessKey: config.adminSecretKeys[0].secretAccessKey,
                 ...(config.sns || {}),
+                logging: config.logging,
             });
         }
         new base_storage_engine_1.BaseStorageEngine(config.db)
@@ -46,6 +47,7 @@ class SQNS {
             log.error(error);
             process.exit(1);
         });
+        (0, logger_1.updateLogging)(config.logging);
     }
     queueComparator(queueARN, value) {
         this.sqsManager.comparatorFunction(queueARN, value);
