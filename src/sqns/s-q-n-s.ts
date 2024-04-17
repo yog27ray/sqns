@@ -4,7 +4,7 @@ import { AdminSecretKeys, SQNSConfig } from '../../typings/config';
 import { SQNSError } from './common/auth/s-q-n-s-error';
 import { BaseClient } from './common/client/base-client';
 import { RESERVED_QUEUE_NAME } from './common/helper/common';
-import { logger } from './common/logger/logger';
+import { logger, updateLogging } from './common/logger/logger';
 import { BaseStorageEngine } from './common/model/base-storage-engine';
 import { EventItem } from './common/model/event-item';
 import { Queue } from './common/model/queue';
@@ -48,6 +48,7 @@ export class SQNS {
         queueAccessKey: config.adminSecretKeys[0].accessKey,
         queueSecretAccessKey: config.adminSecretKeys[0].secretAccessKey,
         ...(config.sns || {}),
+        logging: config.logging,
       });
     }
     new BaseStorageEngine(config.db)
@@ -56,6 +57,7 @@ export class SQNS {
         log.error(error);
         process.exit(1);
       });
+    updateLogging(config.logging);
   }
 
   queueComparator(queueARN: ARN, value: (event1: EventItem, event2: EventItem) => boolean): void {

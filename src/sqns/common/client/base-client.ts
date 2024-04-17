@@ -4,6 +4,7 @@ import { BaseClientRequest } from '../../../../typings/base-client';
 import { ClientConfiguration, KeyValue } from '../../../../typings/typings';
 import { signRequest } from '../auth/authentication';
 import { SQNSError } from '../auth/s-q-n-s-error';
+import { updateLogging } from '../logger/logger';
 import { RequestClient } from '../request-client/request-client';
 import { SNSService } from './s-n-s-service';
 import { SQSService } from './s-q-s-service';
@@ -26,6 +27,7 @@ export class BaseClient extends RequestClient {
     this._config = { ...config, region: BaseClient.REGION };
     this._sqs = new SQSService({ ...this._config, endpoint: `${config.endpoint}/sqs` });
     this._sns = new SNSService({ ...this._config, endpoint: `${config.endpoint}/sns` });
+    updateLogging(config.logging);
   }
 
   processNormalizeJSONBodyOfKey(key: string, value: unknown, snsRequest: boolean): unknown {

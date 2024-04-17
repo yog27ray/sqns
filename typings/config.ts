@@ -26,6 +26,11 @@ export declare interface SQSConfig {
   enableSNSQueue?: boolean;
 }
 
+export declare interface SQNSLoggingConfig {
+  json?: boolean;
+  stringOnly?: boolean;
+}
+
 export declare interface SNSConfig {
   endpoint: string;
   db: DatabaseConfig;
@@ -33,6 +38,7 @@ export declare interface SNSConfig {
   queueSecretAccessKey?: string;
   queueAccessKey?: string;
   disableWorker?: boolean;
+  logging?: SQNSLoggingConfig;
 }
 
 export declare interface SQNSConfig {
@@ -47,6 +53,7 @@ export declare interface SQNSConfig {
     disable?: boolean;
     disableWorker?: boolean;
   };
+  logging?: SQNSLoggingConfig;
 }
 
 export declare type ManagerQueueConfigListener = (queueName: string, nextItemListParams: KeyValue) => Promise<

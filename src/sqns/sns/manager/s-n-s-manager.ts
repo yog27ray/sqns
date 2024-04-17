@@ -46,6 +46,7 @@ class SNSManager extends BaseManager {
       endpoint: snsConfig.queueEndpoint || snsConfig.endpoint,
       accessKeyId: snsConfig.queueAccessKey,
       secretAccessKey: snsConfig.queueSecretAccessKey,
+      logging: snsConfig.logging,
     };
     this.sNSStorageEngine = new SNSStorageEngine(snsConfig.db);
     this.sqnsClient = new SQNSClient(sqnsClientConfig);
