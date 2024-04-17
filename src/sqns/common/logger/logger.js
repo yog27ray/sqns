@@ -6,15 +6,15 @@ const logger = new logger4node_1.Logger4Node('sqns');
 exports.logger = logger;
 function updateLogging(logging = {}) {
     if (logging.json) {
-        logger4node_1.Logger4Node.setJsonLogging(logging.json);
+        logger.setJsonLogging(logging.json);
         return;
     }
-    logger4node_1.Logger4Node.setJsonLogging(false);
+    logger.setJsonLogging(false);
     if (logging.stringOnly) {
-        logger4node_1.Logger4Node.setOnlyStringLogging(logging.stringOnly);
+        logger.setStringLogging(logging.stringOnly);
         return;
     }
-    logger4node_1.Logger4Node.setOnlyStringLogging(false);
+    logger.setStringLogging(false);
 }
 exports.updateLogging = updateLogging;
 //# sourceMappingURL=logger.js.map
