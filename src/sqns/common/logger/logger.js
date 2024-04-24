@@ -4,7 +4,10 @@ exports.updateLogging = exports.logger = void 0;
 const logger4node_1 = require("logger4node");
 const logger = new logger4node_1.Logger4Node('sqns');
 exports.logger = logger;
-function updateLogging(logging = {}) {
+function updateLogging(logging) {
+    if (!logging) {
+        return;
+    }
     if (logging.json) {
         logger.setJsonLogging(logging.json);
         return;
