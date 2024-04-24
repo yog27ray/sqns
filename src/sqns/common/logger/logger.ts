@@ -3,7 +3,10 @@ import { SQNSLoggingConfig } from '../../../../typings/config';
 
 const logger = new Logger4Node('sqns');
 
-function updateLogging(logging: SQNSLoggingConfig = {}): void {
+function updateLogging(logging?: SQNSLoggingConfig): void {
+  if (!logging) {
+    return;
+  }
   if (logging.json) {
     logger.setJsonLogging(logging.json);
     return;
