@@ -52,7 +52,7 @@ class SNSManager extends BaseManager {
     this.sqnsClient = new SQNSClient(sqnsClientConfig);
     if (!snsConfig.disableWorker) {
       const workerQueueConfig = new WorkerQueueConfig(SYSTEM_QUEUE_NAME.SNS, undefined);
-      this.workerEventScheduler = new WorkerEventScheduler(sqnsClientConfig, [workerQueueConfig], undefined);
+      this.workerEventScheduler = new WorkerEventScheduler(sqnsClientConfig, [workerQueueConfig]);
     }
   }
 
