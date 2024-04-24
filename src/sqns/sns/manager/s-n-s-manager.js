@@ -27,7 +27,7 @@ class SNSManager extends base_manager_1.BaseManager {
         this.sqnsClient = new s_q_n_s_client_1.SQNSClient(sqnsClientConfig);
         if (!snsConfig.disableWorker) {
             const workerQueueConfig = new worker_queue_config_1.WorkerQueueConfig(common_1.SYSTEM_QUEUE_NAME.SNS, undefined);
-            this.workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler(sqnsClientConfig, [workerQueueConfig], undefined);
+            this.workerEventScheduler = new worker_event_scheduler_1.WorkerEventScheduler(sqnsClientConfig, [workerQueueConfig]);
         }
     }
     createTopic(name, displayName, region, deliveryPolicy, user, attributes = { entry: [] }, tags = { member: [] }) {
