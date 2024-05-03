@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SQNS = void 0;
+const logger4node_1 = require("logger4node");
 const s_q_n_s_error_1 = require("./common/auth/s-q-n-s-error");
 const base_client_1 = require("./common/client/base-client");
 const common_1 = require("./common/helper/common");
@@ -53,6 +54,7 @@ class SQNS {
         this.sqsManager.comparatorFunction(queueARN, value);
     }
     registerExpressRoutes(app) {
+        app.use(logger4node_1.Logger4Node.Trace.requestHandler());
         app.use(this._url.basePath, (0, routes_1.generateRoutes)());
         if (this.sqsManager) {
             log.info('SQS path added.');
