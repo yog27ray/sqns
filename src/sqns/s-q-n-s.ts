@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { Logger4Node } from 'logger4node';
 import { ARN } from '../../typings/common';
 import { AdminSecretKeys, SQNSConfig } from '../../typings/config';
 import { SQNSError } from './common/auth/s-q-n-s-error';
@@ -65,6 +66,7 @@ export class SQNS {
   }
 
   registerExpressRoutes(app: Express): void {
+    app.use(Logger4Node.Trace.requestHandler());
     app.use(this._url.basePath, sqnsRoutes());
     if (this.sqsManager) {
       log.info('SQS path added.');
