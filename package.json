@@ -28,7 +28,7 @@
     "@types/mongodb": "4.0.7",
     "@types/node-fetch": "2.6.9",
     "@types/node-schedule": "2.1.7",
-    "@typescript-eslint/eslint-plugin": "5.62.0",
+    "@typescript-eslint/eslint-plugin": "7.8.0",
     "@typescript-eslint/parser": "7.7.0",
     "body-parser": "1.20.2",
     "chai": "4.4.1",
