@@ -178,21 +178,19 @@ class WorkerEventScheduler {
     workerQueueConfig.queue = await this.sqnsClient.createQueue({ QueueName: workerQueueConfig.queueName });
   }
 
-  private requestEventToProcessAsynchronous(workerQueueConfig_: WorkerQueueConfig): void {
-    const workerQueueConfig = workerQueueConfig_;
+  private requestEventToProcessAsynchronous(workerQueueConfig: WorkerQueueConfig): void {
     workerQueueConfig.incrementCount();
-    this.requestEventToProcess(workerQueueConfig)
-      .then(() => {
-        workerQueueConfig.decrementCount();
-        this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
-        return 0;
-      })
-      .catch((error: Error) => {
-        log.error(error);
-        workerQueueConfig.hasMore = false;
-        workerQueueConfig.decrementCount();
-        this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
-      });
+    try {
+      this.requestEventToProcess(workerQueueConfig)
+        .then(() => {
+          workerQueueConfig.decrementCount();
+          this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
+          return 0;
+        })
+        .catch((error: Error) => this.handleErrorForQueueConfig(error, workerQueueConfig));
+    } catch (error) {
+      this.handleErrorForQueueConfig(error as Error, workerQueueConfig);
+    }
   }
 
   private async requestEventToProcess(workerQueueConfig_: WorkerQueueConfig): Promise<void> {
@@ -228,6 +226,14 @@ class WorkerEventScheduler {
       log.error(error);
       return [false, (error as Error).message];
     }
+  }
+
+  private handleErrorForQueueConfig(error: Error, _workerQueueConfig: WorkerQueueConfig): void {
+    log.error(error);
+    const workerQueueConfig = _workerQueueConfig;
+    workerQueueConfig.hasMore = false;
+    workerQueueConfig.decrementCount();
+    this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
   }
 }
 
