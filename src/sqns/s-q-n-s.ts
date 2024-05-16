@@ -66,7 +66,7 @@ export class SQNS {
   }
 
   registerExpressRoutes(app: Express): void {
-    app.use(Logger4Node.Trace.requestHandler());
+    app.use(Logger4Node.Trace.requestHandler(() => ({})));
     app.use(this._url.basePath, sqnsRoutes());
     if (this.sqsManager) {
       log.info('SQS path added.');
