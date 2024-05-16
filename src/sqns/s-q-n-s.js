@@ -54,7 +54,7 @@ class SQNS {
         this.sqsManager.comparatorFunction(queueARN, value);
     }
     registerExpressRoutes(app) {
-        app.use(logger4node_1.Logger4Node.Trace.requestHandler());
+        app.use(logger4node_1.Logger4Node.Trace.requestHandler(() => ({})));
         app.use(this._url.basePath, (0, routes_1.generateRoutes)());
         if (this.sqsManager) {
             log.info('SQS path added.');

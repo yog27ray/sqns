@@ -183,21 +183,20 @@ class WorkerEventScheduler {
         }
         workerQueueConfig.queue = await this.sqnsClient.createQueue({ QueueName: workerQueueConfig.queueName });
     }
-    requestEventToProcessAsynchronous(workerQueueConfig_) {
-        const workerQueueConfig = workerQueueConfig_;
+    requestEventToProcessAsynchronous(workerQueueConfig) {
         workerQueueConfig.incrementCount();
-        this.requestEventToProcess(workerQueueConfig)
-            .then(() => {
-            workerQueueConfig.decrementCount();
-            this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
-            return 0;
-        })
-            .catch((error) => {
-            log.error(error);
-            workerQueueConfig.hasMore = false;
-            workerQueueConfig.decrementCount();
-            this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
-        });
+        try {
+            this.requestEventToProcess(workerQueueConfig)
+                .then(() => {
+                workerQueueConfig.decrementCount();
+                this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
+                return 0;
+            })
+                .catch((error) => this.handleErrorForQueueConfig(error, workerQueueConfig));
+        }
+        catch (error) {
+            this.handleErrorForQueueConfig(error, workerQueueConfig);
+        }
     }
     async requestEventToProcess(workerQueueConfig_) {
         const workerQueueConfig = workerQueueConfig_;
@@ -234,6 +233,13 @@ class WorkerEventScheduler {
             log.error(error);
             return [false, error.message];
         }
+    }
+    handleErrorForQueueConfig(error, _workerQueueConfig) {
+        log.error(error);
+        const workerQueueConfig = _workerQueueConfig;
+        workerQueueConfig.hasMore = false;
+        workerQueueConfig.decrementCount();
+        this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
     }
 }
 exports.WorkerEventScheduler = WorkerEventScheduler;

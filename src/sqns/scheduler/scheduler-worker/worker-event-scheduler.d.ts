@@ -17,5 +17,6 @@ declare class WorkerEventScheduler {
     private requestEventToProcessAsynchronous;
     private requestEventToProcess;
     private processEvent;
+    private handleErrorForQueueConfig;
 }
 export { WorkerEventScheduler };
