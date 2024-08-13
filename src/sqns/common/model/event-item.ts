@@ -86,24 +86,24 @@ export class EventItem extends BaseObject {
     this.setReceiveCount(this.receiveCount + 1);
   }
 
-  setState(state: string = EventState.PENDING): void {
+  setState(state: EventState = EventState.PENDING): void {
     if (this.state && EventState.SUCCESS !== state) {
       this.setReceiveCount(0);
     }
     switch (state) {
-      case EventState.PENDING.valueOf(): {
+      case EventState.PENDING: {
         this.state = EventState.PENDING;
         break;
       }
-      case EventState.FAILURE.valueOf(): {
+      case EventState.FAILURE: {
         this.state = EventState.FAILURE;
         break;
       }
-      case EventState.SUCCESS.valueOf(): {
+      case EventState.SUCCESS: {
         this.state = EventState.SUCCESS;
         break;
       }
-      case EventState.PROCESSING.valueOf(): {
+      case EventState.PROCESSING: {
         this.state = EventState.PROCESSING;
         break;
       }

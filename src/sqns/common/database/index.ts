@@ -1,5 +1,5 @@
 enum Database {
-  MONGO_DB
+  MONGO_DB = 'mongodb',
 }
 
 export { Database };
