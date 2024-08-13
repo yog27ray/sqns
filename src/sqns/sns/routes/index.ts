@@ -6,18 +6,20 @@ import { SNSController } from './s-n-s-controller';
 
 function generateRoutes(relativeURL: string, snsManager: SNSManager): express.Router {
   const controller = new SNSController(relativeURL, snsManager);
-  const router = express.Router();
+  const oldRouter = express.Router();
 
-  router.use('/sns/health', (request: express.Request, response: express.Response) => response.send('success'));
+  oldRouter.use('/sns/health', (request: express.Request, response: express.Response) => response.send('success'));
 
-  router.get('/sns', AwsToServerTransformer.transformRequestBody(), controller.snsGet());
-  router.post(
+  oldRouter.get('/sns', AwsToServerTransformer.transformRequestBody(), controller.snsGet());
+  oldRouter.post(
     '/sns',
     authentication(getSecretKey(snsManager.getStorageEngine())),
     AwsToServerTransformer.transformRequestBody(),
     controller.sns());
 
-  return router;
+  const newRouter = express.Router();
+  newRouter.use(oldRouter);
+  return newRouter;
 }
 
 export { generateRoutes };

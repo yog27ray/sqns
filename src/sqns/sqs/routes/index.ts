@@ -7,29 +7,31 @@ import { SQSController } from './s-q-s-controller';
 function generateRoutes(sqsManager: SQSManager): express.Router {
   const controller = new SQSController(sqsManager);
 
-  const router = express.Router();
+  const oldRouter = express.Router();
 
-  router.get('/queue/health', (request: express.Request, response: express.Response) => {
+  oldRouter.get('/queue/health', (request: express.Request, response: express.Response) => {
     response.send('success');
   });
-  router.get('/queues/events/stats', controller.eventStats());
-  router.post(
+  oldRouter.get('/queues/events/stats', controller.eventStats());
+  oldRouter.post(
     '/sqs/:region/:companyId/:queueName/event/:eventId/success',
     authentication(getSecretKey(sqsManager.getStorageEngine())),
     AwsToServerTransformer.transformRequestBody(),
     controller.eventSuccess());
-  router.post(
+  oldRouter.post(
     '/sqs/:region/:companyId/:queueName/event/:eventId/failure',
     authentication(getSecretKey(sqsManager.getStorageEngine())),
     AwsToServerTransformer.transformRequestBody(),
     controller.eventFailure());
-  router.post(
+  oldRouter.post(
     '/sqs',
     authentication(getSecretKey(sqsManager.getStorageEngine())),
     AwsToServerTransformer.transformRequestBody(),
     controller.sqs());
 
-  return router;
+  const newRouter = express.Router();
+  newRouter.use(oldRouter);
+  return newRouter;
 }
 
 export { generateRoutes };
