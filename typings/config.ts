@@ -1,6 +1,5 @@
+import { KeyValue, RequestItem, SQNSLoggingConfig } from '../src/client';
 import { Database } from '../src/sqns/common/database';
-import { KeyValue } from './common';
-import { RequestItem } from './request-item';
 
 export declare interface MongoDBConfig {
   uri: string;
@@ -24,11 +23,6 @@ export declare interface SQSConfig {
   requestTasks?: Array<string>;
   cronInterval?: string;
   enableSNSQueue?: boolean;
-}
-
-export declare interface SQNSLoggingConfig {
-  json?: boolean;
-  stringOnly?: boolean;
 }
 
 export declare interface SNSConfig {

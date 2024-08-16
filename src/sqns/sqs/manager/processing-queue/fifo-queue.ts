@@ -1,4 +1,4 @@
-import { EventItem } from '../../../common/model/event-item';
+import { EventItem } from '../../../../client';
 import { QueueAdapter } from './queue-adapter';
 
 class FifoQueue implements QueueAdapter {

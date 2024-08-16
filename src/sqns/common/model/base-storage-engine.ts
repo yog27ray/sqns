@@ -1,10 +1,9 @@
-import { KeyValue } from '../../../../typings/common';
 import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
-import { SQNSError } from '../auth/s-q-n-s-error';
+import { AccessKey, KeyValue, SQNSError } from '../../../client';
+import { SQNSErrorCreator } from '../auth/s-q-n-s-error-creator';
 import { Database } from '../database';
 import { MongoDBAdapter } from '../database/mongodb/mongo-d-b-adapter';
 import { StorageAdapter } from '../database/storage-adapter';
-import { AccessKey } from './access-key';
 import { User } from './user';
 
 export class BaseStorageEngine {
@@ -61,7 +60,7 @@ export class BaseStorageEngine {
   async findAccessKey(where: KeyValue): Promise<AccessKey> {
     const [accessKey] = await this._storageAdapter.findAccessKeys(where, 0, 1);
     if (!accessKey) {
-      SQNSError.invalidAccessKey();
+      SQNSErrorCreator.invalidAccessKey();
     }
     return accessKey;
   }
@@ -69,7 +68,7 @@ export class BaseStorageEngine {
   async findUser(where: KeyValue): Promise<User> {
     const [user] = await this._storageAdapter.findUsers(where, 0, 1);
     if (!user) {
-      SQNSError.invalidUser();
+      SQNSErrorCreator.invalidUser();
     }
     return user;
   }

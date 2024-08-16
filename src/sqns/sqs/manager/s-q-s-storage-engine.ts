@@ -1,8 +1,7 @@
-import { ARN } from '../../../../typings/common';
-import { SQNSError } from '../../common/auth/s-q-n-s-error';
+import { ARN, EventItem, EventState } from '../../../client';
+import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
-import { EventItem, EventState } from '../../common/model/event-item';
 import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
 
@@ -71,7 +70,7 @@ class SQSStorageEngine extends BaseStorageEngine {
   async getQueue(queueARN: ARN): Promise<Queue> {
     const queue = await this._storageAdapter.getQueue(queueARN);
     if (!queue) {
-      SQNSError.invalidQueueName(queueARN);
+      SQNSErrorCreator.invalidQueueName(queueARN);
     }
     return queue;
   }

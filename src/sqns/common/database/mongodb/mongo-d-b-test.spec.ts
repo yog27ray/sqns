@@ -1,17 +1,13 @@
 /* tslint:disable:no-null-keyword */
 import { expect } from 'chai';
 import moment from 'moment';
-import { MessageAttributeMap } from '../../../../../typings/common';
-import { ChannelDeliveryPolicy } from '../../../../../typings/delivery-policy';
-import { CreateQueueResult } from '../../../../../typings/queue';
+import { ChannelDeliveryPolicy, CreateQueueResult, MessageAttributeMap, RequestClient, SQNSClient } from '../../../../client';
 import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
-import { SQNSClient } from '../../../s-q-n-s-client';
 import { WorkerEventScheduler } from '../../../scheduler/scheduler-worker/worker-event-scheduler';
 import { WorkerQueueConfig } from '../../../scheduler/scheduler-worker/worker-queue-config';
 import { DeliveryPolicyHelper } from '../../helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../model/base-storage-engine';
-import { RequestClient } from '../../request-client/request-client';
 import { MongoDBAdapter } from './mongo-d-b-adapter';
 
 declare interface DBEvent {

@@ -1,6 +1,6 @@
 import { ConfigCount } from '../../../../typings/config';
-import { CreateQueueResult } from '../../../../typings/queue';
 import { ResponseItem } from '../../../../typings/response-item';
+import { CreateQueueResult } from '../../../client';
 
 class WorkerQueueConfig {
   private readonly _queueName: string;

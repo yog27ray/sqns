@@ -1,9 +1,8 @@
 import { expect } from 'chai';
+import { AccessKey, SQNSError } from '../../../client';
 import { setupConfig } from '../../../setup';
-import { AccessKey } from '../model/access-key';
 import { BaseStorageEngine } from '../model/base-storage-engine';
 import { getSecretKey } from './authentication';
-import { SQNSError } from './s-q-n-s-error';
 
 describe('Authentication', () => {
   context('getSecretKey', () => {

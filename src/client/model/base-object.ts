@@ -1,4 +1,4 @@
-import { BaseObjectType } from '../../../../typings/class-types';
+import { BaseObjectType } from '../types/class-types';
 
 class BaseObject {
   id: string;

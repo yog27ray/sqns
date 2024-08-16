@@ -4,11 +4,11 @@ import http from 'http';
 // import morgan from 'morgan';
 import { SQNS, SQNSClient } from '../index';
 import { DatabaseConfig, SQNSConfig } from '../typings/config';
+import { RequestClient } from './client';
 import { Database } from './sqns/common/database';
 import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
 import { logger } from './sqns/common/logger/logger';
 import { BaseStorageEngine } from './sqns/common/model/base-storage-engine';
-import { RequestClient } from './sqns/common/request-client/request-client';
 import { deleteAllQueues, deleteTopics, Env } from './test-env';
 
 const log = logger.instance('TestServer');
@@ -84,6 +84,9 @@ before(async () => {
   setupConfig.sqns.cancel();
   setupConfig.sqns.registerExpressRoutes(app);
   const server = http.createServer(app);
+  // Set the timeouts in milliseconds
+  server.keepAliveTimeout = 60000; // 60 seconds
+  server.headersTimeout = 65000; // 65 seconds
   server.listen(Env.PORT, '0.0.0.0', () => {
     log.info('Express server listening on %d, in test mode', Env.PORT);
   });

@@ -1,4 +1,4 @@
-import { EventState } from '../src/sqns/common/model/event-item';
+import { EventState } from '../model/event-item';
 import { ARN, MessageAttributeMap, PHONE, SUPPORTED_CHANNEL_TYPE } from './common';
 
 export interface PublishInput {

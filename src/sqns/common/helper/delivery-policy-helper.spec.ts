@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../typings/delivery-policy';
-import { GetSubscriptionResponse } from '../../../../typings/subscription';
+import { ChannelDeliveryPolicy, DeliveryPolicy, GetSubscriptionResponse } from '../../../client';
 import { DeliveryPolicyHelper } from './delivery-policy-helper';
 
 describe('DeliveryPolicyHelper', () => {

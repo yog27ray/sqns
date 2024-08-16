@@ -1,13 +1,11 @@
 import { v4 as uuid } from 'uuid';
 import xml2js from 'xml2js';
-import { KeyValue, MessageAttributeMap, MessageAttributeValue } from '../../../../typings/common';
 import { ResponseMessage } from '../../../../typings/response-item';
-import { EventItem } from '../model/event-item';
+import { Encryption, EventItem, KeyValue, MessageAttributeMap, MessageAttributeValue } from '../../../client';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';
 import { Topic } from '../model/topic';
-import { Encryption } from './encryption';
 
 class AwsXmlFormat {
   static jsonToXML(rootName: string, keyValue: KeyValue): string {

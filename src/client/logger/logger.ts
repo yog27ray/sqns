@@ -1,5 +1,5 @@
 import { Logger4Node } from 'logger4node';
-import { SQNSLoggingConfig } from '../../../client';
+import { SQNSLoggingConfig } from '../types';
 
 const logger = new Logger4Node('sqns');
 

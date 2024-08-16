@@ -1,7 +1,12 @@
-import { KeyValue, SUPPORTED_BACKOFF_FUNCTIONS_TYPE } from '../../../../typings/common';
-import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../typings/delivery-policy';
-import { GetSubscriptionResponse } from '../../../../typings/subscription';
-import { SQNSError } from '../auth/s-q-n-s-error';
+import {
+  ChannelDeliveryPolicy,
+  DeliveryPolicy,
+  GetSubscriptionResponse,
+  KeyValue,
+  SQNSError,
+  SUPPORTED_BACKOFF_FUNCTIONS_TYPE,
+} from '../../../client';
+import { SQNSErrorCreator } from '../auth/s-q-n-s-error-creator';
 import { SUPPORTED_BACKOFF_FUNCTIONS } from './common';
 
 export class DeliveryPolicyHelper {
@@ -89,12 +94,12 @@ export class DeliveryPolicyHelper {
       deliveryPolicy = JSON.parse(deliveryPolicyStringValue);
     } catch (error) {
       const { message } = error as { message: string; };
-      SQNSError.invalidDeliveryPolicy(message);
+      SQNSErrorCreator.invalidDeliveryPolicy(message);
     }
     DeliveryPolicyHelper.hasAllKeys(deliveryPolicy, DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY);
     const { backoffFunction } = deliveryPolicy.default.defaultHealthyRetryPolicy;
     if (!SUPPORTED_BACKOFF_FUNCTIONS.includes(backoffFunction)) {
-      SQNSError.invalidDeliveryPolicy(`"${backoffFunction}" backoffFunction invalid.`);
+      SQNSErrorCreator.invalidDeliveryPolicy(`"${backoffFunction}" backoffFunction invalid.`);
     }
   }
 
@@ -102,7 +107,7 @@ export class DeliveryPolicyHelper {
     const jsonOneKeys = Object.keys(jsonOne);
     const jsonTwoKeys = Object.keys(jsonTwo);
     if (jsonOneKeys.length !== jsonTwoKeys.length) {
-      SQNSError.invalidDeliveryPolicy('Different keys');
+      SQNSErrorCreator.invalidDeliveryPolicy('Different keys');
     }
     jsonOneKeys.forEach((key: string) => {
       if (typeof jsonOne[key] === 'object' || typeof jsonTwo[key] === 'object') {
@@ -110,7 +115,7 @@ export class DeliveryPolicyHelper {
         return;
       }
       if (!jsonTwoKeys.includes(key)) {
-        SQNSError.invalidDeliveryPolicy(`"${key}" missing.`);
+        SQNSErrorCreator.invalidDeliveryPolicy(`"${key}" missing.`);
       }
     });
   }

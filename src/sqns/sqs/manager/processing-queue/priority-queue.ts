@@ -1,5 +1,5 @@
 import FastPriorityQueue from 'fastpriorityqueue';
-import { EventItem } from '../../../common/model/event-item';
+import { EventItem } from '../../../../client';
 import { QueueAdapter } from './queue-adapter';
 
 class PriorityQueue implements QueueAdapter {

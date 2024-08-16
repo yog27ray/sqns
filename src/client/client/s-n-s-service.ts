@@ -1,4 +1,4 @@
-import { SNSServiceConfiguration } from '../../../../typings/client-confriguation';
+import { SNSServiceConfiguration } from '../types/client-confriguation';
 
 export class SNSService {
   config: SNSServiceConfiguration;

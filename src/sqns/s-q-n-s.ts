@@ -1,13 +1,11 @@
 import { Express } from 'express';
 import { Logger4Node } from 'logger4node';
-import { ARN } from '../../typings/common';
 import { AdminSecretKeys, SQNSConfig } from '../../typings/config';
-import { SQNSError } from './common/auth/s-q-n-s-error';
-import { BaseClient } from './common/client/base-client';
+import { ARN, BaseClient, EventItem } from '../client';
+import { SQNSErrorCreator } from './common/auth/s-q-n-s-error-creator';
 import { RESERVED_QUEUE_NAME } from './common/helper/common';
 import { logger, updateLogging } from './common/logger/logger';
 import { BaseStorageEngine } from './common/model/base-storage-engine';
-import { EventItem } from './common/model/event-item';
 import { Queue } from './common/model/queue';
 import { generateRoutes as sqnsRoutes } from './common/routes';
 import { SNSManager } from './sns/manager/s-n-s-manager';
@@ -29,7 +27,7 @@ export class SQNS {
   constructor(config: SQNSConfig) {
     log.info('Setting SQNS');
     if (!config.adminSecretKeys || !config.adminSecretKeys.length) {
-      SQNSError.minAdminSecretKeys();
+      SQNSErrorCreator.minAdminSecretKeys();
     }
     this._url = {
       host: config.endpoint.split('/').splice(0, 3).join('/'),

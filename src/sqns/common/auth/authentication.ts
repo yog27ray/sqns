@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
-import { AuthRequest, Credentials, GetSecretKeyResult } from '../../../../typings/auth';
+import { GetSecretKeyResult } from '../../../../typings/auth';
 import { ExpressMiddleware } from '../../../../typings/express';
+import { AuthRequest, Credentials, signRequest, SQNSError } from '../../../client';
 import { logger } from '../logger/logger';
 import { BaseStorageEngine } from '../model/base-storage-engine';
 import { User } from '../model/user';
 import { ExpressHelper } from '../routes/express-helper';
-import { Encryption } from './encryption';
-import { SQNSError } from './s-q-n-s-error';
+import { SQNSErrorCreator } from './s-q-n-s-error-creator';
 
 const log = logger.instance('Authentication');
 
@@ -16,33 +16,13 @@ function getSecretKey(storageEngine: BaseStorageEngine): (accessKeyId: string) =
       .catch((error: SQNSError) => {
         if (error.code === 'NotFound') {
           log.error(`AccessKey not found: ${accessKeyId}`);
-          SQNSError.invalidSignatureError();
+          SQNSErrorCreator.invalidSignatureError();
         }
         return Promise.reject(error);
       });
     const user = await storageEngine.findUser({ id: accessKey.userId });
     return { secretAccessKey: accessKey.secretKey, accessKeyId: accessKey.accessKey, user };
   };
-}
-
-function signRequest(authRequest_: AuthRequest, credentials: Credentials, headerKeys_: Array<string>): void {
-  log.verbose('Received Authentication Data:', authRequest_);
-  const authRequest = authRequest_;
-  const headerKeys = headerKeys_.map((each: string) => each).sort();
-  authRequest.headers['x-sqns-content-sha256'] = Encryption.createJSONHash('sha256', authRequest.body as Record<string, unknown>);
-  const data = { ...authRequest, accessKeyId: credentials.accessKeyId };
-  data.headers = headerKeys.reduce((result_: Record<string, string>, key: string) => {
-    const result = result_;
-    result[key] = authRequest.headers[key];
-    return result;
-  }, {});
-  const hash = Encryption.createJSONHmac('sha256', credentials.secretAccessKey, data);
-  const algorithm = 'SQNS-HMAC-SHA256';
-  const credential = `Credential=${credentials.accessKeyId}/${data.headers['x-sqns-date'].substring(0, 8)}/${
-    authRequest.region}/${authRequest.service}/request`;
-  const signedHeaders = `SignedHeaders=${headerKeys.join(';')}`;
-  const signature = `Signature=${hash}`;
-  authRequest.headers.authorization = `${algorithm} ${credential}, ${signedHeaders}, ${signature}`;
 }
 
 function verifyRequest(authRequest: AuthRequest, credentials: Credentials, user: User): void {
@@ -62,7 +42,7 @@ function verifyRequest(authRequest: AuthRequest, credentials: Credentials, user:
   log.error('Authorization header received:', authRequest.headers.authorization);
   log.error('Matching generated hash:', testAuthRequest.headers.authorization, 'against client hash: ', authRequest.headers.authorization);
   if (!user.skipAuthentication) {
-    SQNSError.invalidSignatureError();
+    SQNSErrorCreator.invalidSignatureError();
   }
 }
 
@@ -98,4 +78,4 @@ function authentication(getSecretKeyCallback: (accessKey: string) => Promise<Get
   };
 }
 
-export { authentication, getSecretKey, signRequest };
+export { authentication, getSecretKey };

@@ -1,12 +1,10 @@
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
-import { SQSServerBody } from '../../../../typings/queue';
-import { SendMessageReceived } from '../../../../typings/send-message';
+import { EventItem, SendMessageReceived, SQNSError, SQSServerBody } from '../../../client';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
-import { SQNSError } from '../../common/auth/s-q-n-s-error';
+import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { RESERVED_QUEUE_NAME } from '../../common/helper/common';
-import { EventItem } from '../../common/model/event-item';
 import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
 import { ExpressHelper } from '../../common/routes/express-helper';
@@ -74,7 +72,7 @@ class SQSController {
         case 'DeleteQueue': {
           const { queueName, region, requestId } = req.serverBody;
           if (RESERVED_QUEUE_NAME.includes(queueName)) {
-            SQNSError.reservedQueueNames();
+            SQNSErrorCreator.reservedQueueNames();
           }
           const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
           await this.eventManager.deleteQueue(queue);

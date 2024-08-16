@@ -4,7 +4,7 @@ function generateRoutes(): express.Router {
   const router = express.Router();
 
   router.get('/sqns/health', (request: express.Request, response: express.Response) => {
-    response.send('success');
+    response.json({ status: 'success' });
   });
 
   return router;

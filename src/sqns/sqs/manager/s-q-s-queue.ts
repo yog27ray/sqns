@@ -1,5 +1,4 @@
-import { ARN } from '../../../../typings/common';
-import { EventItem } from '../../common/model/event-item';
+import { ARN, EventItem } from '../../../client';
 import { FifoQueue } from './processing-queue/fifo-queue';
 import { PriorityQueue } from './processing-queue/priority-queue';
 import { QueueAdapter } from './processing-queue/queue-adapter';

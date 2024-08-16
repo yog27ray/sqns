@@ -1,10 +1,8 @@
 import { Request, Response } from 'express';
-import { SupportedProtocol } from '../../../../typings/common';
 import { ExpressMiddleware } from '../../../../typings/express';
-import { SNSServerBody } from '../../../../typings/queue';
+import { Encryption, SNSServerBody, SupportedProtocol } from '../../../client';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
-import { Encryption } from '../../common/auth/encryption';
-import { SQNSError } from '../../common/auth/s-q-n-s-error';
+import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { User } from '../../common/model/user';
 import { ExpressHelper } from '../../common/routes/express-helper';
@@ -24,7 +22,7 @@ class SNSController {
           return this.removeSubscription(req, res);
         }
         default:
-          return SQNSError.unhandledFunction(req.serverBody.Action);
+          return SQNSErrorCreator.unhandledFunction(req.serverBody.Action);
       }
     });
   }
@@ -117,7 +115,7 @@ class SNSController {
           return res.send(AwsXmlFormat.getSubscription(requestId, req.sqnsBaseURL, subscription));
         }
         default:
-          return SQNSError.unhandledFunction(req.serverBody.Action);
+          return SQNSErrorCreator.unhandledFunction(req.serverBody.Action);
       }
     });
   }

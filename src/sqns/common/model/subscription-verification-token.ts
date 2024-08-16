@@ -1,5 +1,5 @@
 import { SubscriptionVerificationTokenType } from '../../../../typings/class-types';
-import { BaseObject } from './base-object';
+import { BaseObject } from '../../../client';
 
 class SubscriptionVerificationToken extends BaseObject {
   Type: string;

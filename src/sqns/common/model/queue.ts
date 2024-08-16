@@ -1,9 +1,7 @@
 import { QueueType } from '../../../../typings/class-types';
-import { ARN } from '../../../../typings/common';
-import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
+import { ARN, BaseObject, ChannelDeliveryPolicy } from '../../../client';
 import { RESERVED_QUEUE_NAME } from '../helper/common';
 import { DeliveryPolicyHelper } from '../helper/delivery-policy-helper';
-import { BaseObject } from './base-object';
 
 class Queue extends BaseObject {
   ownerId: string;

@@ -1,8 +1,7 @@
 import { expect } from 'chai';
-import { KeyValue, RequestItem } from '../../../../typings/typings';
+import { KeyValue, RequestClient, RequestItem } from '../../../client';
 import { dropDatabase } from '../../../setup';
 import { Env } from '../../../test-env';
-import { RequestClient } from '../../common/request-client/request-client';
 import { ManagerEventScheduler } from './manager-event-scheduler';
 
 describe('ManagerEventSchedulerSpec', () => {

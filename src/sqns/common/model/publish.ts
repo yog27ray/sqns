@@ -1,6 +1,5 @@
 import { PublishType } from '../../../../typings/class-types';
-import { ARN, MessageAttributes, MessageStructure } from '../../../../typings/typings';
-import { BaseObject } from './base-object';
+import { ARN, BaseObject, MessageAttributes, MessageStructure } from '../../../client';
 
 class Publish extends BaseObject {
   static STATUS_PUBLISHING: string = 'Publishing';

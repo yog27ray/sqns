@@ -1,11 +1,9 @@
 import * as schedule from 'node-schedule';
-import { SQNSClientConfig } from '../../../../typings/client-confriguation';
-import { DeliveryPolicy } from '../../../../typings/delivery-policy';
 import { ResponseItem } from '../../../../typings/response-item';
+import { DeliveryPolicy, SQNSClient, SQNSClientConfig } from '../../../client';
 import { SNS_QUEUE_EVENT_TYPES, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { logger } from '../../common/logger/logger';
-import { SQNSClient } from '../../s-q-n-s-client';
 import { WorkerQueueConfig } from './worker-queue-config';
 
 const log = logger.instance('WorkerEventScheduler');

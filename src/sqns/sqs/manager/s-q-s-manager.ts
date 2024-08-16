@@ -1,15 +1,12 @@
-import { ARN, MessageAttributeMap } from '../../../../typings/common';
 import { SQSConfig } from '../../../../typings/config';
-import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
 import { SQSPriorities } from '../../../../typings/manager';
+import { ARN, ChannelDeliveryPolicy, EventItem, MessageAttributeMap, RequestClient } from '../../../client';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { logger } from '../../common/logger/logger';
 import { BaseManager } from '../../common/model/base-manager';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
-import { EventItem } from '../../common/model/event-item';
 import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
-import { RequestClient } from '../../common/request-client/request-client';
 import { StorageToQueueWorker } from '../worker/storage-to-queue-worker';
 import { SQSQueue } from './s-q-s-queue';
 import { SQSStorageEngine } from './s-q-s-storage-engine';

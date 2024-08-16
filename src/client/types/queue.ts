@@ -1,4 +1,4 @@
-import { EventState } from '../src/sqns/common/model/event-item';
+import { EventState } from '../model/event-item';
 import { TopicAttributes, TopicTag } from './class-types';
 import { MessageAttributes } from './common';
 import { DeliveryPolicy } from './delivery-policy';

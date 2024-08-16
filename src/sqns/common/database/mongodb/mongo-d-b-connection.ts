@@ -1,5 +1,5 @@
 import { Collection, Condition, Db, MongoClient, ObjectId } from 'mongodb';
-import { KeyValue } from '../../../../../typings/common';
+import { KeyValue } from '../../../../client';
 
 class MongoDBConnection {
   private readonly _option: Record<string, unknown>;
