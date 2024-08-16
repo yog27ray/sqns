@@ -1,10 +1,10 @@
 import xml2js from 'xml2js';
 import { Encryption, EventItem, KeyValue, MessageAttributeMap, MessageAttributeValue } from '../../../client';
+import { ResponseHelper } from '../helper/response-helper';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';
 import { Topic } from '../model/topic';
-import { ResponseHelper } from '../helper/response-helper';
 
 class AwsXmlFormat {
   static jsonToXML(rootName: string, keyValue: KeyValue): string {

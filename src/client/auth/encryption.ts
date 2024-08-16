@@ -41,7 +41,7 @@ class Encryption {
     const record = item as Record<string, unknown>;
     return Object.keys(record)
       .sort()
-      .filter((key) => (record[key] !== undefined))
+      .filter((key: string) => (record[key] !== undefined))
       .map((key: string) => `${key}=${Encryption.createFlatRecord(record[key])}`)
       .join('&');
   }

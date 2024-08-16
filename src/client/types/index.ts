@@ -10,8 +10,8 @@ import {
 import { ClientConfiguration, SQNSClientConfig } from './client-confriguation';
 import {
   ARN,
-  KeyValue,
   DataTypeAndValue,
+  KeyValue,
   MessageAttributeEntry,
   MessageAttributeMap,
   MessageAttributes,

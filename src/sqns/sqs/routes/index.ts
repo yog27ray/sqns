@@ -1,9 +1,9 @@
 import * as express from 'express';
 import { authentication, getSecretKey } from '../../common/auth/authentication';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
+import { transformRequest } from '../../common/auth/transform-request';
 import { SQSManager } from '../manager/s-q-s-manager';
 import { SQSController } from './s-q-s-controller';
-import { transformRequest } from '../../common/auth/transform-request';
 
 function generateRoutes(sqsManager: SQSManager): express.Router {
   const controller = new SQSController(sqsManager);

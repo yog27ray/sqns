@@ -12,7 +12,7 @@ export function transformRequest(): ExpressMiddleware {
     req.sqnsBaseURL = `${req.headers['x-forwarded-proto'] as string || req.protocol}://${req.get('host')}${req.baseUrl}`;
     const [, , region]: Array<string> = req.header('Authorization').split(' ')[1].split('=')[1].split('/');
     req.body.region = region;
-    MapFields.forEach((each) => {
+    MapFields.forEach((each: { from: string; to: string; }) => {
       if (!req.body[each.from]) {
         return;
       }

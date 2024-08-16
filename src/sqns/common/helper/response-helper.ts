@@ -1,17 +1,10 @@
 import { v4 as uuid } from 'uuid';
-import { Queue } from '../model/queue';
-import { Encryption, EventItem } from '../../../client';
 import { ResponseMessage } from '../../../../typings/response-item';
+import { Encryption, EventItem } from '../../../client';
+import { Queue } from '../model/queue';
 
-declare type Return<T> = { data: T; ResponseMetadata: { RequestId: string; }; };
+declare interface Return<T> { data: T; ResponseMetadata: { RequestId: string; }; }
 export class ResponseHelper {
-  private static send<T>(
-    requestId: string, responseValue: T): Return<T> {
-    return {
-      data: responseValue,
-      ResponseMetadata: { RequestId: requestId },
-    };
-  }
 
   static createQueue(requestId: string, host: string, queue: Queue): Return<{ QueueUrl: string }> {
     return ResponseHelper.send(requestId, { QueueUrl: ResponseHelper.generateSQSURL(queue, host) });
@@ -43,7 +36,7 @@ export class ResponseHelper {
       {
         Messages: events
           .map((message: EventItem) => ResponseHelper.responseMessage(message, AttributeName, MessageAttributeName))
-          .filter((each) => each),
+          .filter((each: ResponseMessage) => each),
       });
   }
 
@@ -81,5 +74,13 @@ export class ResponseHelper {
       result.Attribute = attributeFields.map((key: string) => ({ Name: key, Value: attributes[key] }));
     }
     return result;
+  }
+
+  private static send<T>(
+    requestId: string, responseValue: T): Return<T> {
+    return {
+      data: responseValue,
+      ResponseMetadata: { RequestId: requestId },
+    };
   }
 }

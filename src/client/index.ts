@@ -17,6 +17,7 @@ import {
   CreateQueueResult,
   CreateTopicResponse,
   Credentials,
+  DataTypeAndValue,
   DeliveryPolicy,
   EventItemType,
   FindMessageByIdResult,
@@ -33,6 +34,7 @@ import {
   SendMessageRequest,
   SNSServerBody,
   SQNSClientConfig,
+  SQNSLoggingConfig,
   SQSServerBody,
   SubscriptionAttributes,
   SubscriptionConfirmationRequestBody,
@@ -47,8 +49,6 @@ import {
   UpdateMessageByDeduplicationIdResult,
   UpdateMessageById,
   UpdateMessageByIdResult,
-  DataTypeAndValue,
-  SQNSLoggingConfig,
 } from './types';
 
 export {

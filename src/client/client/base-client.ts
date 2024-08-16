@@ -1,5 +1,5 @@
-import { v4 as uuid } from 'uuid';
 import moment from 'moment';
+import { v4 as uuid } from 'uuid';
 import xml2js from 'xml2js';
 import { signRequest } from '../auth/authentication';
 import { SQNSError } from '../auth/s-q-n-s-error';
@@ -145,7 +145,7 @@ export class BaseClient extends RequestClient {
     }, ['host', 'x-sqns-content-sha256', 'x-sqns-date']);
     request.headers = { ...(request.headers || {}), ...headers };
     return this.post(request.uri, { json: true, body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
-      .catch((originalError) => {
+      .catch((originalError: SQNSError) => {
         const { message, code } = originalError;
         // const { error, message, code } = originalError;
         return Promise.reject(new SQNSError({ code, message }));

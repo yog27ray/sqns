@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
 import { EventItem, SendMessageReceived, SQNSError, SQSServerBody } from '../../../client';
+import { SQSServerJSONBody } from '../../../client/types/queue';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { RESERVED_QUEUE_NAME } from '../../common/helper/common';
+import { ResponseHelper } from '../../common/helper/response-helper';
 import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
 import { ExpressHelper } from '../../common/routes/express-helper';
 import { SQSManager } from '../manager/s-q-s-manager';
-import { SQSServerJSONBody } from '../../../client/types/queue';
-import { ResponseHelper } from '../../common/helper/response-helper';
 
 class SQSController {
   private readonly _eventManager: SQSManager;
