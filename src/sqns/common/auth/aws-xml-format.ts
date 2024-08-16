@@ -1,12 +1,12 @@
 import { v4 as uuid } from 'uuid';
 import xml2js from 'xml2js';
+import { ResponseMessage } from '../../../../typings/response-item';
 import { Encryption, EventItem, KeyValue, MessageAttributeMap, MessageAttributeValue } from '../../../client';
 import { ResponseHelper } from '../helper/response-helper';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';
 import { Topic } from '../model/topic';
-import { ResponseMessage } from '../../../../typings/response-item';
 
 class AwsXmlFormat {
   static jsonToXML(rootName: string, keyValue: KeyValue): string {

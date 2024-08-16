@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { authentication, getSecretKey } from '../../common/auth/authentication';
+import { authenticationJson, authenticationOld, getSecretKey } from '../../common/auth/authentication';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
 import { transformRequest } from '../../common/auth/transform-request';
 import { SQSManager } from '../manager/s-q-s-manager';
@@ -16,32 +16,32 @@ function generateRoutes(sqsManager: SQSManager): express.Router {
   oldRouter.get('/queues/events/stats', controller.eventStats());
   oldRouter.post(
     '/sqs/:region/:companyId/:queueName/event/:eventId/success',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    authenticationOld(getSecretKey(sqsManager.getStorageEngine())),
     AwsToServerTransformer.transformRequestBody(),
     controller.eventSuccess());
   oldRouter.post(
     '/sqs/:region/:companyId/:queueName/event/:eventId/failure',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    authenticationOld(getSecretKey(sqsManager.getStorageEngine())),
     AwsToServerTransformer.transformRequestBody(),
     controller.eventFailure());
   oldRouter.post(
     '/sqs',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    authenticationOld(getSecretKey(sqsManager.getStorageEngine())),
     AwsToServerTransformer.transformRequestBody(),
     controller.sqs());
 
   const router = express.Router();
   router.use(oldRouter);
   router.post('/sqs/queue',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
     transformRequest(),
     controller.createQueueHandler());
   router.post('/sqs/message',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
     transformRequest(),
     controller.createMessageHandler());
   router.post('/sqs/receiveMessage',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
     transformRequest(),
     controller.receiveMessageHandler());
   return router;

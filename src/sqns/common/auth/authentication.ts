@@ -46,36 +46,48 @@ function verifyRequest(authRequest: AuthRequest, credentials: Credentials, user:
   }
 }
 
-function authentication(getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>): ExpressMiddleware {
+async function authentication(
+  getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>,
+  req: Request,
+  res: Response,
+  next: NextFunction): Promise<void> {
+  log.verbose('Authorization header received:', req.header('Authorization'));
+  if (!req.header('Authorization') || req.header('Authorization').split(' ').length !== 4) {
+    ExpressHelper.errorHandler(new SQNSError({
+      code: 'SignatureDoesNotMatch',
+      message: 'The request signature we calculated does not match the signature you provided.',
+    }) as Error, res);
+    return;
+  }
+  const [accessKey, , region, service]: Array<string> = req.header('Authorization')
+    .split(' ')[1].split('=')[1].split('/');
+  log.verbose('AccessKey:', accessKey, '\tregion:', region, '\tservice:', service);
+  const { accessKeyId, secretAccessKey, user }: GetSecretKeyResult = await getSecretKeyCallback(accessKey);
+  log.verbose('DB AccessKey:', accessKeyId, '\tsecret:', secretAccessKey, '\tuser:', user.id);
+  verifyRequest({
+    region,
+    originalUrl: req.originalUrl,
+    method: req.method,
+    body: req.body,
+    headers: req.headers as Record<string, string>,
+    service,
+  }, { accessKeyId, secretAccessKey }, user);
+  Object.assign(req, { user });
+  next();
+}
+
+function authenticationOld(getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>): ExpressMiddleware {
   return (req: Request, res: Response, next: NextFunction): void => {
-    log.verbose('Authorization header received:', req.header('Authorization'));
-    if (!req.header('Authorization') || req.header('Authorization').split(' ').length !== 4) {
-      ExpressHelper.errorHandler(new SQNSError({
-        code: 'SignatureDoesNotMatch',
-        message: 'The request signature we calculated does not match the signature you provided.',
-      }) as Error, res);
-      return;
-    }
-    const [accessKey, , region, service]: Array<string> = req.header('Authorization')
-      .split(' ')[1].split('=')[1].split('/');
-    log.verbose('AccessKey:', accessKey, '\tregion:', region, '\tservice:', service);
-    getSecretKeyCallback(accessKey)
-      .then(({ accessKeyId, secretAccessKey, user }: GetSecretKeyResult): Promise<void> => {
-        log.verbose('DB AccessKey:', accessKeyId, '\tsecret:', secretAccessKey, '\tuser:', user.id);
-        verifyRequest({
-          region,
-          originalUrl: req.originalUrl,
-          method: req.method,
-          body: req.body,
-          headers: req.headers as Record<string, string>,
-          service,
-        }, { accessKeyId, secretAccessKey }, user);
-        Object.assign(req, { user });
-        return Promise.resolve();
-      })
-      .then(next)
+    authentication(getSecretKeyCallback, req, res, next)
       .catch((error: Error) => ExpressHelper.errorHandler(error, res));
   };
 }
 
-export { authentication, getSecretKey };
+function authenticationJson(getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>): ExpressMiddleware {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    authentication(getSecretKeyCallback, req, res, next)
+      .catch((error: Error) => ExpressHelper.errorHandlerJson(error, res));
+  };
+}
+
+export { authenticationOld, getSecretKey, authenticationJson };

@@ -148,7 +148,7 @@ export class BaseClient extends RequestClient {
       .catch((originalError: SQNSError) => {
         const { message, code } = originalError;
         try {
-          return Promise.reject(new SQNSError(JSON.parse(message)));
+          return Promise.reject(new SQNSError(JSON.parse(message) as { code: string; message: string; }));
         } catch (error) {
           return Promise.reject(new SQNSError({ code, message }));
         }

@@ -40,8 +40,9 @@ export class ResponseHelper {
       });
   }
 
-  private static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
+  private static responseMessage(_event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
     : ResponseMessageJson {
+    const event = _event;
     if (!event) {
       return undefined;
     }
@@ -52,7 +53,7 @@ export class ResponseHelper {
       Body: event.MessageBody,
     };
     if (MessageAttributeName) {
-      Object.keys(event.MessageAttribute).forEach((key) => {
+      Object.keys(event.MessageAttribute).forEach((key: string) => {
         if (MessageAttributeName.includes('ALL') || MessageAttributeName.includes(key)) {
           return;
         }
@@ -67,7 +68,7 @@ export class ResponseHelper {
         ApproximateFirstReceiveTimestamp: {
           DataType: 'String',
           StringValue: event.firstSentTime ? `${event.firstSentTime.getTime()}` : '-1',
-        } ,
+        },
         ApproximateReceiveCount: { DataType: 'String', StringValue: `${event.receiveCount}` },
         SentTimestamp: {
           DataType: 'String',
@@ -76,7 +77,7 @@ export class ResponseHelper {
       };
       result.Attributes = Object.keys(attributes).reduce((result: Record<string, string>, key: string) => {
         if (AttributeName.includes('ALL') || AttributeName.includes(key)) {
-          result[key] = attributes[key].StringValue;
+          return { ...result, [key]: attributes[key].StringValue };
         }
         return result;
       }, {});
