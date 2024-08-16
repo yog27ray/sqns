@@ -1,6 +1,6 @@
-import { ARN, ChannelDeliveryPolicy, EventItem, MessageAttributeMap, RequestClient } from '@sqns-client';
 import { SQSConfig } from '../../../../typings/config';
 import { SQSPriorities } from '../../../../typings/manager';
+import { ARN, ChannelDeliveryPolicy, EventItem, MessageAttributeMap, RequestClient } from '../../../client';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { logger } from '../../common/logger/logger';
 import { BaseManager } from '../../common/model/base-manager';

@@ -1,4 +1,4 @@
-import { KeyValue, RequestItem, SQNSLoggingConfig } from '@sqns-client';
+import { KeyValue, RequestItem, SQNSLoggingConfig } from '../src/client';
 import { Database } from '../src/sqns/common/database';
 
 export declare interface MongoDBConfig {

@@ -1,7 +1,7 @@
 /* tslint:disable:no-null-keyword */
-import { ChannelDeliveryPolicy, CreateQueueResult, MessageAttributeMap, RequestClient, SQNSClient } from '@sqns-client';
 import { expect } from 'chai';
 import moment from 'moment';
+import { ChannelDeliveryPolicy, CreateQueueResult, MessageAttributeMap, RequestClient, SQNSClient } from '../../../../client';
 import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
 import { WorkerEventScheduler } from '../../../scheduler/scheduler-worker/worker-event-scheduler';

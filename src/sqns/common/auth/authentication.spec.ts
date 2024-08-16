@@ -1,5 +1,5 @@
-import { AccessKey } from '@sqns-client';
 import { expect } from 'chai';
+import { AccessKey } from '../../../client';
 import { setupConfig } from '../../../setup';
 import { BaseStorageEngine } from '../model/base-storage-engine';
 import { getSecretKey } from './authentication';

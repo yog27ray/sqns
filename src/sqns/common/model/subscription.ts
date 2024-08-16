@@ -1,4 +1,4 @@
-import { BaseObject, ChannelDeliveryPolicy, SubscriptionAttributes, SubscriptionType, SupportedProtocol } from '@sqns-client';
+import { BaseObject, ChannelDeliveryPolicy, SubscriptionAttributes, SubscriptionType, SupportedProtocol } from '../../../client';
 
 class Subscription extends BaseObject {
   companyId: string;

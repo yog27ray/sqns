@@ -1,5 +1,5 @@
-import { KeyValue, RequestClient, RequestItem } from '@sqns-client';
 import { expect } from 'chai';
+import { KeyValue, RequestClient, RequestItem } from '../../../client';
 import { dropDatabase } from '../../../setup';
 import { Env } from '../../../test-env';
 import { ManagerEventScheduler } from './manager-event-scheduler';

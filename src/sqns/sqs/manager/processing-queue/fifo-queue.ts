@@ -1,4 +1,4 @@
-import { EventItem } from '@sqns-client';
+import { EventItem } from '../../../../client';
 import { QueueAdapter } from './queue-adapter';
 
 class FifoQueue implements QueueAdapter {

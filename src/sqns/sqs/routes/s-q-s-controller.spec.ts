@@ -1,6 +1,6 @@
-import { BaseClient, CreateQueueResult, RequestClient, signRequest, SQNSClient } from '@sqns-client';
 import { expect } from 'chai';
 import moment from 'moment/moment';
+import { BaseClient, CreateQueueResult, RequestClient, signRequest, SQNSClient } from '../../../client';
 import { delay, dropDatabase } from '../../../setup';
 import { Env } from '../../../test-env';
 

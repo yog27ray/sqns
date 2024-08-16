@@ -1,5 +1,5 @@
-import { AccessKey, KeyValue } from '@sqns-client';
 import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
+import { AccessKey, KeyValue } from '../../../client';
 import { SQNSErrorCreator } from '../auth/s-q-n-s-error-creator';
 import { Database } from '../database';
 import { MongoDBAdapter } from '../database/mongodb/mongo-d-b-adapter';

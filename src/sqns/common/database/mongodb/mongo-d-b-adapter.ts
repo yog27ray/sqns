@@ -1,3 +1,11 @@
+import { v4 as uuid } from 'uuid';
+import {
+  PublishType,
+  QueueType,
+  SubscriptionVerificationTokenType,
+  UserType,
+} from '../../../../../typings/class-types';
+import { MongoDBConfig } from '../../../../../typings/config';
 import {
   AccessKey,
   AccessKeyType,
@@ -8,15 +16,7 @@ import {
   MessageStructure, SubscriptionAttributes,
   SubscriptionType, SupportedProtocol, TopicAttributes, TopicTag,
   TopicType,
-} from '@sqns-client';
-import { v4 as uuid } from 'uuid';
-import {
-  PublishType,
-  QueueType,
-  SubscriptionVerificationTokenType,
-  UserType,
-} from '../../../../../typings/class-types';
-import { MongoDBConfig } from '../../../../../typings/config';
+} from '../../../../client';
 import { logger } from '../../logger/logger';
 import { Publish } from '../../model/publish';
 import { Queue } from '../../model/queue';

@@ -1,3 +1,7 @@
+import { expect } from 'chai';
+import moment from 'moment';
+import nock from 'nock';
+import { parseString } from 'xml2js';
 import {
   ARN,
   BaseClient,
@@ -15,11 +19,7 @@ import {
   SQNSError,
   SubscriptionConfirmationRequestBody,
   SupportedProtocol,
-} from '@sqns-client';
-import { expect } from 'chai';
-import moment from 'moment';
-import nock from 'nock';
-import { parseString } from 'xml2js';
+} from '../client';
 import { app, delay, dropDatabase, setupConfig } from '../setup';
 import { deleteDynamicDataOfResults, Env } from '../test-env';
 import { SYSTEM_QUEUE_NAME } from './common/helper/common';

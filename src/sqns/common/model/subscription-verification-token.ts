@@ -1,5 +1,5 @@
-import { BaseObject } from '@sqns-client';
 import { SubscriptionVerificationTokenType } from '../../../../typings/class-types';
+import { BaseObject } from '../../../client';
 
 class SubscriptionVerificationToken extends BaseObject {
   Type: string;

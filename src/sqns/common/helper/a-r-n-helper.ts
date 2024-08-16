@@ -1,4 +1,4 @@
-import { ARN } from '@sqns-client';
+import { ARN } from '../../../client';
 
 export class ARNHelper {
   static findResourceClassOfARN(resourceARN: ARN): 'Topic' {

@@ -1,4 +1,4 @@
-import { ARN, EventItem, EventState } from '@sqns-client';
+import { ARN, EventItem, EventState } from '../../../client';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';

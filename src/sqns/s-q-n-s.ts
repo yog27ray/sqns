@@ -1,7 +1,7 @@
-import { ARN, BaseClient, EventItem } from '@sqns-client';
 import { Express } from 'express';
 import { Logger4Node } from 'logger4node';
 import { AdminSecretKeys, SQNSConfig } from '../../typings/config';
+import { ARN, BaseClient, EventItem } from '../client';
 import { SQNSErrorCreator } from './common/auth/s-q-n-s-error-creator';
 import { RESERVED_QUEUE_NAME } from './common/helper/common';
 import { logger, updateLogging } from './common/logger/logger';

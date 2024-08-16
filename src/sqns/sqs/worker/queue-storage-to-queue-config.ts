@@ -1,6 +1,6 @@
-import { KeyValue } from '@sqns-client';
 import { BASE_CONFIG } from '../../../../typings/common';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
+import { KeyValue } from '../../../client';
 
 export class QueueStorageToQueueConfig {
   private _sending: boolean = false;

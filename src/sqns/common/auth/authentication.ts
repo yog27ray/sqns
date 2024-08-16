@@ -1,7 +1,7 @@
-import { AuthRequest, Credentials, signRequest } from '@sqns-client';
 import { NextFunction, Request, Response } from 'express';
 import { GetSecretKeyResult } from '../../../../typings/auth';
 import { ExpressMiddleware } from '../../../../typings/express';
+import { AuthRequest, Credentials, signRequest } from '../../../client';
 import { logger } from '../logger/logger';
 import { BaseStorageEngine } from '../model/base-storage-engine';
 import { User } from '../model/user';

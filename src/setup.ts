@@ -1,10 +1,10 @@
-import { RequestClient } from '@sqns-client';
 import bodyParser from 'body-parser';
 import express, { Express } from 'express';
 import http from 'http';
 import morgan from 'morgan';
 import { SQNS, SQNSClient } from '../index';
 import { DatabaseConfig, SQNSConfig } from '../typings/config';
+import { RequestClient } from './client';
 import { Database } from './sqns/common/database';
 import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
 import { logger } from './sqns/common/logger/logger';

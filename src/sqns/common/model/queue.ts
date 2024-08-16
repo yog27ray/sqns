@@ -1,5 +1,5 @@
-import { ARN, BaseObject, ChannelDeliveryPolicy } from '@sqns-client';
 import { QueueType } from '../../../../typings/class-types';
+import { ARN, BaseObject, ChannelDeliveryPolicy } from '../../../client';
 import { RESERVED_QUEUE_NAME } from '../helper/common';
 import { DeliveryPolicyHelper } from '../helper/delivery-policy-helper';
 

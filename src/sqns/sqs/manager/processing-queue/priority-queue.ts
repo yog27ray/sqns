@@ -1,5 +1,5 @@
-import { EventItem } from '@sqns-client';
 import FastPriorityQueue from 'fastpriorityqueue';
+import { EventItem } from '../../../../client';
 import { QueueAdapter } from './queue-adapter';
 
 class PriorityQueue implements QueueAdapter {

@@ -1,4 +1,4 @@
-import { SQNSClient } from '@sqns-client';
+import { SQNSClient } from './client';
 import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
 import { BaseStorageEngine } from './sqns/common/model/base-storage-engine';
 

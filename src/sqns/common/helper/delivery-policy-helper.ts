@@ -1,4 +1,10 @@
-import { ChannelDeliveryPolicy, DeliveryPolicy, GetSubscriptionResponse, KeyValue, SUPPORTED_BACKOFF_FUNCTIONS_TYPE } from '@sqns-client';
+import {
+  ChannelDeliveryPolicy,
+  DeliveryPolicy,
+  GetSubscriptionResponse,
+  KeyValue,
+  SUPPORTED_BACKOFF_FUNCTIONS_TYPE,
+} from '../../../client';
 import { SQNSErrorCreator } from '../auth/s-q-n-s-error-creator';
 import { SUPPORTED_BACKOFF_FUNCTIONS } from './common';
 

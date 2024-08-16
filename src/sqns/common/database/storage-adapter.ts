@@ -7,7 +7,7 @@ import {
   MessageStructure, SubscriptionAttributes,
   SupportedProtocol, TopicAttributes,
   TopicTag,
-} from '@sqns-client';
+} from '../../../client';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';

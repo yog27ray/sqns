@@ -1,6 +1,6 @@
-import { Encryption, SNSServerBody, SupportedProtocol } from '@sqns-client';
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
+import { Encryption, SNSServerBody, SupportedProtocol } from '../../../client';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';

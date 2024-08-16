@@ -1,7 +1,7 @@
-import { Encryption, EventItem, KeyValue, MessageAttributeMap, MessageAttributeValue } from '@sqns-client';
 import { v4 as uuid } from 'uuid';
 import xml2js from 'xml2js';
 import { ResponseMessage } from '../../../../typings/response-item';
+import { Encryption, EventItem, KeyValue, MessageAttributeMap, MessageAttributeValue } from '../../../client';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';

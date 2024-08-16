@@ -1,5 +1,5 @@
-import { ChannelDeliveryPolicy, DeliveryPolicy, GetSubscriptionResponse } from '@sqns-client';
 import { expect } from 'chai';
+import { ChannelDeliveryPolicy, DeliveryPolicy, GetSubscriptionResponse } from '../../../client';
 import { DeliveryPolicyHelper } from './delivery-policy-helper';
 
 describe('DeliveryPolicyHelper', () => {

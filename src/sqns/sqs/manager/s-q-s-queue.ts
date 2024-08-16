@@ -1,4 +1,4 @@
-import { ARN, EventItem } from '@sqns-client';
+import { ARN, EventItem } from '../../../client';
 import { FifoQueue } from './processing-queue/fifo-queue';
 import { PriorityQueue } from './processing-queue/priority-queue';
 import { QueueAdapter } from './processing-queue/queue-adapter';

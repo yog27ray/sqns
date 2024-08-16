@@ -1,4 +1,4 @@
-import { EventItem } from '@sqns-client';
+import { EventItem } from '../../../../client';
 
 interface QueueAdapter {
   setComparatorFunction(comparatorFunction: (event1: EventItem, event2: EventItem) => boolean): void;

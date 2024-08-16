@@ -1,6 +1,6 @@
-import { EventItem, SendMessageReceived, SQSServerBody } from '@sqns-client';
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
+import { EventItem, SendMessageReceived, SQSServerBody } from '../../../client';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';

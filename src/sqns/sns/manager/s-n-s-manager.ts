@@ -1,3 +1,4 @@
+import { SNSConfig } from '../../../../typings/config';
 import {
   ARN,
   DeliveryPolicy, Encryption,
@@ -9,8 +10,7 @@ import {
   SUPPORTED_CHANNEL_TYPE,
   TopicAttributes,
   TopicTag,
-} from '@sqns-client';
-import { SNSConfig } from '../../../../typings/config';
+} from '../../../client';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { ARNHelper } from '../../common/helper/a-r-n-helper';
 import { SNS_QUEUE_EVENT_TYPES, SUPPORTED_CHANNEL, SYSTEM_QUEUE_NAME } from '../../common/helper/common';

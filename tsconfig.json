@@ -24,12 +24,7 @@
     "strictNullChecks": false,
     "strictFunctionTypes": false,
     "declaration": true,
-    "noImplicitThis": false,
-    "paths": {
-      "@sqns-client": [
-        "src/client"
-      ]
-    }
+    "noImplicitThis": false
   },
   "exclude": [
     "node_modules",

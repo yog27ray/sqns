@@ -1,4 +1,4 @@
-import { ARN, BaseObjectType, DeliveryPolicy, MessageAttributes, MessageStructure } from '@sqns-client';
+import { ARN, BaseObjectType, DeliveryPolicy, MessageAttributes, MessageStructure } from '../src/client';
 
 export declare interface UserType extends BaseObjectType {
   organizationId: string;

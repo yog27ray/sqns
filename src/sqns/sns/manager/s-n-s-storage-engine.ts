@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import {
   ARN,
   DeliveryPolicy,
@@ -7,8 +8,7 @@ import {
   SupportedProtocol,
   TopicAttributes,
   TopicTag,
-} from '@sqns-client';
-import { v4 as uuid } from 'uuid';
+} from '../../../client';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';

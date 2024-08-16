@@ -1,6 +1,6 @@
-import { CreateQueueResult } from '@sqns-client';
 import { ConfigCount } from '../../../../typings/config';
 import { ResponseItem } from '../../../../typings/response-item';
+import { CreateQueueResult } from '../../../client';
 
 class WorkerQueueConfig {
   private readonly _queueName: string;

@@ -1,5 +1,5 @@
-import { ARN, BaseObject, MessageAttributes, MessageStructure } from '@sqns-client';
 import { PublishType } from '../../../../typings/class-types';
+import { ARN, BaseObject, MessageAttributes, MessageStructure } from '../../../client';
 
 class Publish extends BaseObject {
   static STATUS_PUBLISHING: string = 'Publishing';
