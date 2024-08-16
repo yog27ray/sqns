@@ -1,14 +1,12 @@
+import { ARN, CreateTopicResponse, KeyValue, RequestClient, SQNSClient } from '@sqns-client';
 import { expect } from 'chai';
 import moment from 'moment';
 import nock from 'nock';
 import { ResponseItem } from '../../../../typings/response-item';
-import { ARN, CreateTopicResponse, KeyValue } from '../../../../typings/typings';
 import { delay, dropDatabase, setupConfig } from '../../../setup';
 import { deleteDynamicDataOfResults, Env } from '../../../test-env';
 import { SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
-import { RequestClient } from '../../common/request-client/request-client';
-import { SQNSClient } from '../../s-q-n-s-client';
 import { WorkerEventScheduler } from './worker-event-scheduler';
 import { WorkerQueueConfig } from './worker-queue-config';
 

@@ -1,19 +1,23 @@
+import {
+  AccessKey,
+  AccessKeyType,
+  ARN, ChannelDeliveryPolicy, DeliveryPolicy,
+  EventItem,
+  EventItemType,
+  MessageAttributes,
+  MessageStructure, SubscriptionAttributes,
+  SubscriptionType, SupportedProtocol, TopicAttributes, TopicTag,
+  TopicType,
+} from '@sqns-client';
 import { v4 as uuid } from 'uuid';
 import {
-  AccessKeyType,
-  EventItemType, PublishType,
+  PublishType,
   QueueType,
   SubscriptionVerificationTokenType,
-  TopicAttributes,
-  TopicTag, TopicType, UserType,
+  UserType,
 } from '../../../../../typings/class-types';
 import { MongoDBConfig } from '../../../../../typings/config';
-import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../../typings/delivery-policy';
-import { SubscriptionAttributes, SubscriptionType } from '../../../../../typings/subscription';
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../../typings/typings';
 import { logger } from '../../logger/logger';
-import { AccessKey } from '../../model/access-key';
-import { EventItem } from '../../model/event-item';
 import { Publish } from '../../model/publish';
 import { Queue } from '../../model/queue';
 import { Subscription } from '../../model/subscription';

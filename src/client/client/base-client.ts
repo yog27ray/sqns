@@ -1,13 +1,19 @@
 import moment from 'moment';
 import xml2js from 'xml2js';
-import { BaseClientRequest } from '../../../../typings/base-client';
-import { ClientConfiguration, KeyValue } from '../../../../typings/typings';
+import { ClientConfiguration } from '../../../../typings/typings';
 import { signRequest } from '../auth/authentication';
 import { SQNSError } from '../auth/s-q-n-s-error';
 import { updateLogging } from '../logger/logger';
 import { RequestClient } from '../request-client/request-client';
+import { KeyValue } from '../types/common';
 import { SNSService } from './s-n-s-service';
 import { SQSService } from './s-q-s-service';
+
+export declare interface BaseClientRequest {
+  uri: string;
+  body: KeyValue;
+  headers?: KeyValue<string>;
+}
 
 export class BaseClient extends RequestClient {
   static readonly REGION: string = 'sqns';

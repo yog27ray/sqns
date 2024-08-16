@@ -1,10 +1,15 @@
+import {
+  ARN,
+  DeliveryPolicy,
+  Encryption,
+  MessageAttributes, MessageStructure,
+  SubscriptionAttributes,
+  SupportedProtocol,
+  TopicAttributes,
+  TopicTag,
+} from '@sqns-client';
 import { v4 as uuid } from 'uuid';
-import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
-import { DeliveryPolicy } from '../../../../typings/delivery-policy';
-import { SubscriptionAttributes } from '../../../../typings/subscription';
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
-import { Encryption } from '../../common/auth/encryption';
-import { SQNSError } from '../../common/auth/s-q-n-s-error';
+import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { Publish } from '../../common/model/publish';
@@ -27,7 +32,7 @@ class SNSStorageEngine extends BaseStorageEngine {
   async findTopicByARN(topicARN: string): Promise<Topic> {
     const topic = await this._storageAdapter.findTopicARN(topicARN);
     if (!topic) {
-      SQNSError.invalidTopic();
+      SQNSErrorCreator.invalidTopic();
     }
     return topic;
   }
@@ -85,7 +90,7 @@ class SNSStorageEngine extends BaseStorageEngine {
   async findSubscriptionVerificationToken(token: string): Promise<SubscriptionVerificationToken> {
     const subscriptionVerificationToken = await this._storageAdapter.findSubscriptionVerificationTokenByToken(token);
     if (!subscriptionVerificationToken) {
-      SQNSError.invalidToken();
+      SQNSErrorCreator.invalidToken();
     }
     return subscriptionVerificationToken;
   }
@@ -93,7 +98,7 @@ class SNSStorageEngine extends BaseStorageEngine {
   async findSubscriptionFromArn(subscriptionArn: string): Promise<Subscription> {
     const [subscription] = await this._storageAdapter.findSubscriptions({ arn: subscriptionArn }, 0, 1);
     if (!subscription) {
-      SQNSError.invalidSubscription();
+      SQNSErrorCreator.invalidSubscription();
     }
     return subscription;
   }
@@ -105,7 +110,7 @@ class SNSStorageEngine extends BaseStorageEngine {
   async findPublish(id: string): Promise<Publish> {
     const [publish] = await this._storageAdapter.findPublishes({ id }, 0, 1);
     if (!publish) {
-      SQNSError.invalidPublish();
+      SQNSErrorCreator.invalidPublish();
     }
     return publish;
   }
@@ -131,7 +136,7 @@ class SNSStorageEngine extends BaseStorageEngine {
   async findQueueByARN(queueARN: ARN): Promise<Queue> {
     const queue = await this._storageAdapter.getQueue(queueARN);
     if (!queue) {
-      SQNSError.invalidQueueName(queueARN);
+      SQNSErrorCreator.invalidQueueName(queueARN);
     }
     return queue;
   }

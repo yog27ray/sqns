@@ -1,6 +1,6 @@
+import { SQNSClient } from '@sqns-client';
 import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
 import { BaseStorageEngine } from './sqns/common/model/base-storage-engine';
-import { SQNSClient } from './sqns/s-q-n-s-client';
 
 const port = process.env.PORT || '1234';
 const Env = {

@@ -1,5 +1,5 @@
+import { KeyValue } from '@sqns-client';
 import { Collection, Condition, Db, MongoClient, ObjectId } from 'mongodb';
-import { KeyValue } from '../../../../../typings/common';
 
 class MongoDBConnection {
   private readonly _option: Record<string, unknown>;

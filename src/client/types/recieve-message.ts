@@ -1,4 +1,4 @@
-import { EventState } from '../src/sqns/common/model/event-item';
+import { EventState } from '../model/event-item';
 import { MessageAttributeMap } from './common';
 
 export interface Message {

@@ -1,9 +1,13 @@
-import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
-import { ChannelDeliveryPolicy, DeliveryPolicy } from '../../../../typings/delivery-policy';
-import { SubscriptionAttributes } from '../../../../typings/subscription';
-import { ARN, MessageAttributes, MessageStructure, SupportedProtocol } from '../../../../typings/typings';
-import { AccessKey } from '../model/access-key';
-import { EventItem } from '../model/event-item';
+import {
+  AccessKey,
+  ARN,
+  ChannelDeliveryPolicy,
+  DeliveryPolicy,
+  EventItem, MessageAttributes,
+  MessageStructure, SubscriptionAttributes,
+  SupportedProtocol, TopicAttributes,
+  TopicTag,
+} from '@sqns-client';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';

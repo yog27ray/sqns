@@ -16,7 +16,7 @@
     "url": "git+https://github.com/yog27ray/sqns.git"
   },
   "author": "yog27ray",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/yog27ray/sqns/issues"
   },
@@ -46,6 +46,7 @@
     "nock": "13.5.4",
     "node-tslint-rules": "1.20.3",
     "nyc": "17.0.0",
+    "openapi-route-expander": "^0.0.3",
     "serialize-javascript": "6.0.2",
     "ts-node": "10.9.2",
     "tslint": "6.1.3",

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
 import { AwsXmlFormat } from '../auth/aws-xml-format';
-import { SQNSError } from '../auth/s-q-n-s-error';
+import { SQNSErrorCreator } from '../auth/s-q-n-s-error-creator';
 import { logger } from '../logger/logger';
 
 const log = logger.instance('ExpressHelper');
@@ -18,8 +18,8 @@ class ExpressHelper {
   }
 
   static errorHandler(error: Error & { code?: number }, response: Response): void {
-    if (error instanceof SQNSError) {
-      const awsError: SQNSError = error;
+    if (error instanceof SQNSErrorCreator) {
+      const awsError: SQNSErrorCreator = error;
       response.status(400).send(AwsXmlFormat.errorResponse(undefined, awsError.code, awsError.message, awsError.detail));
       return;
     }

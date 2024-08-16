@@ -1,6 +1,4 @@
-import { TopicAttributes, TopicTag, TopicType } from '../../../../typings/class-types';
-import { DeliveryPolicy } from '../../../../typings/delivery-policy';
-import { BaseObject } from './base-object';
+import { BaseObject, DeliveryPolicy, TopicAttributes, TopicTag, TopicType } from '@sqns-client';
 
 class Topic extends BaseObject {
   arn: string;

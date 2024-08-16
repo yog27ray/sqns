@@ -1,6 +1,6 @@
-import { EventItemType } from '../../../../typings/class-types';
-import { ARN, KeyValue, MessageAttributeMap } from '../../../../typings/common';
-import { ChannelDeliveryPolicy } from '../../../../typings/delivery-policy';
+import { EventItemType } from '../types/class-types';
+import { ARN, KeyValue, MessageAttributeMap } from '../types/common';
+import { ChannelDeliveryPolicy } from '../types/delivery-policy';
 import { BaseObject } from './base-object';
 
 export enum EventState {

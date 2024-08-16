@@ -1,12 +1,8 @@
+import { BaseClient, CreateQueueResult, RequestClient, signRequest, SQNSClient } from '@sqns-client';
 import { expect } from 'chai';
 import moment from 'moment/moment';
-import { CreateQueueResult } from '../../../../typings/queue';
 import { delay, dropDatabase } from '../../../setup';
 import { Env } from '../../../test-env';
-import { signRequest } from '../../common/auth/authentication';
-import { BaseClient } from '../../common/client/base-client';
-import { RequestClient } from '../../common/request-client/request-client';
-import { SQNSClient } from '../../s-q-n-s-client';
 
 const requestClient = new RequestClient();
 

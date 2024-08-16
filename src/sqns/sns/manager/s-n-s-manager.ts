@@ -1,18 +1,17 @@
-import { TopicAttributes, TopicTag } from '../../../../typings/class-types';
-import { SQNSClientConfig } from '../../../../typings/client-confriguation';
-import { SNSConfig } from '../../../../typings/config';
-import { DeliveryPolicy } from '../../../../typings/delivery-policy';
-import { SubscriptionAttributes } from '../../../../typings/subscription';
 import {
   ARN,
-  MessageAttributes,
-  MessageStructure,
-  SubscriptionConfirmationRequestBody,
+  DeliveryPolicy, Encryption,
+  MessageAttributes, MessageStructure,
+  RequestClient,
+  SQNSClient,
+  SQNSClientConfig, SubscriptionAttributes, SubscriptionConfirmationRequestBody,
   SupportedProtocol,
   SUPPORTED_CHANNEL_TYPE,
-} from '../../../../typings/typings';
-import { Encryption } from '../../common/auth/encryption';
-import { SQNSError } from '../../common/auth/s-q-n-s-error';
+  TopicAttributes,
+  TopicTag,
+} from '@sqns-client';
+import { SNSConfig } from '../../../../typings/config';
+import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { ARNHelper } from '../../common/helper/a-r-n-helper';
 import { SNS_QUEUE_EVENT_TYPES, SUPPORTED_CHANNEL, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { logger } from '../../common/logger/logger';
@@ -23,8 +22,6 @@ import { Subscription } from '../../common/model/subscription';
 import { SubscriptionVerificationToken } from '../../common/model/subscription-verification-token';
 import { Topic } from '../../common/model/topic';
 import { User } from '../../common/model/user';
-import { RequestClient } from '../../common/request-client/request-client';
-import { SQNSClient } from '../../s-q-n-s-client';
 import { WorkerEventScheduler } from '../../scheduler/scheduler-worker/worker-event-scheduler';
 import { WorkerQueueConfig } from '../../scheduler/scheduler-worker/worker-queue-config';
 import { SNSStorageEngine } from './s-n-s-storage-engine';
@@ -128,7 +125,7 @@ class SNSManager extends BaseManager {
         return topic.deliveryPolicy;
       }
       default:
-        throw new SQNSError({
+        throw new SQNSErrorCreator({
           code: 'InvalidResourceARN',
           message: 'Invalid Resource ARN',
         });
@@ -143,10 +140,10 @@ class SNSManager extends BaseManager {
     const messageStructure: MessageStructure = JSON.parse(messageStructureString);
     Object.keys(messageStructure).forEach((key: SUPPORTED_CHANNEL_TYPE) => {
       if (!SUPPORTED_CHANNEL.includes(key)) {
-        throw new SQNSError({ code: '412', message: `"${key}" is not supported channel.` });
+        throw new SQNSErrorCreator({ code: '412', message: `"${key}" is not supported channel.` });
       }
       if (typeof messageStructure[key] !== 'string') {
-        throw new SQNSError({ code: '412', message: `"${key}" value "${messageStructure[key]}" is not string.` });
+        throw new SQNSErrorCreator({ code: '412', message: `"${key}" value "${messageStructure[key]}" is not string.` });
       }
     });
     messageStructure.default = messageStructure.default || message;
@@ -228,7 +225,7 @@ class SNSManager extends BaseManager {
       case 'http':
       case 'https': return;
       default:
-        SQNSError.invalidSubscriptionProtocol(protocol);
+        SQNSErrorCreator.invalidSubscriptionProtocol(protocol);
     }
   }
 }

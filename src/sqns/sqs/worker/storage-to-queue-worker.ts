@@ -1,6 +1,5 @@
-import { KeyValue } from '../../../../typings/common';
+import { EventItem, KeyValue } from '@sqns-client';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
-import { EventItem } from '../../common/model/event-item';
 import { SQSStorageEngine } from '../manager/s-q-s-storage-engine';
 import { QueueStorageToQueueScheduler } from './queue-storage-to-queue-scheduler';
 

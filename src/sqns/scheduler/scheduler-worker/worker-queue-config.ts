@@ -1,5 +1,5 @@
+import { CreateQueueResult } from '@sqns-client';
 import { ConfigCount } from '../../../../typings/config';
-import { CreateQueueResult } from '../../../../typings/queue';
 import { ResponseItem } from '../../../../typings/response-item';
 
 class WorkerQueueConfig {

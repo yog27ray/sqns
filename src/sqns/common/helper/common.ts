@@ -1,4 +1,5 @@
-import { SupportedProtocol, SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from '../../../../typings/common';
+import { SupportedProtocol } from '@sqns-client';
+import { SUPPORTED_BACKOFF_FUNCTIONS_TYPE, SUPPORTED_CHANNEL_TYPE } from '../../../client/types';
 
 const SUPPORTED_PROTOCOL: Array<SupportedProtocol> = ['http', 'https'];
 const SUPPORTED_CHANNEL: Array<SUPPORTED_CHANNEL_TYPE> = ['http', 'https', 'default'];

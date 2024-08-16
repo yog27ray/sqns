@@ -1,4 +1,5 @@
-import { BASE_CONFIG, KeyValue } from '../../../../typings/common';
+import { KeyValue } from '@sqns-client';
+import { BASE_CONFIG } from '../../../../typings/common';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
 
 export class QueueStorageToQueueConfig {

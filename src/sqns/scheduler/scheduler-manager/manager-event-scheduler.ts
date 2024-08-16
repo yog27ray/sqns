@@ -1,9 +1,8 @@
+import { KeyValue, RequestItem, SQNSClient, SQNSClientConfig } from '@sqns-client';
 import * as schedule from 'node-schedule';
-import { SQNSClientConfig } from '../../../../typings/client-confriguation';
+import { BASE_CONFIG } from '../../../../typings/common';
 import { ManagerQueueConfigListener } from '../../../../typings/config';
-import { BASE_CONFIG, KeyValue, RequestItem } from '../../../../typings/typings';
 import { logger } from '../../common/logger/logger';
-import { SQNSClient } from '../../s-q-n-s-client';
 import { ManagerQueueConfig } from './manager-queue-config';
 
 const log = logger.instance('sqns:ManagerEventScheduler');

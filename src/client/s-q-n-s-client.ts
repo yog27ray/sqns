@@ -1,21 +1,6 @@
-import { BaseClientRequest } from '../../typings/base-client';
+import { BaseClient, BaseClientRequest } from './client/base-client';
 import {
-  FindMessageByDeduplicationId,
-  FindMessageById,
-  GetPublishInput,
-  GetPublishResponse,
-  MarkPublishedInput, UpdateMessageByDeduplicationId,
-  UpdateMessageById,
-} from '../../typings/publish';
-import {
-  FindMessageByDeduplicationIdResult,
-  FindMessageByIdResult,
-  UpdateMessageByDeduplicationIdResult,
-  UpdateMessageByIdResult,
-} from '../../typings/recieve-message';
-import { BatchResultErrorEntry } from '../../typings/send-message';
-import { GetSubscriptionInput, GetSubscriptionResponse, SubscribeResponse } from '../../typings/subscription';
-import {
+  BatchResultErrorEntry,
   ConfirmSubscriptionInput,
   ConfirmSubscriptionResponse,
   CreateQueueRequest,
@@ -24,8 +9,16 @@ import {
   CreateTopicResponse,
   DeleteQueueRequest,
   DeleteTopicInput,
+  FindMessageByDeduplicationId,
+  FindMessageByDeduplicationIdResult,
+  FindMessageById,
+  FindMessageByIdResult,
+  GetPublishInput,
+  GetPublishResponse,
   GetQueueUrlRequest,
   GetQueueUrlResult,
+  GetSubscriptionInput,
+  GetSubscriptionResponse,
   GetTopicAttributesInput,
   GetTopicAttributesResponse,
   ListQueuesRequest,
@@ -36,6 +29,7 @@ import {
   ListSubscriptionsResponse,
   ListTopicsInput,
   ListTopicsResponse,
+  MarkPublishedInput,
   PublishInput,
   PublishResponse,
   ReceiveMessageRequest,
@@ -46,9 +40,13 @@ import {
   SendMessageResult,
   SetTopicAttributesInput,
   SubscribeInput,
+  SubscribeResponse,
   UnsubscribeInput,
-} from '../../typings/typings';
-import { BaseClient } from './common/client/base-client';
+  UpdateMessageByDeduplicationId,
+  UpdateMessageByDeduplicationIdResult,
+  UpdateMessageById,
+  UpdateMessageByIdResult,
+} from './types';
 
 export class SQNSClient extends BaseClient {
   async createQueue(params: CreateQueueRequest): Promise<CreateQueueResult> {

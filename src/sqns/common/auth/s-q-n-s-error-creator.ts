@@ -1,7 +1,7 @@
-import { ARN } from '../../../../typings/common';
+import { ARN, SQNSError } from '@sqns-client';
 import { SQNSErrorType } from '../../../../typings/sqns-error-type';
 
-class SQNSError extends Error {
+class SQNSErrorCreator extends Error {
   code: string;
 
   detail?: string;
@@ -101,4 +101,4 @@ class SQNSError extends Error {
   }
 }
 
-export { SQNSError };
+export { SQNSErrorCreator };

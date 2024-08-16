@@ -1,33 +1,33 @@
+import {
+  ARN,
+  BaseClient,
+  ChannelDeliveryPolicy,
+  ConfirmSubscriptionResponse,
+  CreateQueueResult,
+  CreateTopicResponse,
+  EventItem,
+  EventState,
+  KeyValue,
+  Message,
+  RequestClient,
+  signRequest,
+  SQNSClient,
+  SQNSError,
+  SubscriptionConfirmationRequestBody,
+  SupportedProtocol,
+} from '@sqns-client';
 import { expect } from 'chai';
 import moment from 'moment';
 import nock from 'nock';
 import { parseString } from 'xml2js';
-import { ChannelDeliveryPolicy } from '../../typings/delivery-policy';
-import { Message } from '../../typings/recieve-message';
-import { SQNSErrorType } from '../../typings/sqns-error-type';
-import {
-  ARN,
-  ConfirmSubscriptionResponse,
-  CreateQueueResult,
-  CreateTopicResponse,
-  KeyValue,
-  SubscriptionConfirmationRequestBody,
-  SupportedProtocol,
-} from '../../typings/typings';
 import { app, delay, dropDatabase, setupConfig } from '../setup';
 import { deleteDynamicDataOfResults, Env } from '../test-env';
-import { signRequest } from './common/auth/authentication';
-import { SQNSError } from './common/auth/s-q-n-s-error';
-import { BaseClient } from './common/client/base-client';
 import { SYSTEM_QUEUE_NAME } from './common/helper/common';
 import { DeliveryPolicyHelper } from './common/helper/delivery-policy-helper';
 import { BaseStorageEngine } from './common/model/base-storage-engine';
-import { EventItem, EventState } from './common/model/event-item';
 import { Queue } from './common/model/queue';
 import { User } from './common/model/user';
-import { RequestClient } from './common/request-client/request-client';
 import { SQNS } from './s-q-n-s';
-import { SQNSClient } from './s-q-n-s-client';
 import { SQSManager } from './sqs/manager/s-q-s-manager';
 
 describe('SQNSClient', () => {
@@ -35,7 +35,7 @@ describe('SQNSClient', () => {
     context('CreateQueue', () => {
       let client: SQNSClient;
       beforeEach(async () => {
-        await dropDatabase();
+        // await dropDatabase();
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,

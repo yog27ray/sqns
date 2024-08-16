@@ -1,20 +1,20 @@
+import { RequestClient } from '@sqns-client';
 import bodyParser from 'body-parser';
 import express, { Express } from 'express';
 import http from 'http';
-// import morgan from 'morgan';
+import morgan from 'morgan';
 import { SQNS, SQNSClient } from '../index';
 import { DatabaseConfig, SQNSConfig } from '../typings/config';
 import { Database } from './sqns/common/database';
 import { MongoDBConnection } from './sqns/common/database/mongodb/mongo-d-b-connection';
 import { logger } from './sqns/common/logger/logger';
 import { BaseStorageEngine } from './sqns/common/model/base-storage-engine';
-import { RequestClient } from './sqns/common/request-client/request-client';
 import { deleteAllQueues, deleteTopics, Env } from './test-env';
 
 const log = logger.instance('TestServer');
 
 const app: Express = express();
-// app.use(morgan('dev'));
+app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.json());

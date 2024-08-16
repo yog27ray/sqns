@@ -1,4 +1,4 @@
-import { KeyValue, MessageAttributeMap, MessageAttributeValue } from './common';
+import { KeyValue, MessageAttributeMap, MessageAttributeValue } from '@sqns-client';
 
 export declare interface ResponseMessage {
   MessageId: string;

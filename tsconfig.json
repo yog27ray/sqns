@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "lib": ["es2019", "dom"],
-    "types": ["mocha"],
+    "types": ["mocha", "node"],
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,7 +24,12 @@
     "strictNullChecks": false,
     "strictFunctionTypes": false,
     "declaration": true,
-    "noImplicitThis": false
+    "noImplicitThis": false,
+    "paths": {
+      "@sqns-client": [
+        "src/client"
+      ]
+    }
   },
   "exclude": [
     "node_modules",

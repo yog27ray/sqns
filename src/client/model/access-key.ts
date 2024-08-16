@@ -1,4 +1,4 @@
-import { AccessKeyType } from '../../../../typings/class-types';
+import { AccessKeyType } from '../types/class-types';
 import { BaseObject } from './base-object';
 
 export class AccessKey extends BaseObject {

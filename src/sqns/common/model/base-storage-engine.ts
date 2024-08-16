@@ -1,10 +1,9 @@
-import { KeyValue } from '../../../../typings/common';
+import { AccessKey, KeyValue } from '@sqns-client';
 import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
-import { SQNSError } from '../auth/s-q-n-s-error';
+import { SQNSErrorCreator } from '../auth/s-q-n-s-error-creator';
 import { Database } from '../database';
 import { MongoDBAdapter } from '../database/mongodb/mongo-d-b-adapter';
 import { StorageAdapter } from '../database/storage-adapter';
-import { AccessKey } from './access-key';
 import { User } from './user';
 
 export class BaseStorageEngine {
@@ -19,7 +18,7 @@ export class BaseStorageEngine {
         break;
       }
       default: {
-        throw new SQNSError({
+        throw new SQNSErrorCreator({
           code: 'DatabaseNotSupported',
           message: 'UnSupported Database',
         });
@@ -31,11 +30,11 @@ export class BaseStorageEngine {
     await Promise.all(adminSecretKeys.map(async (adminSecretKey: AdminSecretKeys) => {
       const organizationId = '1';
       const user = await this.findUser({ organizationId })
-        .catch((error: SQNSError) => (error.code === 'NotFound'
+        .catch((error: SQNSErrorCreator) => (error.code === 'NotFound'
           ? this.createUser(organizationId)
           : Promise.reject(error)));
       const accessKey = await this.findAccessKey({ accessKey: adminSecretKey.accessKey })
-        .catch((error: SQNSError) => (error.code === 'NotFound'
+        .catch((error: SQNSErrorCreator) => (error.code === 'NotFound'
           ? this.createAccessKey(adminSecretKey.accessKey, adminSecretKey.secretAccessKey, user.id)
           : Promise.reject(error)));
       if (accessKey.secretKey === adminSecretKey.secretAccessKey) {
@@ -61,7 +60,7 @@ export class BaseStorageEngine {
   async findAccessKey(where: KeyValue): Promise<AccessKey> {
     const [accessKey] = await this._storageAdapter.findAccessKeys(where, 0, 1);
     if (!accessKey) {
-      SQNSError.invalidAccessKey();
+      SQNSErrorCreator.invalidAccessKey();
     }
     return accessKey;
   }
@@ -69,7 +68,7 @@ export class BaseStorageEngine {
   async findUser(where: KeyValue): Promise<User> {
     const [user] = await this._storageAdapter.findUsers(where, 0, 1);
     if (!user) {
-      SQNSError.invalidUser();
+      SQNSErrorCreator.invalidUser();
     }
     return user;
   }

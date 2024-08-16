@@ -1,5 +1,6 @@
+import { KeyValue } from '@sqns-client';
 import * as schedule from 'node-schedule';
-import { BASE_CONFIG, KeyValue } from '../../../../typings/common';
+import { BASE_CONFIG } from '../../../../typings/common';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
 import { logger } from '../../common/logger/logger';
 import { QueueStorageToQueueConfig } from './queue-storage-to-queue-config';

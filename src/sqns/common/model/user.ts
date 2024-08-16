@@ -1,5 +1,5 @@
+import { BaseObject } from '@sqns-client';
 import { UserType } from '../../../../typings/class-types';
-import { BaseObject } from './base-object';
 
 class User extends BaseObject {
   organizationId: string;
