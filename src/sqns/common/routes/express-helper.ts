@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
+import { SQNSError } from '../../../client';
 import { AwsXmlFormat } from '../auth/aws-xml-format';
 import { logger } from '../logger/logger';
-import { SQNSError } from '../../../client';
 
 const log = logger.instance('ExpressHelper');
 
