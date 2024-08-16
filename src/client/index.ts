@@ -17,7 +17,6 @@ import {
   CreateQueueResult,
   CreateTopicResponse,
   Credentials,
-  DataTypeAndValue,
   DeliveryPolicy,
   EventItemType,
   FindMessageByIdResult,
@@ -52,7 +51,6 @@ import {
 } from './types';
 
 export {
-  DataTypeAndValue,
   SQNSErrorType,
   FindMessageByIdResult,
   UpdateMessageByDeduplicationIdResult,

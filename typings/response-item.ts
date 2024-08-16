@@ -10,6 +10,16 @@ export declare interface ResponseMessage {
   [key: string]: unknown;
 }
 
+export declare interface ResponseMessageJson {
+  MessageId: string;
+  ReceiptHandle: string;
+  MD5OfBody: string;
+  Body: string;
+  MessageAttributes?: Record<string, MessageAttributeValue>;
+  Attributes?: Record<string, string>;
+  [key: string]: unknown;
+}
+
 export declare interface ResponseItem {
   MessageId?: string;
 

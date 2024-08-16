@@ -147,8 +147,13 @@ export class BaseClient extends RequestClient {
     return this.post(request.uri, { json: true, body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
       .catch((originalError: SQNSError) => {
         const { message, code } = originalError;
+        try {
+          return Promise.reject(new SQNSError(JSON.parse(message)));
+        } catch (error) {
+          return Promise.reject(new SQNSError({ code, message }));
+        }
         // const { error, message, code } = originalError;
-        return Promise.reject(new SQNSError({ code, message }));
+        // return Promise.reject(new SQNSError({ code, message }));
         // return new Promise((
         //   resolve: (value: unknown) => void,
         //   reject: (error: unknown) => void) => {

@@ -10,7 +10,6 @@ import {
 import { ClientConfiguration, SQNSClientConfig } from './client-confriguation';
 import {
   ARN,
-  DataTypeAndValue,
   KeyValue,
   MessageAttributeEntry,
   MessageAttributeMap,
@@ -91,7 +90,6 @@ import {
 } from './topic';
 
 export {
-  DataTypeAndValue,
   Message,
   SNSServerBody,
   SQSServerBody,

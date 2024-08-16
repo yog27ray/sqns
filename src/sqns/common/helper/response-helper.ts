@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { ResponseMessage } from '../../../../typings/response-item';
-import { Encryption, EventItem } from '../../../client';
+import { ResponseMessage, ResponseMessageJson } from '../../../../typings/response-item';
+import { Encryption, EventItem, MessageAttributeValue } from '../../../client';
 import { Queue } from '../model/queue';
 
 declare interface Return<T> { data: T; ResponseMetadata: { RequestId: string; }; }
@@ -40,38 +40,46 @@ export class ResponseHelper {
       });
   }
 
-  static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
-    : ResponseMessage {
+  private static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
+    : ResponseMessageJson {
     if (!event) {
       return undefined;
     }
-    const result: ResponseMessage = {
+    const result: ResponseMessageJson = {
       MessageId: event.id,
       ReceiptHandle: uuid(),
       MD5OfBody: Encryption.createHash('md5', event.MessageBody),
       Body: event.MessageBody,
     };
     if (MessageAttributeName) {
-      const attributeFields = Object.keys(event.MessageAttribute)
-        .filter((each: string) => MessageAttributeName.includes('ALL') || MessageAttributeName.includes(each));
-      result.MessageAttribute = attributeFields.map((key: string) => ({ Name: key, Value: event.MessageAttribute[key] }));
+      Object.keys(event.MessageAttribute).forEach((key) => {
+        if (MessageAttributeName.includes('ALL') || MessageAttributeName.includes(key)) {
+          return;
+        }
+        delete event.MessageAttribute[key];
+      });
+      result.MessageAttributes = event.MessageAttribute;
     }
     if (AttributeName) {
-      const eventSystemAttribute: Record<string, unknown> = {};
-      Object.keys(event.MessageSystemAttribute)
-        .forEach((key: string) => {
-          eventSystemAttribute[key] = event.MessageSystemAttribute[key].StringValue;
-        });
-      const attributes = {
-        ...eventSystemAttribute,
-        SenderId: event.queueARN,
-        ApproximateFirstReceiveTimestamp: event.firstSentTime ? `${event.firstSentTime.getTime()}` : '-1',
-        ApproximateReceiveCount: `${event.receiveCount}`,
-        SentTimestamp: event.sentTime ? `${event.sentTime.getTime()}` : '-1',
+      const attributes: Record<string, MessageAttributeValue> = {
+        ...event.MessageSystemAttribute,
+        SenderId: { DataType: 'String', StringValue: event.queueARN },
+        ApproximateFirstReceiveTimestamp: {
+          DataType: 'String',
+          StringValue: event.firstSentTime ? `${event.firstSentTime.getTime()}` : '-1',
+        } ,
+        ApproximateReceiveCount: { DataType: 'String', StringValue: `${event.receiveCount}` },
+        SentTimestamp: {
+          DataType: 'String',
+          StringValue: event.sentTime ? `${event.sentTime.getTime()}` : '-1',
+        },
       };
-      const attributeFields = Object.keys(attributes)
-        .filter((each: string) => AttributeName.includes('ALL') || AttributeName.includes(each));
-      result.Attribute = attributeFields.map((key: string) => ({ Name: key, Value: attributes[key] }));
+      result.Attributes = Object.keys(attributes).reduce((result: Record<string, string>, key: string) => {
+        if (AttributeName.includes('ALL') || AttributeName.includes(key)) {
+          result[key] = attributes[key].StringValue;
+        }
+        return result;
+      }, {});
     }
     return result;
   }

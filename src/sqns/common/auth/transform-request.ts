@@ -6,6 +6,7 @@ const MapFields: Array<{ from: string; to: string; }> = [
   { from: 'Attributes', to: 'Attribute' },
   { from: 'MessageAttributes', to: 'MessageAttribute' },
   { from: 'MessageSystemAttributes', to: 'MessageSystemAttribute' },
+  { from: 'AttributeNames', to: 'AttributeName' },
 ];
 export function transformRequest(): ExpressMiddleware {
   return (req: Request & { sqnsBaseURL: string }, res, next) => {

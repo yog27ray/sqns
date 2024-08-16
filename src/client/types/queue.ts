@@ -1,6 +1,6 @@
 import { EventState } from '../model/event-item';
 import { TopicAttributes, TopicTag } from './class-types';
-import { DataTypeAndValue, MessageAttributes } from './common';
+import { MessageAttributes, MessageAttributeValue } from './common';
 import { DeliveryPolicy } from './delivery-policy';
 import { SendMessageReceived } from './send-message';
 
@@ -74,8 +74,8 @@ export interface SQSServerJSONBody {
   MessageBody: string;
   DelaySeconds: string;
   MessageDeduplicationId: string;
-  MessageSystemAttribute: Record<string, DataTypeAndValue>;
-  MessageAttribute: Record<string, DataTypeAndValue>;
+  MessageSystemAttribute: Record<string, MessageAttributeValue>;
+  MessageAttribute: Record<string, MessageAttributeValue>;
   SendMessageBatchRequestEntry: Array<SendMessageReceived & { Id: string }>;
   Attribute: Record<string, string>;
   Tag: Record<string, string>;

@@ -12,7 +12,7 @@ class ExpressHelper {
       callback(request, response)
         .catch((error: Error) => {
           log.error(error);
-          ExpressHelper.errorHandler(error, response);
+          ExpressHelper.errorHandlerJson(error, response);
         });
     };
   }
@@ -31,6 +31,15 @@ class ExpressHelper {
     if (error instanceof SQNSError) {
       const awsError: SQNSError = error;
       response.status(400).send(AwsXmlFormat.errorResponse(undefined, awsError.code, awsError.message, awsError.detail));
+      return;
+    }
+    response.status(error.code || 400).send(AwsXmlFormat.errorResponse(undefined, `${error.code || 400}`, error.message));
+  }
+
+  static errorHandlerJson(error: Error & { code?: number }, response: Response): void {
+    if (error instanceof SQNSError) {
+      const { code, message, detail }: SQNSError = error;
+      response.status(400).json({ code, message, detail });
       return;
     }
     response.status(error.code || 400).send(AwsXmlFormat.errorResponse(undefined, `${error.code || 400}`, error.message));
