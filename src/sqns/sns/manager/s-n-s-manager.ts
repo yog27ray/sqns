@@ -5,12 +5,12 @@ import {
   MessageAttributes, MessageStructure,
   RequestClient,
   SQNSClient,
-  SQNSClientConfig, SubscriptionAttributes, SubscriptionConfirmationRequestBody,
+  SQNSClientConfig, SQNSError, SubscriptionAttributes,
+  SubscriptionConfirmationRequestBody,
   SupportedProtocol,
   SUPPORTED_CHANNEL_TYPE,
   TopicAttributes,
   TopicTag,
-  SQNSError,
 } from '../../../client';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { ARNHelper } from '../../common/helper/a-r-n-helper';
