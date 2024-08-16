@@ -16,6 +16,7 @@ class ExpressHelper {
         });
     };
   }
+
   static requestHandler(callback: (req: Request, res: Response) => Promise<any>): ExpressMiddleware {
     return (request: Request, response: Response): void => {
       callback(request, response)

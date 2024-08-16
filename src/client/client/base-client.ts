@@ -146,7 +146,8 @@ export class BaseClient extends RequestClient {
     request.headers = { ...(request.headers || {}), ...headers };
     return this.post(request.uri, { json: true, body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
       .catch((originalError) => {
-        const { error, message, code } = originalError;
+        const { message, code } = originalError;
+        // const { error, message, code } = originalError;
         return Promise.reject(new SQNSError({ code, message }));
         // return new Promise((
         //   resolve: (value: unknown) => void,

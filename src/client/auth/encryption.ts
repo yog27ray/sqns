@@ -42,7 +42,8 @@ class Encryption {
     return Object.keys(record)
       .sort()
       .filter((key) => (record[key] !== undefined))
-      .map((key: string) => `${key}=${Encryption.createFlatRecord(record[key])}`).join('&');
+      .map((key: string) => `${key}=${Encryption.createFlatRecord(record[key])}`)
+      .join('&');
   }
 }
 

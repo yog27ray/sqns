@@ -21,7 +21,9 @@ export class ResponseHelper {
     return `${baseURL}/sqs/${queue.region}/${queue.companyId}/${queue.name}`;
   }
 
-  static sendMessage(requestId: string, event: EventItem): Return<{ MessageId: string; MD5OfMessageBody: string; MD5OfMessageAttributes: string; }> {
+  static sendMessage(
+    requestId: string,
+    event: EventItem): Return<{ MessageId: string; MD5OfMessageBody: string; MD5OfMessageAttributes: string; }> {
     return ResponseHelper.send(
       requestId,
       {
@@ -35,7 +37,7 @@ export class ResponseHelper {
     requestId: string,
     events: Array<EventItem>,
     AttributeName: Array<string>,
-    MessageAttributeName: Array<string>): Return<{}> {
+    MessageAttributeName: Array<string>): Return<{ Messages: Array<ResponseMessage>; }> {
     return ResponseHelper.send(
       requestId,
       {

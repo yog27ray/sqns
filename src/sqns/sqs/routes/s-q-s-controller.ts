@@ -93,7 +93,7 @@ class SQSController {
         MessageSystemAttribute,
         DelaySeconds,
         MessageDeduplicationId);
-      res.json(ResponseHelper.sendMessage(requestId, event))
+      res.json(ResponseHelper.sendMessage(requestId, event));
     });
   }
 
@@ -167,7 +167,6 @@ class SQSController {
             MessageSystemAttribute,
             region,
           } = req.serverBody;
-          console.log('>>', req.serverBody);
           const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
           const event = await this.sendMessage(
             queue,

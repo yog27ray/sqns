@@ -1,5 +1,5 @@
-import { ExpressMiddleware } from '../../../../typings/express';
 import { Request } from 'express';
+import { ExpressMiddleware } from '../../../../typings/express';
 
 const MapFields: Array<{ from: string; to: string; }> = [
   { from: 'tags', to: 'Tag' },
@@ -23,19 +23,5 @@ export function transformRequest(): ExpressMiddleware {
       req.body.QueueName = req.body.QueueUrl.split('/').pop();
     }
     next();
-    // {
-    //   Action: 'SendMessage',
-    //     MessageAttribute: [
-    //   { Name: 'name', Value: [Object] },
-    //   { Name: 'type', Value: [Object] }
-    // ],
-    //   MessageBody: '123',
-    //   MessageDeduplicationId: 'uniqueId1',
-    //   MessageSystemAttribute: [ { Name: 'attribute1', Value: [Object] } ],
-    //   QueueUrl: 'http://127.0.0.1:1234/api/sqs/sqns/1/queue1',
-    //   requestId: '990cf424-3792-4298-9a3f-35b80a2b7980',
-    //   region: 'sqns',
-    //   queueName: 'queue1'
-    // }
-  }
+  };
 }
