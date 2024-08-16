@@ -4,8 +4,8 @@ import { Encryption, EventItem } from '../../../client';
 import { Queue } from '../model/queue';
 
 declare interface Return<T> { data: T; ResponseMetadata: { RequestId: string; }; }
-export class ResponseHelper {
 
+export class ResponseHelper {
   static createQueue(requestId: string, host: string, queue: Queue): Return<{ QueueUrl: string }> {
     return ResponseHelper.send(requestId, { QueueUrl: ResponseHelper.generateSQSURL(queue, host) });
   }
