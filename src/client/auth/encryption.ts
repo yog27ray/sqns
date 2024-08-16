@@ -39,7 +39,10 @@ class Encryption {
       return (item as Array<unknown>).map((each: unknown) => Encryption.createFlatRecord(each)).join(',');
     }
     const record = item as Record<string, unknown>;
-    return Object.keys(record).sort().map((key: string) => `${key}=${Encryption.createFlatRecord(record[key])}`).join('&');
+    return Object.keys(record)
+      .sort()
+      .filter((key) => (record[key] !== undefined))
+      .map((key: string) => `${key}=${Encryption.createFlatRecord(record[key])}`).join('&');
   }
 }
 

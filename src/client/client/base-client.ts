@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import moment from 'moment';
 import xml2js from 'xml2js';
 import { signRequest } from '../auth/authentication';
@@ -12,6 +13,8 @@ export declare interface BaseClientRequest {
   uri: string;
   body: KeyValue;
   headers?: KeyValue<string>;
+  method?: 'POST' | 'GET';
+  requestId?: string;
 }
 
 export class BaseClient extends RequestClient {
@@ -119,6 +122,47 @@ export class BaseClient extends RequestClient {
       }
       this.updateRequestBody(body[key] as KeyValue, snsRequest);
     });
+  }
+
+  requestJSON(request: BaseClientRequest): Promise<any> {
+    const headers = {
+      'x-sqns-date': moment().utc().format('YYYYMMDDTHHmmss'),
+      host: request.uri.split('/')[2],
+    };
+    request.body.requestId = uuid();
+    // const isSNSRequest = request.uri.startsWith(`${this._config.endpoint}/sns`);
+    // this.updateRequestBody(request.body, isSNSRequest);
+    signRequest({
+      service: request.uri.split('/').pop(),
+      region: this._config.region,
+      originalUrl: request.uri.split(headers.host)[1],
+      headers,
+      method: request.method,
+      body: request.body,
+    }, {
+      accessKeyId: this._config.accessKeyId,
+      secretAccessKey: this._config.secretAccessKey,
+    }, ['host', 'x-sqns-content-sha256', 'x-sqns-date']);
+    request.headers = { ...(request.headers || {}), ...headers };
+    return this.post(request.uri, { json: true, body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
+      .catch((originalError) => {
+        const { error, message, code } = originalError;
+        return Promise.reject(new SQNSError({ code, message }));
+        // return new Promise((
+        //   resolve: (value: unknown) => void,
+        //   reject: (error: unknown) => void) => {
+        //   xml2js.parseString(
+        //     error || message,
+        //     (parserError: unknown, result: { ErrorResponse: { Error: Array<{ Code: string; Message: string; }> } }) => {
+        //       if (parserError) {
+        //         reject(new SQNSError({ code, message }));
+        //         return;
+        //       }
+        //       const { Code: [errorCode], Message: [errorMessage] } = result.ErrorResponse.Error[0];
+        //       reject(new SQNSError({ code: errorCode, message: errorMessage }));
+        //     });
+        // });
+      });
   }
 
   request(request: BaseClientRequest): Promise<any> {

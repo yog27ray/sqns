@@ -51,20 +51,22 @@ import {
 export class SQNSClient extends BaseClient {
   async createQueue(params: CreateQueueRequest): Promise<CreateQueueResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'CreateQueue' },
+      uri: `${this._sqs.config.endpoint}/queue`,
+      body: { ...params },
+      method: 'POST',
     };
-    const result = await this.request(request);
-    return result.CreateQueueResponse.CreateQueueResult as CreateQueueResult;
+    const result = await this.requestJSON(request);
+    return result.data as CreateQueueResult;
   }
 
   async sendMessage(params: SendMessageRequest): Promise<SendMessageResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'SendMessage' },
+      uri: `${this._sqs.config.endpoint}/message`,
+      body: { ...params },
+      method: 'POST',
     };
-    const result = await this.request(request);
-    return result.SendMessageResponse.SendMessageResult as SendMessageResult;
+    const result = await this.requestJSON(request);
+    return result.data as SendMessageResult;
   }
 
   async findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult> {
@@ -112,18 +114,12 @@ export class SQNSClient extends BaseClient {
 
   async receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'ReceiveMessage' },
+      uri: `${this._sqs.config.endpoint}/receiveMessage`,
+      body: { ...params },
+      method: 'POST',
     };
-    const result = await this.request(request);
-    if (!result.ReceiveMessageResponse.ReceiveMessageResult) {
-      result.ReceiveMessageResponse.ReceiveMessageResult = {};
-    }
-    result.ReceiveMessageResponse.ReceiveMessageResult.Messages = result.ReceiveMessageResponse.ReceiveMessageResult.Message;
-    delete result.ReceiveMessageResponse.ReceiveMessageResult.Message;
-    const response = result.ReceiveMessageResponse.ReceiveMessageResult as ReceiveMessageResult;
-    response.Messages = response.Messages || [];
-    return response;
+    const result = await this.requestJSON(request);
+    return result.data as ReceiveMessageResult;
   }
 
   async listQueues(params: ListQueuesRequest = {}): Promise<ListQueuesResponse> {

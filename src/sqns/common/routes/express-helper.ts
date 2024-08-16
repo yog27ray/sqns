@@ -7,6 +7,15 @@ import { logger } from '../logger/logger';
 const log = logger.instance('ExpressHelper');
 
 class ExpressHelper {
+  static requestHandlerJSON(callback: (req: Request, res: Response) => Promise<any>): ExpressMiddleware {
+    return (request: Request, response: Response): void => {
+      callback(request, response)
+        .catch((error: Error) => {
+          log.error(error);
+          ExpressHelper.errorHandler(error, response);
+        });
+    };
+  }
   static requestHandler(callback: (req: Request, res: Response) => Promise<any>): ExpressMiddleware {
     return (request: Request, response: Response): void => {
       callback(request, response)

@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import express, { Express } from 'express';
 import http from 'http';
-// import morgan from 'morgan';
+import morgan from 'morgan';
 import { SQNS, SQNSClient } from '../index';
 import { DatabaseConfig, SQNSConfig } from '../typings/config';
 import { RequestClient } from './client';
@@ -14,7 +14,7 @@ import { deleteAllQueues, deleteTopics, Env } from './test-env';
 const log = logger.instance('TestServer');
 
 const app: Express = express();
-// app.use(morgan('dev'));
+app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.json());

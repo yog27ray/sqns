@@ -47,10 +47,12 @@ import {
   UpdateMessageByDeduplicationIdResult,
   UpdateMessageById,
   UpdateMessageByIdResult,
+  DataTypeAndValue,
+  SQNSLoggingConfig,
 } from './types';
-import { SQNSLoggingConfig } from './types/config';
 
 export {
+  DataTypeAndValue,
   SQNSErrorType,
   FindMessageByIdResult,
   UpdateMessageByDeduplicationIdResult,

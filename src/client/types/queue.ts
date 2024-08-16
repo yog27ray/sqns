@@ -1,6 +1,6 @@
 import { EventState } from '../model/event-item';
 import { TopicAttributes, TopicTag } from './class-types';
-import { MessageAttributes } from './common';
+import { DataTypeAndValue, MessageAttributes } from './common';
 import { DeliveryPolicy } from './delivery-policy';
 import { SendMessageReceived } from './send-message';
 
@@ -57,6 +57,28 @@ export interface SQSServerBody {
   SendMessageBatchRequestEntry: Array<SendMessageReceived & { Id: string }>;
   Attribute: Array<{ Name: string; Value: string; }>;
   Tag: Array<{ Name: string; Value: string; }>;
+  requestId: string;
+}
+
+export interface SQSServerJSONBody {
+  QueueName: string;
+  ReceiveCount: number;
+  MaxNumberOfMessages: string;
+  VisibilityTimeout: string;
+  QueueNamePrefix: string;
+  AttributeName: Array<string>;
+  MessageAttributeName: Array<string>;
+  region: string;
+  MessageId: string;
+  State: EventState.PENDING;
+  MessageBody: string;
+  DelaySeconds: string;
+  MessageDeduplicationId: string;
+  MessageSystemAttribute: Record<string, DataTypeAndValue>;
+  MessageAttribute: Record<string, DataTypeAndValue>;
+  SendMessageBatchRequestEntry: Array<SendMessageReceived & { Id: string }>;
+  Attribute: Record<string, string>;
+  Tag: Record<string, string>;
   requestId: string;
 }
 

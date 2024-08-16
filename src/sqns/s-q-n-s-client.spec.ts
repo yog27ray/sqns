@@ -57,12 +57,13 @@ describe('SQNSClient', () => {
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
-        }).request({
-          uri: `${Env.URL}/api/sqs`,
-          body: { Action: 'CreateQueue', QueueName: 'queue1' },
+        }).requestJSON({
+          method: 'POST',
+          uri: `${Env.URL}/api/sqs/queue`,
+          body: { QueueName: 'queue1' },
           headers: { 'x-forwarded-proto': 'https' },
         });
-        expect(result.CreateQueueResponse.CreateQueueResult.QueueUrl).to
+        expect(result.data.QueueUrl).to
           .equal(`https:${Env.URL.split(':').slice(1).join(':')}/api/sqs/sqns/1/queue1`);
       });
 

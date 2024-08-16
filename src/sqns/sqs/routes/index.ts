@@ -3,6 +3,7 @@ import { authentication, getSecretKey } from '../../common/auth/authentication';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
 import { SQSManager } from '../manager/s-q-s-manager';
 import { SQSController } from './s-q-s-controller';
+import { transformRequest } from '../../common/auth/transform-request';
 
 function generateRoutes(sqsManager: SQSManager): express.Router {
   const controller = new SQSController(sqsManager);
@@ -29,9 +30,21 @@ function generateRoutes(sqsManager: SQSManager): express.Router {
     AwsToServerTransformer.transformRequestBody(),
     controller.sqs());
 
-  const newRouter = express.Router();
-  newRouter.use(oldRouter);
-  return newRouter;
+  const router = express.Router();
+  router.use(oldRouter);
+  router.post('/sqs/queue',
+    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.createQueueHandler());
+  router.post('/sqs/message',
+    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.createMessageHandler());
+  router.post('/sqs/receiveMessage',
+    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.receiveMessageHandler());
+  return router;
 }
 
 export { generateRoutes };

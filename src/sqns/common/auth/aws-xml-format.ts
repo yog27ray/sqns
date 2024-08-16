@@ -6,6 +6,7 @@ import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';
 import { Topic } from '../model/topic';
+import { ResponseHelper } from '../helper/response-helper';
 
 class AwsXmlFormat {
   static jsonToXML(rootName: string, keyValue: KeyValue): string {
@@ -28,7 +29,7 @@ class AwsXmlFormat {
 
   static createQueue(requestId: string, host: string, queue: Queue): string {
     const json = {
-      CreateQueueResult: { QueueUrl: AwsXmlFormat.generateSQSURL(queue, host) },
+      CreateQueueResult: { QueueUrl: ResponseHelper.generateSQSURL(queue, host) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('CreateQueueResponse', json);
@@ -36,7 +37,7 @@ class AwsXmlFormat {
 
   static getQueueURL(requestId: string, host: string, queue: Queue): string {
     const json = {
-      GetQueueUrlResult: { QueueUrl: AwsXmlFormat.generateSQSURL(queue, host) },
+      GetQueueUrlResult: { QueueUrl: ResponseHelper.generateSQSURL(queue, host) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('GetQueueURLResponse', json);
@@ -66,7 +67,7 @@ class AwsXmlFormat {
 
   static listQueues(requestId: string, host: string, queues: Array<Queue>): string {
     const json = {
-      ListQueuesResult: { QueueUrl: queues.map((queue: Queue) => AwsXmlFormat.generateSQSURL(queue, host)) },
+      ListQueuesResult: { QueueUrl: queues.map((queue: Queue) => ResponseHelper.generateSQSURL(queue, host)) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('ListQueuesResponse', json);
@@ -101,7 +102,7 @@ class AwsXmlFormat {
   }
 
   static findMessageById(requestId: string, eventItem: EventItem): string {
-    const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+    const message = ResponseHelper.responseMessage(eventItem, ['ALL'], ['ALL']);
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.originalEventTime.toISOString();
@@ -120,7 +121,7 @@ class AwsXmlFormat {
   }
 
   static findMessageByDeduplicationId(requestId: string, eventItem: EventItem): string {
-    const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+    const message = ResponseHelper.responseMessage(eventItem, ['ALL'], ['ALL']);
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.originalEventTime.toISOString();
@@ -139,7 +140,7 @@ class AwsXmlFormat {
   }
 
   static updateMessageById(requestId: string, eventItem: EventItem): string {
-    const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+    const message = ResponseHelper.responseMessage(eventItem, ['ALL'], ['ALL']);
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.eventTime.toISOString();
@@ -160,7 +161,7 @@ class AwsXmlFormat {
   }
 
   static updateMessageByDeduplicationId(requestId: string, eventItem: EventItem): string {
-    const message = AwsXmlFormat.responseMessage(eventItem, ['ALL'], ['ALL']);
+    const message = ResponseHelper.responseMessage(eventItem, ['ALL'], ['ALL']);
     if (message) {
       message.State = eventItem.state;
       message.EventTime = eventItem.eventTime.toISOString();
@@ -185,7 +186,7 @@ class AwsXmlFormat {
     const json: KeyValue = {
       ResponseMetadata: { RequestId: requestId },
       ReceiveMessageResult: {
-        Message: messages.map((message: EventItem) => AwsXmlFormat.responseMessage(message, AttributeName, MessageAttributeName)),
+        Message: messages.map((message: EventItem) => ResponseHelper.responseMessage(message, AttributeName, MessageAttributeName)),
       },
     };
     return AwsXmlFormat.jsonToXML('ReceiveMessageResponse', json);
@@ -347,46 +348,6 @@ class AwsXmlFormat {
       result[item.Name] = item.Value;
       return result;
     }, {});
-  }
-
-  private static responseMessage(event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
-    : ResponseMessage {
-    if (!event) {
-      return undefined;
-    }
-    const result: ResponseMessage = {
-      MessageId: event.id,
-      ReceiptHandle: uuid(),
-      MD5OfBody: Encryption.createHash('md5', event.MessageBody),
-      Body: event.MessageBody,
-    };
-    if (MessageAttributeName) {
-      const attributeFields = Object.keys(event.MessageAttribute)
-        .filter((each: string) => MessageAttributeName.includes('ALL') || MessageAttributeName.includes(each));
-      result.MessageAttribute = attributeFields.map((key: string) => ({ Name: key, Value: event.MessageAttribute[key] }));
-    }
-    if (AttributeName) {
-      const eventSystemAttribute: Record<string, unknown> = {};
-      Object.keys(event.MessageSystemAttribute)
-        .forEach((key: string) => {
-          eventSystemAttribute[key] = event.MessageSystemAttribute[key].StringValue;
-        });
-      const attributes = {
-        ...eventSystemAttribute,
-        SenderId: event.queueARN,
-        ApproximateFirstReceiveTimestamp: event.firstSentTime ? `${event.firstSentTime.getTime()}` : '-1',
-        ApproximateReceiveCount: `${event.receiveCount}`,
-        SentTimestamp: event.sentTime ? `${event.sentTime.getTime()}` : '-1',
-      };
-      const attributeFields = Object.keys(attributes)
-        .filter((each: string) => AttributeName.includes('ALL') || AttributeName.includes(each));
-      result.Attribute = attributeFields.map((key: string) => ({ Name: key, Value: attributes[key] }));
-    }
-    return result;
-  }
-
-  private static generateSQSURL(queue: Queue, baseURL: string): string {
-    return `${baseURL}/sqs/${queue.region}/${queue.companyId}/${queue.name}`;
   }
 }
 

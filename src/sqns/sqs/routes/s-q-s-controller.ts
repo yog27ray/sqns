@@ -9,6 +9,8 @@ import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
 import { ExpressHelper } from '../../common/routes/express-helper';
 import { SQSManager } from '../manager/s-q-s-manager';
+import { SQSServerJSONBody } from '../../../client/types/queue';
+import { ResponseHelper } from '../../common/helper/response-helper';
 
 class SQSController {
   private readonly _eventManager: SQSManager;
@@ -45,6 +47,75 @@ class SQSController {
     });
   }
 
+  async createQueue(
+    user: User,
+    QueueName: string,
+    region: string,
+    attribute: Record<string, string>,
+    tag: Record<string, string>): Promise<Queue> {
+    let queue = await this.eventManager.getQueue(Queue.arn(user.organizationId, region, QueueName))
+      .catch((): Queue => undefined);
+    if (!queue) {
+      queue = await this.eventManager.createQueue(user, QueueName, region, attribute, tag);
+    }
+    return queue;
+  }
+
+  createQueueHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<any> => {
+      const { QueueName, region, Attribute, Tag, requestId } = req.body;
+      const queue = await this.createQueue(req.user, QueueName, region, Attribute, Tag);
+      res.json(ResponseHelper.createQueue(requestId, req.sqnsBaseURL, queue));
+    });
+  }
+
+  createMessageHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<any> => {
+      const {
+        QueueName,
+        MessageBody,
+        MessageAttribute,
+        DelaySeconds,
+        MessageDeduplicationId,
+        MessageSystemAttribute,
+        region,
+        requestId,
+      } = req.body;
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      const event = await this.eventManager.sendMessage(
+        queue,
+        MessageBody,
+        MessageAttribute,
+        MessageSystemAttribute,
+        DelaySeconds,
+        MessageDeduplicationId);
+      res.json(ResponseHelper.sendMessage(requestId, event))
+    });
+  }
+
+  receiveMessageHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<any> => {
+      const {
+        MaxNumberOfMessages,
+        VisibilityTimeout,
+        AttributeName,
+        MessageAttributeName,
+        QueueName,
+        requestId,
+        region,
+      } = req.body;
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      const events = await this.eventManager.receiveMessage(queue, VisibilityTimeout, MaxNumberOfMessages);
+      res.send(ResponseHelper.receiveMessage(requestId, events, AttributeName, MessageAttributeName));
+    });
+  }
+
   sqs(): ExpressMiddleware {
     return ExpressHelper.requestHandler(async (
       req: Request & { serverBody: SQSServerBody; user: User; sqnsBaseURL: string },
@@ -52,16 +123,12 @@ class SQSController {
       switch (req.body.Action) {
         case 'CreateQueue': {
           const { QueueName, region, Attribute, Tag, requestId } = req.serverBody;
-          let queue = await this.eventManager.getQueue(Queue
-            .arn(req.user.organizationId, region, QueueName)).catch((): Queue => undefined);
-          if (!queue) {
-            queue = await this.eventManager.createQueue(
-              req.user,
-              QueueName,
-              region,
-              AwsToServerTransformer.transformArrayToJSON(Attribute),
-              AwsToServerTransformer.transformArrayToJSON(Tag));
-          }
+          const queue = await this.createQueue(
+            req.user,
+            QueueName,
+            region,
+            AwsToServerTransformer.transformArrayToJSON(Attribute),
+            AwsToServerTransformer.transformArrayToJSON(Tag));
           return res.send(AwsXmlFormat.createQueue(requestId, req.sqnsBaseURL, queue));
         }
         case 'GetQueueUrl': {
@@ -100,6 +167,7 @@ class SQSController {
             MessageSystemAttribute,
             region,
           } = req.serverBody;
+          console.log('>>', req.serverBody);
           const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
           const event = await this.sendMessage(
             queue,

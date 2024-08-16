@@ -31,3 +31,8 @@ export declare interface KeyValue<T = unknown> { [key: string]: T; }
 export interface Topic {
   TopicArn?: ARN;
 }
+
+export interface DataTypeAndValue {
+  StringValue: string;
+  DataType: 'String';
+}
