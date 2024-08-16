@@ -84,6 +84,9 @@ before(async () => {
   setupConfig.sqns.cancel();
   setupConfig.sqns.registerExpressRoutes(app);
   const server = http.createServer(app);
+  // Set the timeouts in milliseconds
+  server.keepAliveTimeout = 60000; // 60 seconds
+  server.headersTimeout = 65000; // 65 seconds
   server.listen(Env.PORT, '0.0.0.0', () => {
     log.info('Express server listening on %d, in test mode', Env.PORT);
   });

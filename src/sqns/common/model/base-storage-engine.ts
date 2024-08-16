@@ -1,5 +1,5 @@
 import { AdminSecretKeys, DatabaseConfig } from '../../../../typings/config';
-import { AccessKey, KeyValue } from '../../../client';
+import { AccessKey, KeyValue, SQNSError } from '../../../client';
 import { SQNSErrorCreator } from '../auth/s-q-n-s-error-creator';
 import { Database } from '../database';
 import { MongoDBAdapter } from '../database/mongodb/mongo-d-b-adapter';
@@ -18,7 +18,7 @@ export class BaseStorageEngine {
         break;
       }
       default: {
-        throw new SQNSErrorCreator({
+        throw new SQNSError({
           code: 'DatabaseNotSupported',
           message: 'UnSupported Database',
         });
@@ -30,11 +30,11 @@ export class BaseStorageEngine {
     await Promise.all(adminSecretKeys.map(async (adminSecretKey: AdminSecretKeys) => {
       const organizationId = '1';
       const user = await this.findUser({ organizationId })
-        .catch((error: SQNSErrorCreator) => (error.code === 'NotFound'
+        .catch((error: SQNSError) => (error.code === 'NotFound'
           ? this.createUser(organizationId)
           : Promise.reject(error)));
       const accessKey = await this.findAccessKey({ accessKey: adminSecretKey.accessKey })
-        .catch((error: SQNSErrorCreator) => (error.code === 'NotFound'
+        .catch((error: SQNSError) => (error.code === 'NotFound'
           ? this.createAccessKey(adminSecretKey.accessKey, adminSecretKey.secretAccessKey, user.id)
           : Promise.reject(error)));
       if (accessKey.secretKey === adminSecretKey.secretAccessKey) {

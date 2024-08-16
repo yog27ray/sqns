@@ -1,15 +1,14 @@
 import { expect } from 'chai';
-import { AccessKey } from '../../../client';
+import { AccessKey, SQNSError } from '../../../client';
 import { setupConfig } from '../../../setup';
 import { BaseStorageEngine } from '../model/base-storage-engine';
 import { getSecretKey } from './authentication';
-import { SQNSErrorCreator } from './s-q-n-s-error-creator';
 
 describe('Authentication', () => {
   context('getSecretKey', () => {
     class TempStorageEngine extends BaseStorageEngine {
       findAccessKey(): Promise<AccessKey> {
-        return Promise.reject(new SQNSErrorCreator({
+        return Promise.reject(new SQNSError({
           code: 'DatabaseError',
           message: 'Database find error.',
         }));

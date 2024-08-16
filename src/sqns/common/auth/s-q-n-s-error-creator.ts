@@ -1,10 +1,6 @@
-import { ARN, SQNSError, SQNSErrorType } from '../../../client';
+import { ARN, SQNSError } from '../../../client';
 
-class SQNSErrorCreator extends Error {
-  code: string;
-
-  detail?: string;
-
+class SQNSErrorCreator {
   static invalidQueueName(queueName: ARN): void {
     throw new SQNSError({
       code: 'NonExistentQueue',
@@ -91,12 +87,6 @@ class SQNSErrorCreator extends Error {
       code: 'MinAdminSecretKeys',
       message: 'At-least one admin secret keys must be provided',
     });
-  }
-
-  constructor(error: SQNSErrorType) {
-    super(error.message);
-    this.code = error.code;
-    this.detail = error.detail;
   }
 }
 

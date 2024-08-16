@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { GetSecretKeyResult } from '../../../../typings/auth';
 import { ExpressMiddleware } from '../../../../typings/express';
-import { AuthRequest, Credentials, signRequest } from '../../../client';
+import { AuthRequest, Credentials, signRequest, SQNSError } from '../../../client';
 import { logger } from '../logger/logger';
 import { BaseStorageEngine } from '../model/base-storage-engine';
 import { User } from '../model/user';
@@ -13,7 +13,7 @@ const log = logger.instance('Authentication');
 function getSecretKey(storageEngine: BaseStorageEngine): (accessKeyId: string) => Promise<GetSecretKeyResult> {
   return async (accessKeyId: string): Promise<GetSecretKeyResult> => {
     const accessKey = await storageEngine.findAccessKey({ accessKey: accessKeyId })
-      .catch((error: SQNSErrorCreator) => {
+      .catch((error: SQNSError) => {
         if (error.code === 'NotFound') {
           log.error(`AccessKey not found: ${accessKeyId}`);
           SQNSErrorCreator.invalidSignatureError();
@@ -50,7 +50,7 @@ function authentication(getSecretKeyCallback: (accessKey: string) => Promise<Get
   return (req: Request, res: Response, next: NextFunction): void => {
     log.verbose('Authorization header received:', req.header('Authorization'));
     if (!req.header('Authorization') || req.header('Authorization').split(' ').length !== 4) {
-      ExpressHelper.errorHandler(new SQNSErrorCreator({
+      ExpressHelper.errorHandler(new SQNSError({
         code: 'SignatureDoesNotMatch',
         message: 'The request signature we calculated does not match the signature you provided.',
       }) as Error, res);

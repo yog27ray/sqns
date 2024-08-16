@@ -3,6 +3,7 @@ import {
   DeliveryPolicy,
   GetSubscriptionResponse,
   KeyValue,
+  SQNSError,
   SUPPORTED_BACKOFF_FUNCTIONS_TYPE,
 } from '../../../client';
 import { SQNSErrorCreator } from '../auth/s-q-n-s-error-creator';
@@ -43,7 +44,7 @@ export class DeliveryPolicyHelper {
         break;
       }
       default: {
-        throw new SQNSErrorCreator({
+        throw new SQNSError({
           code: 'UnhandledBackoffFunction',
           message: 'Unhandled Backoff Function',
         });

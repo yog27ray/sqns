@@ -10,6 +10,7 @@ import {
   SUPPORTED_CHANNEL_TYPE,
   TopicAttributes,
   TopicTag,
+  SQNSError,
 } from '../../../client';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { ARNHelper } from '../../common/helper/a-r-n-helper';
@@ -125,7 +126,7 @@ class SNSManager extends BaseManager {
         return topic.deliveryPolicy;
       }
       default:
-        throw new SQNSErrorCreator({
+        throw new SQNSError({
           code: 'InvalidResourceARN',
           message: 'Invalid Resource ARN',
         });
@@ -140,10 +141,10 @@ class SNSManager extends BaseManager {
     const messageStructure: MessageStructure = JSON.parse(messageStructureString);
     Object.keys(messageStructure).forEach((key: SUPPORTED_CHANNEL_TYPE) => {
       if (!SUPPORTED_CHANNEL.includes(key)) {
-        throw new SQNSErrorCreator({ code: '412', message: `"${key}" is not supported channel.` });
+        throw new SQNSError({ code: '412', message: `"${key}" is not supported channel.` });
       }
       if (typeof messageStructure[key] !== 'string') {
-        throw new SQNSErrorCreator({ code: '412', message: `"${key}" value "${messageStructure[key]}" is not string.` });
+        throw new SQNSError({ code: '412', message: `"${key}" value "${messageStructure[key]}" is not string.` });
       }
     });
     messageStructure.default = messageStructure.default || message;

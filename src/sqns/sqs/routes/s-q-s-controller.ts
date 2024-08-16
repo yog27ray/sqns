@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
-import { EventItem, SendMessageReceived, SQSServerBody } from '../../../client';
+import { EventItem, SendMessageReceived, SQNSError, SQSServerBody } from '../../../client';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
@@ -173,7 +173,7 @@ class SQSController {
           return res.send(AwsXmlFormat.receiveMessage(requestId, events, AttributeName, MessageAttributeName));
         }
         default:
-          throw new SQNSErrorCreator({ code: 'Unhandled function', message: 'This function is not supported.' });
+          throw new SQNSError({ code: 'Unhandled function', message: 'This function is not supported.' });
       }
     });
   }
