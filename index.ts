@@ -1,14 +1,14 @@
 import {
   EventState,
-  UpdateMessageByDeduplicationId,
-  UpdateMessageById,
+  FindMessageByIdResult,
+  MessageAttributeMap,
   SendMessage,
+  SendMessageRequest,
   SQNSClient,
   SQNSClientConfig,
-  SendMessageRequest,
-  MessageAttributeMap,
-  FindMessageByIdResult,
+  UpdateMessageByDeduplicationId,
   UpdateMessageByDeduplicationIdResult,
+  UpdateMessageById,
   UpdateMessageByIdResult,
 } from '@sqns-client';
 import { Database } from './src/sqns/common/database';

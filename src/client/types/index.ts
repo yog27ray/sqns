@@ -1,5 +1,4 @@
 import { AuthRequest, Credentials } from './auth';
-import { SQNSLoggingConfig } from './config';
 import {
   AccessKeyType,
   BaseObjectType,
@@ -20,6 +19,7 @@ import {
   SUPPORTED_BACKOFF_FUNCTIONS_TYPE,
   SUPPORTED_CHANNEL_TYPE,
 } from './common';
+import { SQNSLoggingConfig } from './config';
 import { ChannelDeliveryPolicy, DeliveryPolicy } from './delivery-policy';
 import { ListQueuesRequest, ListQueuesResponse } from './list-queues';
 import {
@@ -46,11 +46,11 @@ import {
 import {
   FindMessageByDeduplicationIdResult,
   FindMessageByIdResult,
+  Message,
   ReceiveMessageRequest,
   ReceiveMessageResult,
   UpdateMessageByDeduplicationIdResult,
   UpdateMessageByIdResult,
-  Message,
 } from './recieve-message';
 import { RequestItem } from './request-item';
 import {
