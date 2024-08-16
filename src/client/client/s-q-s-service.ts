@@ -1,4 +1,4 @@
-import { SQSServiceConfiguration } from '../../../../typings/client-confriguation';
+import { SQSServiceConfiguration } from '../types/client-confriguation';
 
 export class SQSService {
   config: SQSServiceConfiguration;
