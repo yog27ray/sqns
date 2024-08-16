@@ -152,22 +152,6 @@ export class BaseClient extends RequestClient {
         } catch (error) {
           return Promise.reject(new SQNSError({ code, message }));
         }
-        // const { error, message, code } = originalError;
-        // return Promise.reject(new SQNSError({ code, message }));
-        // return new Promise((
-        //   resolve: (value: unknown) => void,
-        //   reject: (error: unknown) => void) => {
-        //   xml2js.parseString(
-        //     error || message,
-        //     (parserError: unknown, result: { ErrorResponse: { Error: Array<{ Code: string; Message: string; }> } }) => {
-        //       if (parserError) {
-        //         reject(new SQNSError({ code, message }));
-        //         return;
-        //       }
-        //       const { Code: [errorCode], Message: [errorMessage] } = result.ErrorResponse.Error[0];
-        //       reject(new SQNSError({ code: errorCode, message: errorMessage }));
-        //     });
-        // });
       });
   }
 

@@ -53,13 +53,16 @@ export class ResponseHelper {
       Body: event.MessageBody,
     };
     if (MessageAttributeName) {
-      Object.keys(event.MessageAttribute).forEach((key: string) => {
-        if (MessageAttributeName.includes('ALL') || MessageAttributeName.includes(key)) {
-          return;
-        }
-        delete event.MessageAttribute[key];
-      });
-      result.MessageAttributes = event.MessageAttribute;
+      const messageAttributeKeys = Object.keys(event.MessageAttribute);
+      if (messageAttributeKeys.length) {
+        Object.keys(event.MessageAttribute).forEach((key: string) => {
+          if (MessageAttributeName.includes('ALL') || MessageAttributeName.includes(key)) {
+            return;
+          }
+          delete event.MessageAttribute[key];
+        });
+        result.MessageAttributes = event.MessageAttribute;
+      }
     }
     if (AttributeName) {
       const attributes: Record<string, MessageAttributeValue> = {
@@ -75,12 +78,15 @@ export class ResponseHelper {
           StringValue: event.sentTime ? `${event.sentTime.getTime()}` : '-1',
         },
       };
-      result.Attributes = Object.keys(attributes).reduce((result: Record<string, string>, key: string) => {
+      const finalAttributes = Object.keys(attributes).reduce((result: Record<string, string>, key: string) => {
         if (AttributeName.includes('ALL') || AttributeName.includes(key)) {
           return { ...result, [key]: attributes[key].StringValue };
         }
         return result;
       }, {});
+      if (Object.keys(finalAttributes).length) {
+        result.Attributes = finalAttributes;
+      }
     }
     return result;
   }
