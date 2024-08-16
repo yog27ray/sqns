@@ -1,4 +1,5 @@
 import { AuthRequest, Credentials } from './auth';
+import { SQNSLoggingConfig } from './config';
 import {
   AccessKeyType,
   BaseObjectType,
@@ -166,4 +167,5 @@ export {
   SubscriptionType,
   TopicTag,
   SubscriptionAttributes,
+  SQNSLoggingConfig,
 };

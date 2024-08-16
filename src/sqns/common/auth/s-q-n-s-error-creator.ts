@@ -1,5 +1,4 @@
-import { ARN, SQNSError } from '@sqns-client';
-import { SQNSErrorType } from '../../../../typings/sqns-error-type';
+import { ARN, SQNSError, SQNSErrorType } from '@sqns-client';
 
 class SQNSErrorCreator extends Error {
   code: string;

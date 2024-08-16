@@ -1,11 +1,10 @@
 import moment from 'moment';
 import xml2js from 'xml2js';
-import { ClientConfiguration } from '../../../../typings/typings';
 import { signRequest } from '../auth/authentication';
 import { SQNSError } from '../auth/s-q-n-s-error';
 import { updateLogging } from '../logger/logger';
 import { RequestClient } from '../request-client/request-client';
-import { KeyValue } from '../types/common';
+import { ClientConfiguration, KeyValue } from '../types';
 import { SNSService } from './s-n-s-service';
 import { SQSService } from './s-q-s-service';
 

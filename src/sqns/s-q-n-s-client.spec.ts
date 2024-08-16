@@ -35,7 +35,7 @@ describe('SQNSClient', () => {
     context('CreateQueue', () => {
       let client: SQNSClient;
       beforeEach(async () => {
-        // await dropDatabase();
+        await dropDatabase();
         client = new SQNSClient({
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,

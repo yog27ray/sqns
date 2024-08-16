@@ -1,6 +1,6 @@
 import { signRequest } from './auth/authentication';
 import { Encryption } from './auth/encryption';
-import { SQNSError } from './auth/s-q-n-s-error';
+import { SQNSError, SQNSErrorType } from './auth/s-q-n-s-error';
 import { BaseClient } from './client/base-client';
 import { AccessKey } from './model/access-key';
 import { BaseObject } from './model/base-object';
@@ -40,10 +40,25 @@ import {
   TopicAttributes,
   TopicTag,
   TopicType,
+  SendMessageRequest,
+  UpdateMessageByDeduplicationId,
+  UpdateMessageById,
+  SendMessage,
+  FindMessageByIdResult,
+  UpdateMessageByDeduplicationIdResult,
+  UpdateMessageByIdResult,
 } from './types';
 import { SQNSLoggingConfig } from './types/config';
 
 export {
+  SQNSErrorType,
+  FindMessageByIdResult,
+  UpdateMessageByDeduplicationIdResult,
+  UpdateMessageByIdResult,
+  UpdateMessageByDeduplicationId,
+  UpdateMessageById,
+  SendMessage,
+  SendMessageRequest,
   ConfirmSubscriptionResponse,
   Message,
   BaseClient,
