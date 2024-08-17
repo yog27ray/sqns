@@ -346,7 +346,7 @@ describe('mongoDB test cases', () => {
         expect({ code, message }).to.deep.equal({
           code: '404',
           message: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Error</title>\n</head>\n'
-              + '<body>\n<pre>Cannot POST /api/wrong/sqs/queue/queue1/event/eventId/success</pre>\n</body>\n</html>\n',
+              + '<body>\n<pre>Cannot PUT /api/wrong/sqs/queue/queue1/event/eventId/success</pre>\n</body>\n</html>\n',
         });
       }
     });

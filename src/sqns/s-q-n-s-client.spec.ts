@@ -840,7 +840,7 @@ describe('SQNSClient', () => {
 
       it('should give error when deleting system queue.', async () => {
         try {
-          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/${SYSTEM_QUEUE_NAME.SNS}` });
+          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/sqns/1/${SYSTEM_QUEUE_NAME.SNS}` });
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };
@@ -850,7 +850,7 @@ describe('SQNSClient', () => {
 
       it('should give error when queue doesn\'t exists.', async () => {
         try {
-          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/queue11` });
+          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/sqns/1/queue11` });
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };
