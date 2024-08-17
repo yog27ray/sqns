@@ -68,7 +68,6 @@ export class SQNS {
     app.use(this._url.basePath, sqnsRoutes());
     if (this.sqsManager) {
       log.info('SQS path added.');
-      console.log('>>>>this._url.basePath', this._url.basePath);
       app.use(this._url.basePath, sqsRoutes(this.sqsManager));
     }
     if (this.snsManager) {
