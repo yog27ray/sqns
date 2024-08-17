@@ -49,7 +49,7 @@ describe('SQNSClient', () => {
           Attributes: { attribute: 'attribute1' },
           tags: { tag: 'tag1' },
         });
-        expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/sqns/1/queue1`);
+        expect(result.QueueUrl).to.equal(`${Env.URL}/api/v1/sqs/sqns/1/queue1`);
       });
 
       it('should return queue url protocol as provided in headers', async () => {
@@ -59,18 +59,18 @@ describe('SQNSClient', () => {
           secretAccessKey: Env.secretAccessKey,
         }).requestJSON({
           method: 'POST',
-          uri: `${Env.URL}/api/sqs/queues`,
+          uri: `${Env.URL}/api/v1/sqs/queues`,
           body: { QueueName: 'queue1' },
           headers: { 'x-forwarded-proto': 'https' },
         });
         expect(result.data.QueueUrl).to
-          .equal(`https:${Env.URL.split(':').slice(1).join(':')}/api/sqs/sqns/1/queue1`);
+          .equal(`https:${Env.URL.split(':').slice(1).join(':')}/api/v1/sqs/sqns/1/queue1`);
       });
 
       it('should allow request create same queue multiple times', async () => {
         await client.createQueue({ QueueName: 'queue1' });
         const result = await client.createQueue({ QueueName: 'queue1' });
-        expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/sqns/1/queue1`);
+        expect(result.QueueUrl).to.equal(`${Env.URL}/api/v1/sqs/sqns/1/queue1`);
       });
 
       it('should receive message maximum of 2 times', async () => {
@@ -810,17 +810,17 @@ describe('SQNSClient', () => {
       it('should return list of all queues', async () => {
         const list = await client.listQueues();
         expect(list.QueueUrls).to.deep.equal([
-          `${Env.URL}/api/sqs/sqns/1/1queue1`,
-          `${Env.URL}/api/sqs/sqns/1/1queue2`,
-          `${Env.URL}/api/sqs/sqns/1/2queue3`,
+          `${Env.URL}/api/v1/sqs/sqns/1/1queue1`,
+          `${Env.URL}/api/v1/sqs/sqns/1/1queue2`,
+          `${Env.URL}/api/v1/sqs/sqns/1/2queue3`,
         ]);
       });
 
       it('should return list of all queues starting with "1q"', async () => {
         const list = await client.listQueues({ QueueNamePrefix: '1q' });
         expect(list.QueueUrls).to.deep.equal([
-          `${Env.URL}/api/sqs/sqns/1/1queue1`,
-          `${Env.URL}/api/sqs/sqns/1/1queue2`,
+          `${Env.URL}/api/v1/sqs/sqns/1/1queue1`,
+          `${Env.URL}/api/v1/sqs/sqns/1/1queue2`,
         ]);
       });
     });
@@ -840,7 +840,7 @@ describe('SQNSClient', () => {
 
       it('should give error when deleting system queue.', async () => {
         try {
-          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/sqns/1/${SYSTEM_QUEUE_NAME.SNS}` });
+          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/v1/sqs/sqns/1/${SYSTEM_QUEUE_NAME.SNS}` });
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };
@@ -850,7 +850,7 @@ describe('SQNSClient', () => {
 
       it('should give error when queue doesn\'t exists.', async () => {
         try {
-          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/sqns/1/queue11` });
+          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/v1/sqs/sqns/1/queue11` });
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };
@@ -911,7 +911,7 @@ describe('SQNSClient', () => {
 
       it('should return queue1 url', async () => {
         const result = await client.getQueueUrl({ QueueName: 'queue1' });
-        expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/sqns/1/queue1`);
+        expect(result.QueueUrl).to.equal(`${Env.URL}/api/v1/sqs/sqns/1/queue1`);
       });
     });
 

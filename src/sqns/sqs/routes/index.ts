@@ -5,33 +5,8 @@ import { transformRequest } from '../../common/auth/transform-request';
 import { SQSManager } from '../manager/s-q-s-manager';
 import { SQSController } from './s-q-s-controller';
 
-function generateRoutes(sqsManager: SQSManager): express.Router {
-  const controller = new SQSController(sqsManager);
-
-  const oldRouter = express.Router();
-
-  oldRouter.post(
-    '/sqs/:region/:companyId/:queueName/event/:eventId/success',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
-    AwsToServerTransformer.transformRequestBody(),
-    controller.eventSuccess());
-  oldRouter.post(
-    '/sqs/:region/:companyId/:queueName/event/:eventId/failure',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
-    AwsToServerTransformer.transformRequestBody(),
-    controller.eventFailure());
-  oldRouter.post(
-    '/sqs',
-    authentication(getSecretKey(sqsManager.getStorageEngine())),
-    AwsToServerTransformer.transformRequestBody(),
-    controller.sqs());
-
+function generateV1Router(controller: SQSController, sqsManager: SQSManager): express.Router {
   const router = express.Router();
-  router.use(oldRouter);
-  router.get('/queue/health', (request: express.Request, response: express.Response) => {
-    response.send('success');
-  });
-  router.get('/queues/events/stats', controller.eventStats());
   router.post('/sqs/queues',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
     transformRequest(),
@@ -86,6 +61,38 @@ function generateRoutes(sqsManager: SQSManager): express.Router {
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
     transformRequest(),
     controller.eventFailureHandler());
+  return router;
+}
+
+function generateRoutes(sqsManager: SQSManager): express.Router {
+  const controller = new SQSController(sqsManager);
+
+  const oldRouter = express.Router();
+
+  oldRouter.post(
+    '/sqs/:region/:companyId/:queueName/event/:eventId/success',
+    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    AwsToServerTransformer.transformRequestBody(),
+    controller.eventSuccess());
+  oldRouter.post(
+    '/sqs/:region/:companyId/:queueName/event/:eventId/failure',
+    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    AwsToServerTransformer.transformRequestBody(),
+    controller.eventFailure());
+  oldRouter.post(
+    '/sqs',
+    authentication(getSecretKey(sqsManager.getStorageEngine())),
+    AwsToServerTransformer.transformRequestBody(),
+    controller.sqs());
+
+  const router = express.Router();
+  router.get('/queue/health', (request: express.Request, response: express.Response) => {
+    response.send('success');
+  });
+  router.get('/queues/events/stats', controller.eventStats());
+  const v1Routes = generateV1Router(controller, sqsManager);
+  router.use(oldRouter);
+  router.use('/v1', v1Routes);
   return router;
 }
 

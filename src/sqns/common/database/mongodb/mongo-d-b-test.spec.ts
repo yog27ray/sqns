@@ -321,7 +321,7 @@ describe('mongoDB test cases', () => {
           accessKeyId: 'wrongAccessKey',
           secretAccessKey: 'wrongSecret',
         });
-        await client.markEventFailure('eventId', `${Env.URL}/api/sqs/sqns/1/queue1`, 'failureMessage');
+        await client.markEventFailure('eventId', `${Env.URL}/api/v1/sqs/sqns/1/queue1`, 'failureMessage');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
       } catch (error) {
         const { code, message } = error as { code: number; message: string; };

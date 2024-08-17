@@ -59,6 +59,26 @@ export class SQNSClient extends BaseClient {
     return result.data as CreateQueueResult;
   }
 
+  async listQueues(params: ListQueuesRequest = {}): Promise<ListQueuesResponse> {
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/queues/list`,
+      body: { ...params },
+      method: 'POST',
+    };
+    const response = await this.requestJSON(request);
+    return response.data as ListQueuesResponse;
+  }
+
+  async getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult> {
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/queues/getUrl`,
+      body: { ...params },
+      method: 'POST',
+    };
+    const response = await this.requestJSON(request);
+    return response.data as GetQueueUrlResult;
+  }
+
   async sendMessage(params: SendMessageRequest): Promise<SendMessageResult> {
     const request: BaseClientRequest = {
       uri: `${params.QueueUrl}/send-message`,
@@ -119,16 +139,6 @@ export class SQNSClient extends BaseClient {
     return result.data as ReceiveMessageResult;
   }
 
-  async listQueues(params: ListQueuesRequest = {}): Promise<ListQueuesResponse> {
-    const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/queues/list`,
-      body: { ...params },
-      method: 'POST',
-    };
-    const response = await this.requestJSON(request);
-    return response.data as ListQueuesResponse;
-  }
-
   async deleteQueue(params: DeleteQueueRequest): Promise<void> {
     const request: BaseClientRequest = {
       uri: params.QueueUrl,
@@ -156,16 +166,6 @@ export class SQNSClient extends BaseClient {
       }
     });
     return result;
-  }
-
-  async getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult> {
-    const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/queues/getUrl`,
-      body: { ...params },
-      method: 'POST',
-    };
-    const response = await this.requestJSON(request);
-    return response.data as GetQueueUrlResult;
   }
 
   async markEventSuccess(MessageId: string, QueueUrl: string, successMessage: string = ''): Promise<void> {

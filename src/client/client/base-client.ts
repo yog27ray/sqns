@@ -34,7 +34,7 @@ export class BaseClient extends RequestClient {
   constructor(config: ClientConfiguration) {
     super();
     this._config = { ...config, region: BaseClient.REGION };
-    this._sqs = new SQSService({ ...this._config, endpoint: `${config.endpoint}/sqs` });
+    this._sqs = new SQSService({ ...this._config, endpoint: `${config.endpoint}/v1/sqs` });
     this._sns = new SNSService({ ...this._config, endpoint: `${config.endpoint}/sns` });
     updateLogging(config.logging);
   }
