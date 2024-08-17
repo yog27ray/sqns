@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
 import { EventItem, SendMessageReceived, SQNSError, SQSServerBody } from '../../../client';
 import { SQSServerJSONBody } from '../../../client/types/queue';
+import { SendMessageJsonReceived } from '../../../client/types/send-message';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
@@ -11,7 +12,6 @@ import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
 import { ExpressHelper } from '../../common/routes/express-helper';
 import { SQSManager } from '../manager/s-q-s-manager';
-import { SendMessageJsonReceived } from '../../../client/types/send-message';
 
 class SQSController {
   private readonly _eventManager: SQSManager;
