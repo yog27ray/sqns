@@ -46,7 +46,9 @@ function verifyRequest(authRequest: AuthRequest, credentials: Credentials, user:
   }
 }
 
-function authentication(getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>, jsonError: boolean = false): ExpressMiddleware {
+function authentication(
+  getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>,
+  jsonError: boolean = false): ExpressMiddleware {
   return (req: Request, res: Response, next: NextFunction): void => {
     log.verbose('Authorization header received:', req.header('Authorization'));
     if (!req.header('Authorization') || req.header('Authorization').split(' ').length !== 4) {

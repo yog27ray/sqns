@@ -54,7 +54,8 @@ describe('EventManagerMasterSpec', () => {
         const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: '400',
-          message: '{"code":"SignatureDoesNotMatch","message":"The request signature we calculated does not match the signature you provided."}'
+          message: '{"code":"SignatureDoesNotMatch","message":"The request signature we calculated'
+            + ' does not match the signature you provided."}',
         });
       }
     });
@@ -70,7 +71,8 @@ describe('EventManagerMasterSpec', () => {
         const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: '400',
-          message: '{"code":"SignatureDoesNotMatch","message":"The request signature we calculated does not match the signature you provided."}'
+          message: '{"code":"SignatureDoesNotMatch","message":"The request signature we calculated'
+            + ' does not match the signature you provided."}',
         });
       }
     });
