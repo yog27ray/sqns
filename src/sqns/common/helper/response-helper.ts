@@ -86,6 +86,14 @@ export class ResponseHelper {
       });
   }
 
+  static send<T>(
+    requestId: string, responseValue: T): Return<T> {
+    return {
+      data: responseValue,
+      ResponseMetadata: { RequestId: requestId },
+    };
+  }
+
   private static responseMessage(_event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)
     : ResponseMessageJson {
     const event = _event;
@@ -135,13 +143,5 @@ export class ResponseHelper {
       }
     }
     return result;
-  }
-
-  private static send<T>(
-    requestId: string, responseValue: T): Return<T> {
-    return {
-      data: responseValue,
-      ResponseMetadata: { RequestId: requestId },
-    };
   }
 }

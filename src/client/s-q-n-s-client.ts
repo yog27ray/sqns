@@ -61,7 +61,7 @@ export class SQNSClient extends BaseClient {
 
   async sendMessage(params: SendMessageRequest): Promise<SendMessageResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/messages`,
+      uri: `${params.QueueUrl}/send-message`,
       body: { ...params },
       method: 'POST',
     };
@@ -71,7 +71,7 @@ export class SQNSClient extends BaseClient {
 
   async findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/messages/findById`,
+      uri: `${params.QueueUrl}/id/${params.MessageId}`,
       body: { ...params },
       method: 'POST',
     };
@@ -81,7 +81,7 @@ export class SQNSClient extends BaseClient {
 
   async findByMessageDeduplicationId(params: FindMessageByDeduplicationId): Promise<FindMessageByDeduplicationIdResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/messages/findByDuplicationId`,
+      uri: `${params.QueueUrl}/duplication-id/${params.MessageDeduplicationId}`,
       body: { ...params },
       method: 'POST',
     };
@@ -91,7 +91,7 @@ export class SQNSClient extends BaseClient {
 
   async updateMessageById(params: UpdateMessageById): Promise<UpdateMessageByIdResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/message/byId`,
+      uri: `${params.QueueUrl}/id/${params.MessageId}`,
       body: { ...params },
       method: 'PUT',
     };
@@ -101,7 +101,7 @@ export class SQNSClient extends BaseClient {
 
   async updateMessageByDeduplicationId(params: UpdateMessageByDeduplicationId): Promise<UpdateMessageByDeduplicationIdResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/message/byDuplicationId`,
+      uri: `${params.QueueUrl}/duplication-id/${params.MessageDeduplicationId}`,
       body: { ...params },
       method: 'PUT',
     };
@@ -131,7 +131,7 @@ export class SQNSClient extends BaseClient {
 
   async deleteQueue(params: DeleteQueueRequest): Promise<void> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/queues`,
+      uri: params.QueueUrl,
       body: { ...params },
       method: 'DELETE',
     };
@@ -140,7 +140,7 @@ export class SQNSClient extends BaseClient {
 
   async sendMessageBatch(params: SendMessageBatchRequest): Promise<SendMessageBatchResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/messages/batch`,
+      uri: `${params.QueueUrl}/send-message/batch`,
       body: { ...params },
       method: 'POST',
     };
@@ -169,19 +169,21 @@ export class SQNSClient extends BaseClient {
   }
 
   async markEventSuccess(MessageId: string, QueueUrl: string, successMessage: string = ''): Promise<void> {
-    const request = {
+    const request: BaseClientRequest = {
       uri: `${QueueUrl}/event/${MessageId}/success`,
       body: { successMessage },
+      method: 'PUT',
     };
-    await this.request(request);
+    await this.requestJSON(request);
   }
 
   async markEventFailure(MessageId: string, QueueUrl: string, failureMessage: string = ''): Promise<void> {
-    const request = {
+    const request: BaseClientRequest = {
       uri: `${QueueUrl}/event/${MessageId}/failure`,
       body: { failureMessage },
+      method: 'PUT',
     };
-    await this.request(request);
+    await this.requestJSON(request);
   }
 
   async createTopic(params: CreateTopicInput): Promise<CreateTopicResponse> {

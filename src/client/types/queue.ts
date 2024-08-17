@@ -80,6 +80,8 @@ export interface SQSServerJSONBody {
   Attribute: Record<string, string>;
   Tag: Record<string, string>;
   requestId: string;
+  successMessage: string;
+  failureMessage: string;
 }
 
 export interface CreateQueueResult {

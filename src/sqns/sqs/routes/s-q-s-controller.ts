@@ -62,6 +62,32 @@ class SQSController {
     return queue;
   }
 
+  eventSuccessHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId } = req.body;
+      const { queueName, eventId, region } = req.params;
+      const successResponse = req.body.successMessage || 'Event marked success without response.';
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
+      await this.eventManager.updateEventStateSuccess(queue, eventId, successResponse);
+      res.status(200).send(ResponseHelper.send(requestId, { message: 'updated' }));
+    });
+  }
+
+  eventFailureHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId } = req.body;
+      const { queueName, eventId, region } = req.params;
+      const failureResponse = req.body.failureMessage || 'Event marked failed without response.';
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, queueName));
+      await this.eventManager.updateEventStateFailure(queue, eventId, failureResponse);
+      res.status(200).send(ResponseHelper.send(requestId, { message: 'updated' }));
+    });
+  }
+
   createQueueHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
       req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
