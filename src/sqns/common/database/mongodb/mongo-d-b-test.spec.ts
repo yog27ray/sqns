@@ -9,6 +9,7 @@ import { WorkerQueueConfig } from '../../../scheduler/scheduler-worker/worker-qu
 import { DeliveryPolicyHelper } from '../../helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../model/base-storage-engine';
 import { MongoDBAdapter } from './mongo-d-b-adapter';
+import { ResponseItem } from '../../../../../typings/response-item';
 
 declare interface DBEvent {
   _id: string;
@@ -57,9 +58,9 @@ describe('mongoDB test cases', () => {
       });
       await new Promise((resolve: (value: unknown) => void) => {
         let count = 0;
-        const workerQueueConfig = new WorkerQueueConfig('queue1', async (queueName, item) => {
+        const workerQueueConfig = new WorkerQueueConfig('queue1', async (queueName: string, item: ResponseItem): Promise<string> => {
           count += 1;
-          let result;
+          let result: Promise<string>;
           if (item.Body === '123') {
             result = Promise.reject('Error in processing');
           }
