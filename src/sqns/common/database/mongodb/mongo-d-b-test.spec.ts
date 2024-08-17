@@ -1,6 +1,7 @@
 /* tslint:disable:no-null-keyword */
 import { expect } from 'chai';
 import moment from 'moment';
+import { ResponseItem } from '../../../../../typings/response-item';
 import { ChannelDeliveryPolicy, CreateQueueResult, MessageAttributeMap, RequestClient, SQNSClient } from '../../../../client';
 import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
@@ -9,7 +10,6 @@ import { WorkerQueueConfig } from '../../../scheduler/scheduler-worker/worker-qu
 import { DeliveryPolicyHelper } from '../../helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../model/base-storage-engine';
 import { MongoDBAdapter } from './mongo-d-b-adapter';
-import { ResponseItem } from '../../../../../typings/response-item';
 
 declare interface DBEvent {
   _id: string;
