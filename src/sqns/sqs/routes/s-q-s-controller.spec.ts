@@ -46,7 +46,7 @@ describe('EventManagerMasterSpec', () => {
 
     it('should give error when authentication header is missing.', async () => {
       try {
-        await requestClient.post(`${Env.URL}/api/sqs`, {
+        await requestClient.http(`${Env.URL}/api/sqs`, {
           body: JSON.stringify({ Action: 'AddPermission' }),
         });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
@@ -70,7 +70,7 @@ describe('EventManagerMasterSpec', () => {
 
     it('should give error when authentication header is inValid.', async () => {
       try {
-        await requestClient.post(`${Env.URL}/api/sqs`, {
+        await requestClient.http(`${Env.URL}/api/sqs`, {
           body: JSON.stringify({ Action: 'AddPermission' }),
           headers: { authorization: '' },
         });
@@ -113,7 +113,7 @@ describe('EventManagerMasterSpec', () => {
           },
           { accessKeyId: Env.accessKeyId, secretAccessKey: Env.secretAccessKey },
           ['x-sqns-date', 'host', 'x-sqns-content-sha256']);
-        await requestClient.post(`${Env.URL}/api/sqs`, {
+        await requestClient.http(`${Env.URL}/api/sqs`, {
           body: JSON.stringify(request.body),
           headers: request.headers,
         });

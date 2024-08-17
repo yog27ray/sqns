@@ -11,6 +11,7 @@ import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
 import { ExpressHelper } from '../../common/routes/express-helper';
 import { SQSManager } from '../manager/s-q-s-manager';
+import { SendMessageJsonReceived } from '../../../client/types/send-message';
 
 class SQSController {
   private readonly _eventManager: SQSManager;
@@ -64,7 +65,7 @@ class SQSController {
   createQueueHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
       req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
-      res: Response): Promise<any> => {
+      res: Response): Promise<void> => {
       const { QueueName, region, Attribute, Tag, requestId } = req.body;
       const queue = await this.createQueue(req.user, QueueName, region, Attribute, Tag);
       res.json(ResponseHelper.createQueue(requestId, req.sqnsBaseURL, queue));
@@ -74,7 +75,7 @@ class SQSController {
   createMessageHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
       req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
-      res: Response): Promise<any> => {
+      res: Response): Promise<void> => {
       const {
         QueueName,
         MessageBody,
@@ -97,10 +98,29 @@ class SQSController {
     });
   }
 
+  createMessageBatchHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { QueueName, SendMessageBatchRequestEntry, requestId, region } = req.body;
+      const batchIds = SendMessageBatchRequestEntry.map((each: { Id: string }) => each.Id);
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      const events = await Promise.all(SendMessageBatchRequestEntry
+        .map((sendMessageReceived: SendMessageJsonReceived) => this.eventManager.sendMessage(
+          queue,
+          sendMessageReceived.MessageBody,
+          sendMessageReceived.MessageAttribute,
+          sendMessageReceived.MessageSystemAttribute,
+          sendMessageReceived.DelaySeconds,
+          sendMessageReceived.MessageDeduplicationId)));
+      res.json(ResponseHelper.sendMessageBatch(requestId, events, batchIds));
+    });
+  }
+
   receiveMessageHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
       req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
-      res: Response): Promise<any> => {
+      res: Response): Promise<void> => {
       const {
         MaxNumberOfMessages,
         VisibilityTimeout,
@@ -113,6 +133,106 @@ class SQSController {
       const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
       const events = await this.eventManager.receiveMessage(queue, VisibilityTimeout, MaxNumberOfMessages);
       res.send(ResponseHelper.receiveMessage(requestId, events, AttributeName, MessageAttributeName));
+    });
+  }
+
+  findMessageByIdHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { QueueName, region, MessageId, requestId } = req.body;
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      const eventItem = await this.eventManager.findMessageById(queue, MessageId);
+      res.send(ResponseHelper.findMessageById(requestId, eventItem));
+    });
+  }
+
+  findMessageByDuplicationIdHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { QueueName, region, MessageDeduplicationId, requestId } = req.body;
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      const eventItem = await this.eventManager.findMessageByDeduplicationId(queue, MessageDeduplicationId);
+      res.send(ResponseHelper.findMessageById(requestId, eventItem));
+    });
+  }
+
+  updateMessageByIdHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const {
+        MessageId,
+        QueueName,
+        DelaySeconds,
+        State,
+        region,
+        requestId,
+      } = req.body;
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      const eventItem = await this.eventManager.findMessageById(queue, MessageId);
+      eventItem.setState(State);
+      eventItem.setDelaySeconds(DelaySeconds);
+      await this.eventManager.updateEvent(queue, eventItem);
+      res.send(ResponseHelper.findMessageById(requestId, eventItem));
+    });
+  }
+
+  updateMessageByDuplicationIdHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const {
+        MessageDeduplicationId,
+        QueueName,
+        DelaySeconds,
+        State,
+        region,
+        ReceiveCount,
+        requestId,
+      } = req.body;
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      const eventItem = await this.eventManager.findMessageByDeduplicationId(queue, MessageDeduplicationId);
+      eventItem.setReceiveCount(ReceiveCount);
+      eventItem.setState(State);
+      eventItem.setDelaySeconds(DelaySeconds);
+      await this.eventManager.updateEvent(queue, eventItem);
+      res.send(ResponseHelper.findMessageById(requestId, eventItem));
+    });
+  }
+
+  listQueueHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, QueueNamePrefix, region } = req.body;
+      const queues = await this.eventManager.listQueues(Queue.arn(req.user.organizationId, region, QueueNamePrefix || ''));
+      res.json(ResponseHelper.listQueues(requestId, req.sqnsBaseURL, queues));
+    });
+  }
+
+  deleteQueueHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { QueueName, region, requestId } = req.body;
+      if (RESERVED_QUEUE_NAME.includes(QueueName)) {
+        SQNSErrorCreator.reservedQueueNames();
+      }
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      await this.eventManager.deleteQueue(queue);
+      res.json(ResponseHelper.deleteQueue(requestId));
+    });
+  }
+
+  getQueueUrlHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SQSServerJSONBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { QueueName, region, requestId } = req.body;
+      const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
+      res.json(ResponseHelper.getQueueURL(requestId, req.sqnsBaseURL, queue));
     });
   }
 

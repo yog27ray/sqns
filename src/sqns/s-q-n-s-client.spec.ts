@@ -727,15 +727,15 @@ describe('SQNSClient', () => {
         const results = await client.sendMessageBatch({
           QueueUrl: queue.QueueUrl,
           Entries: [
-            { Id: '1', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '1' } } },
-            { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' } } },
-            { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' } } },
-            { Id: '4', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: 'abc' } } },
-            { Id: '5', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '-2' } } },
+            { Id: '1', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '1' }, rank: { DataType: 'String', StringValue: '1' } } },
+            { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' }, rank: { DataType: 'String', StringValue: '2' } } },
+            { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' }, rank: { DataType: 'String', StringValue: '3' } } },
+            { Id: '4', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: 'abc' }, rank: { DataType: 'String', StringValue: '4' } } },
+            { Id: '5', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '-2' }, rank: { DataType: 'String', StringValue: '5' } } },
           ],
         });
         expect(results.Successful.length).to.equal(5);
-        const events = await setupConfig.mongoConnection.find('Event', { MessageBody: 'PriorityTest' });
+        const events = await setupConfig.mongoConnection.find('Event', { MessageBody: 'PriorityTest' }, { 'MessageAttribute.rank.StringValue': 1 });
         expect(events.length).to.equal(5);
         expect(events[0].priority).to.equal(1);
         expect(events[1].priority).to.equal(3);
@@ -1888,7 +1888,7 @@ describe('SQNSClient', () => {
         request.headers = { ...(request.headers || {}), ...headers };
         await (request.method === 'GET'
           ? requestClient.get(request.uri)
-          : requestClient.post(request.uri, { headers: request.headers, body: JSON.stringify(request.body) }))
+          : requestClient.http(request.uri, { headers: request.headers, body: JSON.stringify(request.body) }))
           .catch(({ statusCode, message, error }) => new Promise((
             resolve: (value: unknown) => void,
             reject: (error: SQNSError) => void) => {

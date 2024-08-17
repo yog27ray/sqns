@@ -9,21 +9,64 @@ const MapFields: Array<{ from: string; to: string; }> = [
   { from: 'AttributeNames', to: 'AttributeName' },
   { from: 'MessageAttributeNames', to: 'MessageAttributeName' },
 ];
+
+function transformMapFields(data: Record<string, unknown>): void {
+  MapFields.forEach((each: { from: string; to: string; }) => {
+    if (!data[each.from]) {
+      return;
+    }
+    data[each.to] = data[each.from];
+    delete data[each.from];
+  });
+}
+
 export function transformRequest(): ExpressMiddleware {
   return (req: Request & { sqnsBaseURL: string }, res, next) => {
     req.sqnsBaseURL = `${req.headers['x-forwarded-proto'] as string || req.protocol}://${req.get('host')}${req.baseUrl}`;
     const [, , region]: Array<string> = req.header('Authorization').split(' ')[1].split('=')[1].split('/');
     req.body.region = region;
-    MapFields.forEach((each: { from: string; to: string; }) => {
-      if (!req.body[each.from]) {
-        return;
-      }
-      req.body[each.to] = req.body[each.from];
-      delete req.body[each.from];
-    });
+    transformMapFields(req.body);
+    if (req.body.SendMessageBatchRequestEntry) {
+      req.body.SendMessageBatchRequestEntry.forEach((each: Record<string, unknown>) => transformMapFields(each));
+    }
     if (req.body.QueueUrl) {
       req.body.QueueName = req.body.QueueUrl.split('/').pop();
     }
     next();
+    // {
+    //   Action: 'SendMessageBatch',
+    //     QueueUrl: 'http://127.0.0.1:1234/api/sqs/sqns/1/queue1',
+    //   SendMessageBatchRequestEntry: [
+    //   {
+    //     Id: '1',
+    //     MessageAttribute: [ { Name: 'Priority', Value: [Object] }, [length]: 1 ],
+    //   MessageBody: 'PriorityTest'
+    // },
+    //   {
+    //     Id: '2',
+    //       MessageAttribute: [ { Name: 'Priority', Value: [Object] }, [length]: 1 ],
+    //     MessageBody: 'PriorityTest'
+    //   },
+    //   {
+    //     Id: '3',
+    //       MessageAttribute: [ { Name: 'Priority', Value: [Object] }, [length]: 1 ],
+    //     MessageBody: 'PriorityTest'
+    //   },
+    //   {
+    //     Id: '4',
+    //       MessageAttribute: [ { Name: 'Priority', Value: [Object] }, [length]: 1 ],
+    //     MessageBody: 'PriorityTest'
+    //   },
+    //   {
+    //     Id: '5',
+    //       MessageAttribute: [ { Name: 'Priority', Value: [Object] }, [length]: 1 ],
+    //     MessageBody: 'PriorityTest'
+    //   },
+    //   [length]: 5
+    // ],
+    //   requestId: 'cb467bba-5451-452f-b5a8-31c7735f0ca7',
+    //     region: 'sqns',
+    //   queueName: 'queue1'
+    // }
   };
 }

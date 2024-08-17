@@ -8,15 +8,15 @@ class RequestClient {
     RequestClient.MAX_RE_ATTEMPT = attempt;
   }
 
-  async post(
+  async http(
     url: string,
-    { body, headers: headers_ = {}, json, jsonBody }: { body?: BodyInit; headers?: HeaderInit; json?: boolean; jsonBody?: boolean } = {})
-    : Promise<unknown> {
+    { body, headers: headers_ = {}, json, jsonBody }: { body?: BodyInit; headers?: HeaderInit; json?: boolean; jsonBody?: boolean } = {},
+    method: 'PUT' | 'POST' | 'DELETE' = 'POST'): Promise<unknown> {
     const headers = headers_;
     if (jsonBody) {
       headers['Content-Type'] = 'application/json';
     }
-    return this.exponentialRetryServerErrorRequest(() => fetch(url, { method: 'POST', body, headers }), json);
+    return this.exponentialRetryServerErrorRequest(() => fetch(url, { method, body, headers }), json);
   }
 
   async get(url: string, json?: boolean): Promise<unknown> {

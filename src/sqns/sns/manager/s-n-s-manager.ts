@@ -179,7 +179,7 @@ class SNSManager extends BaseManager {
           'x-sqns-sns-message-type': subscriptionVerificationToken.Type,
           'x-sqns-sns-topic-arn': subscriptionVerificationToken.TopicArn,
         };
-        return this.requestClient.post(subscription.endPoint, { body: JSON.stringify(requestBody), headers, json: true });
+        return this.requestClient.http(subscription.endPoint, { body: JSON.stringify(requestBody), headers, json: true });
       })
       .catch((error: Error) => {
         log.error(error);

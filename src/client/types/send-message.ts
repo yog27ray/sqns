@@ -1,4 +1,4 @@
-import { MessageAttributeMap } from './common';
+import { MessageAttributeMap, MessageAttributeValue } from './common';
 
 export interface SendMessage {
   MessageBody: string;
@@ -15,6 +15,14 @@ export interface SendMessageReceived {
   DelaySeconds: string;
   MessageAttribute?: Array<{ Name: string; Value: string; }>;
   MessageSystemAttribute?: Array<{ Name: string; Value: string; }>;
+  MessageDeduplicationId?: string;
+}
+
+export interface SendMessageJsonReceived {
+  MessageBody: string;
+  DelaySeconds: string;
+  MessageAttribute?: Record<string, MessageAttributeValue>;
+  MessageSystemAttribute?: Record<string, MessageAttributeValue>;
   MessageDeduplicationId?: string;
 }
 

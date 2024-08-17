@@ -26,17 +26,63 @@ export class ResponseHelper {
       });
   }
 
+  static sendMessageBatch(
+    requestId: string,
+    events: Array<EventItem>,
+    batchIds: Array<string>): Return<Array<{ Id: string; MessageId: string; MD5OfMessageBody: string; MD5OfMessageAttributes: string; }>> {
+    const eventsResponse: Array<{
+      Id: string;
+      MessageId: string;
+      MD5OfMessageBody: string;
+      MD5OfMessageAttributes: string;
+    }> = events.map((event: EventItem) => ({
+      Id: '-',
+      MessageId: event.id,
+      MD5OfMessageBody: Encryption.createHash('md5', event.MessageBody),
+      MD5OfMessageAttributes: Encryption.createJSONHash('md5', event.MessageAttribute),
+    }));
+    eventsResponse.forEach((each: unknown, index: number) => {
+      Object.assign(each, { Id: batchIds[index] });
+    });
+    return ResponseHelper.send(requestId, eventsResponse);
+  }
+
+  static getQueueURL(requestId: string, host: string, queue: Queue): Return<{ QueueUrl: string; }> {
+    return ResponseHelper.send(requestId, { QueueUrl: ResponseHelper.generateSQSURL(queue, host) });
+  }
+
+  static deleteQueue(requestId: string): Return<undefined> {
+    return ResponseHelper.send(requestId, undefined);
+  }
+
+  static listQueues(requestId: string, host: string, queues: Array<Queue>): Return<{ QueueUrls: Array<string>; }> {
+    return ResponseHelper.send(
+      requestId,
+      {
+        QueueUrls: queues.map((queue: Queue) => ResponseHelper.generateSQSURL(queue, host)),
+      });
+  }
+
+  static findMessageById(requestId: string, eventItem: EventItem): Return<{ Message: ResponseMessageJson; }> {
+    const message = ResponseHelper.responseMessage(eventItem, ['ALL'], ['ALL']);
+    if (message) {
+      message.State = eventItem.state;
+      message.EventTime = eventItem.originalEventTime.toISOString();
+    }
+    return ResponseHelper.send(requestId, { Message: message });
+  }
+
   static receiveMessage(
     requestId: string,
     events: Array<EventItem>,
     AttributeName: Array<string>,
-    MessageAttributeName: Array<string>): Return<{ Messages: Array<ResponseMessage>; }> {
+    MessageAttributeName: Array<string>): Return<{ Messages: Array<ResponseMessageJson>; }> {
     return ResponseHelper.send(
       requestId,
       {
         Messages: events
           .map((message: EventItem) => ResponseHelper.responseMessage(message, AttributeName, MessageAttributeName))
-          .filter((each: ResponseMessage) => each),
+          .filter((each: ResponseMessageJson) => each),
       });
   }
 

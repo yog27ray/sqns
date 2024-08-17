@@ -51,7 +51,7 @@ import {
 export class SQNSClient extends BaseClient {
   async createQueue(params: CreateQueueRequest): Promise<CreateQueueResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/queue`,
+      uri: `${this._sqs.config.endpoint}/queues`,
       body: { ...params },
       method: 'POST',
     };
@@ -61,7 +61,7 @@ export class SQNSClient extends BaseClient {
 
   async sendMessage(params: SendMessageRequest): Promise<SendMessageResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/message`,
+      uri: `${this._sqs.config.endpoint}/messages`,
       body: { ...params },
       method: 'POST',
     };
@@ -70,51 +70,48 @@ export class SQNSClient extends BaseClient {
   }
 
   async findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { Action: 'FindMessageById', ...params },
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/messages/findById`,
+      body: { ...params },
+      method: 'POST',
     };
-    const result = await this.request(request);
-    result.FindMessageByIdResponse.FindMessageByIdResult.Message = result.FindMessageByIdResponse.FindMessageByIdResult.Message[0];
-    return result.FindMessageByIdResponse.FindMessageByIdResult as FindMessageByIdResult;
+    const result = await this.requestJSON(request);
+    return result.data as FindMessageByIdResult;
   }
 
   async findByMessageDeduplicationId(params: FindMessageByDeduplicationId): Promise<FindMessageByDeduplicationIdResult> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { Action: 'FindMessageByDeduplicationId', ...params },
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/messages/findByDuplicationId`,
+      body: { ...params },
+      method: 'POST',
     };
-    const result = await this.request(request);
-    result.FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult.Message = result
-      .FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult.Message[0];
-    return result.FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult as FindMessageByDeduplicationIdResult;
+    const result = await this.requestJSON(request);
+    return result.data as FindMessageByDeduplicationIdResult;
   }
 
   async updateMessageById(params: UpdateMessageById): Promise<UpdateMessageByIdResult> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { Action: 'UpdateMessageById', ...params },
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/message/byId`,
+      body: { ...params },
+      method: 'PUT',
     };
-    const result = await this.request(request);
-    result.UpdateMessageByIdResponse.UpdateMessageByIdResult.Message = result
-      .UpdateMessageByIdResponse.UpdateMessageByIdResult.Message[0];
-    return result.UpdateMessageByIdResponse.UpdateMessageByIdResult as UpdateMessageByIdResult;
+    const result = await this.requestJSON(request);
+    return result.data as UpdateMessageByIdResult;
   }
 
   async updateMessageByDeduplicationId(params: UpdateMessageByDeduplicationId): Promise<UpdateMessageByDeduplicationIdResult> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { Action: 'UpdateMessageByDeduplicationId', ...params },
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/message/byDuplicationId`,
+      body: { ...params },
+      method: 'PUT',
     };
-    const result = await this.request(request);
-    result.UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult.Message = result
-      .UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult.Message[0];
-    return result.UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult as UpdateMessageByDeduplicationIdResult;
+    const result = await this.requestJSON(request);
+    return result.data as UpdateMessageByDeduplicationIdResult;
   }
 
   async receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult> {
     const request: BaseClientRequest = {
-      uri: `${this._sqs.config.endpoint}/receiveMessage`,
+      uri: `${this._sqs.config.endpoint}/receiveMessages`,
       body: { ...params },
       method: 'POST',
     };
@@ -123,56 +120,53 @@ export class SQNSClient extends BaseClient {
   }
 
   async listQueues(params: ListQueuesRequest = {}): Promise<ListQueuesResponse> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'ListQueues' },
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/queues/list`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    if (!response.ListQueuesResponse.ListQueuesResult) {
-      response.ListQueuesResponse.ListQueuesResult = {};
-    }
-    response.ListQueuesResponse.ListQueuesResult.QueueUrls = response.ListQueuesResponse.ListQueuesResult.QueueUrl;
-    delete response.ListQueuesResponse.ListQueuesResult.QueueUrl;
-    const result = response.ListQueuesResponse.ListQueuesResult as ListQueuesResponse;
-    result.QueueUrls = result.QueueUrls || [];
-    return result;
+    const response = await this.requestJSON(request);
+    return response.data as ListQueuesResponse;
   }
 
   async deleteQueue(params: DeleteQueueRequest): Promise<void> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'DeleteQueue' },
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/queues`,
+      body: { ...params },
+      method: 'DELETE'
     };
-    await this.request(request);
+    await this.requestJSON(request);
   }
 
   async sendMessageBatch(params: SendMessageBatchRequest): Promise<SendMessageBatchResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'SendMessageBatch' },
+      uri: `${this._sqs.config.endpoint}/messages/batch`,
+      body: { ...params },
+      method: 'POST',
     };
     request.body.SendMessageBatchRequestEntry = request.body.Entries;
     delete request.body.Entries;
-    const response = await this.request(request);
+    const response = await this.requestJSON(request);
+    console.log('>>>response', response.data);
     const result: SendMessageBatchResult = { Successful: [], Failed: [] };
-    response.SendMessageBatchResponse.SendMessageBatchResult.SendMessageBatchResultEntry
-      .forEach((each: { MD5OfMessageBody?: string; }) => {
-        if (each.MD5OfMessageBody) {
-          result.Successful.push(each as SendMessageResult & { Id: string });
-        } else {
-          result.Failed.push(each as BatchResultErrorEntry);
-        }
-      });
+    response.data.forEach((each: { MD5OfMessageBody?: string; }) => {
+      if (each.MD5OfMessageBody) {
+        result.Successful.push(each as SendMessageResult & { Id: string });
+      } else {
+        result.Failed.push(each as BatchResultErrorEntry);
+      }
+    });
     return result;
   }
 
   async getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'GetQueueUrl' },
+      uri: `${this._sqs.config.endpoint}/queues/getUrl`,
+      body: { ...params },
+      method: 'POST'
     };
-    const response = await this.request(request);
-    return response.GetQueueURLResponse.GetQueueUrlResult as GetQueueUrlResult;
+    const response = await this.requestJSON(request);
+    return response.data as GetQueueUrlResult;
   }
 
   async markEventSuccess(MessageId: string, QueueUrl: string, successMessage: string = ''): Promise<void> {

@@ -112,7 +112,7 @@ class WorkerEventScheduler {
       case 'http':
       case 'https': {
         const headers = subscription.Attributes.headers ? JSON.parse(subscription.Attributes.headers) : {};
-        const response = await this.sqnsClient.post(subscription.EndPoint, {
+        const response = await this.sqnsClient.http(subscription.EndPoint, {
           body: JSON.stringify({
             Type: 'Notification',
             MessageId: messageId,

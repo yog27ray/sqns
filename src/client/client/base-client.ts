@@ -13,7 +13,7 @@ export declare interface BaseClientRequest {
   uri: string;
   body: KeyValue;
   headers?: KeyValue<string>;
-  method?: 'POST' | 'GET';
+  method?: 'POST' | 'PUT' | 'DELETE';
   requestId?: string;
 }
 
@@ -144,7 +144,10 @@ export class BaseClient extends RequestClient {
       secretAccessKey: this._config.secretAccessKey,
     }, ['host', 'x-sqns-content-sha256', 'x-sqns-date']);
     request.headers = { ...(request.headers || {}), ...headers };
-    return this.post(request.uri, { json: true, body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
+    return this.http(
+      request.uri,
+      { json: true, body: JSON.stringify(request.body), headers: request.headers, jsonBody: true },
+      request.method)
       .catch((originalError: SQNSError) => {
         const { message, code } = originalError;
         try {
@@ -175,7 +178,7 @@ export class BaseClient extends RequestClient {
       secretAccessKey: this._config.secretAccessKey,
     }, ['host', 'x-sqns-content-sha256', 'x-sqns-date']);
     request.headers = { ...(request.headers || {}), ...headers };
-    return this.post(request.uri, { body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
+    return this.http(request.uri, { body: JSON.stringify(request.body), headers: request.headers, jsonBody: true })
       .then((serverResponse: string) => new Promise((resolve: (result: KeyValue) => void, reject: (error: unknown) => void) => {
         xml2js.parseString(serverResponse, (parserError: Error, result: KeyValue) => {
           if (parserError) {

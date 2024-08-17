@@ -32,15 +32,47 @@ function generateRoutes(sqsManager: SQSManager): express.Router {
 
   const router = express.Router();
   router.use(oldRouter);
-  router.post('/sqs/queue',
+  router.post('/sqs/queues',
     authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
     transformRequest(),
     controller.createQueueHandler());
-  router.post('/sqs/message',
+  router.delete('/sqs/queues',
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.deleteQueueHandler());
+  router.post('/sqs/queues/getUrl',
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.getQueueUrlHandler());
+  router.post('/sqs/queues/list',
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.listQueueHandler());
+  router.post('/sqs/messages',
     authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
     transformRequest(),
     controller.createMessageHandler());
-  router.post('/sqs/receiveMessage',
+  router.post('/sqs/messages/batch',
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.createMessageBatchHandler());
+  router.post('/sqs/messages/findById',
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.findMessageByIdHandler());
+  router.post('/sqs/messages/findByDuplicationId',
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.findMessageByDuplicationIdHandler());
+  router.put('/sqs/message/byId',
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.updateMessageByIdHandler());
+  router.put('/sqs/message/byDuplicationId',
+    authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
+    transformRequest(),
+    controller.updateMessageByDuplicationIdHandler());
+  router.post('/sqs/receiveMessages',
     authenticationJson(getSecretKey(sqsManager.getStorageEngine())),
     transformRequest(),
     controller.receiveMessageHandler());
