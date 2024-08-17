@@ -59,7 +59,7 @@ describe('SQNSClient', () => {
           secretAccessKey: Env.secretAccessKey,
         }).requestJSON({
           method: 'POST',
-          uri: `${Env.URL}/api/sqs/queue`,
+          uri: `${Env.URL}/api/sqs/queues`,
           body: { QueueName: 'queue1' },
           headers: { 'x-forwarded-proto': 'https' },
         });

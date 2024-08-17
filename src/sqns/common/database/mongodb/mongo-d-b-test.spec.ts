@@ -57,18 +57,24 @@ describe('mongoDB test cases', () => {
       });
       await new Promise((resolve: (value: unknown) => void) => {
         let count = 0;
-        const workerQueueConfig = new WorkerQueueConfig('queue1', async () => {
+        const workerQueueConfig = new WorkerQueueConfig('queue1', async (queueName, item) => {
           count += 1;
-          if (count === 2) {
-            return Promise.resolve('this is success message');
+          let result;
+          if (item.Body === '123') {
+            result = Promise.reject('Error in processing');
           }
-          if (count === 3) {
-            setTimeout(resolve, 0);
-            return new Promise(() => {
+          if (item.Body === '1235') {
+            result = Promise.resolve('this is success message');
+          }
+          if (item.Body === '1234') {
+            result = new Promise(() => {
               const x = 1;
             });
           }
-          return Promise.reject('Error in processing');
+          if (count === 3) {
+            setTimeout(resolve, 0);
+          }
+          return result;
         });
         slaveScheduler = new WorkerEventScheduler(
           {

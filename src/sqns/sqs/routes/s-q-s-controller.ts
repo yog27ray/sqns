@@ -105,14 +105,7 @@ class SQSController {
       const { QueueName, SendMessageBatchRequestEntry, requestId, region } = req.body;
       const batchIds = SendMessageBatchRequestEntry.map((each: { Id: string }) => each.Id);
       const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
-      const events = await Promise.all(SendMessageBatchRequestEntry
-        .map((sendMessageReceived: SendMessageJsonReceived) => this.eventManager.sendMessage(
-          queue,
-          sendMessageReceived.MessageBody,
-          sendMessageReceived.MessageAttribute,
-          sendMessageReceived.MessageSystemAttribute,
-          sendMessageReceived.DelaySeconds,
-          sendMessageReceived.MessageDeduplicationId)));
+      const events = await this.createMessages(SendMessageBatchRequestEntry, queue);
       res.json(ResponseHelper.sendMessageBatch(requestId, events, batchIds));
     });
   }
@@ -394,6 +387,23 @@ class SQSController {
     const events = await this.sendMessageBatch(queue, entries);
     const event = await this.sendMessage(queue, entry);
     events.push(event);
+    return events;
+  }
+
+  private async createMessages(messages: Array<SendMessageJsonReceived & { Id: string }>, queue: Queue): Promise<Array<EventItem>> {
+    if (!messages.length) {
+      return [];
+    }
+    const message = messages.shift();
+    const event = await this.eventManager.sendMessage(
+      queue,
+      message.MessageBody,
+      message.MessageAttribute,
+      message.MessageSystemAttribute,
+      message.DelaySeconds,
+      message.MessageDeduplicationId);
+    const events = await this.createMessages(messages, queue);
+    events.unshift(event);
     return events;
   }
 }
