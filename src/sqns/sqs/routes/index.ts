@@ -27,7 +27,7 @@ function generateRoutes(sqsManager: SQSManager): express.Router {
     controller.sqs());
 
   const router = express.Router();
-  // router.use(oldRouter);
+  router.use(oldRouter);
   router.get('/queue/health', (request: express.Request, response: express.Response) => {
     response.send('success');
   });
