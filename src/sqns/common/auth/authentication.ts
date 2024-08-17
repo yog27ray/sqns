@@ -81,11 +81,11 @@ function authentication(
         next();
         return 0;
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         if (jsonError) {
-          ExpressHelper.errorHandlerJson(error as Error, res);
+          ExpressHelper.errorHandlerJson(error, res);
         } else {
-          ExpressHelper.errorHandler(error as Error, res);
+          ExpressHelper.errorHandler(error, res);
         }
       });
   };
