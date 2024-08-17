@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { ResponseMessage, ResponseMessageJson } from '../../../../typings/response-item';
+import { ResponseMessageJson } from '../../../../typings/response-item';
 import { Encryption, EventItem, MessageAttributeValue } from '../../../client';
 import { Queue } from '../model/queue';
 
@@ -51,8 +51,8 @@ export class ResponseHelper {
     return ResponseHelper.send(requestId, { QueueUrl: ResponseHelper.generateSQSURL(queue, host) });
   }
 
-  static deleteQueue(requestId: string): Return<undefined> {
-    return ResponseHelper.send(requestId, undefined);
+  static deleteQueue(requestId: string): Return<{ message: 'success' }> {
+    return ResponseHelper.send(requestId, { message: 'success' });
   }
 
   static listQueues(requestId: string, host: string, queues: Array<Queue>): Return<{ QueueUrls: Array<string>; }> {

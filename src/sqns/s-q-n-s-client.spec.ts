@@ -727,15 +727,53 @@ describe('SQNSClient', () => {
         const results = await client.sendMessageBatch({
           QueueUrl: queue.QueueUrl,
           Entries: [
-            { Id: '1', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '1' }, rank: { DataType: 'String', StringValue: '1' } } },
-            { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' }, rank: { DataType: 'String', StringValue: '2' } } },
-            { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' }, rank: { DataType: 'String', StringValue: '3' } } },
-            { Id: '4', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: 'abc' }, rank: { DataType: 'String', StringValue: '4' } } },
-            { Id: '5', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '-2' }, rank: { DataType: 'String', StringValue: '5' } } },
+            {
+              Id: '1',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: '1' },
+                rank: { DataType: 'String', StringValue: '1' },
+              },
+            },
+            {
+              Id: '2',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: '3.1' },
+                rank: { DataType: 'String', StringValue: '2' },
+              },
+            },
+            {
+              Id: '3',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: '2' },
+                rank: { DataType: 'String', StringValue: '3' },
+              },
+            },
+            {
+              Id: '4',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: 'abc' },
+                rank: { DataType: 'String', StringValue: '4' },
+              },
+            },
+            {
+              Id: '5',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: '-2' },
+                rank: { DataType: 'String', StringValue: '5' },
+              },
+            },
           ],
         });
         expect(results.Successful.length).to.equal(5);
-        const events = await setupConfig.mongoConnection.find('Event', { MessageBody: 'PriorityTest' }, { 'MessageAttribute.rank.StringValue': 1 });
+        const events = await setupConfig.mongoConnection.find(
+          'Event',
+          { MessageBody: 'PriorityTest' },
+          { 'MessageAttribute.rank.StringValue': 1 });
         expect(events.length).to.equal(5);
         expect(events[0].priority).to.equal(1);
         expect(events[1].priority).to.equal(3);

@@ -133,7 +133,7 @@ export class SQNSClient extends BaseClient {
     const request: BaseClientRequest = {
       uri: `${this._sqs.config.endpoint}/queues`,
       body: { ...params },
-      method: 'DELETE'
+      method: 'DELETE',
     };
     await this.requestJSON(request);
   }
@@ -147,7 +147,6 @@ export class SQNSClient extends BaseClient {
     request.body.SendMessageBatchRequestEntry = request.body.Entries;
     delete request.body.Entries;
     const response = await this.requestJSON(request);
-    console.log('>>>response', response.data);
     const result: SendMessageBatchResult = { Successful: [], Failed: [] };
     response.data.forEach((each: { MD5OfMessageBody?: string; }) => {
       if (each.MD5OfMessageBody) {
@@ -163,7 +162,7 @@ export class SQNSClient extends BaseClient {
     const request: BaseClientRequest = {
       uri: `${this._sqs.config.endpoint}/queues/getUrl`,
       body: { ...params },
-      method: 'POST'
+      method: 'POST',
     };
     const response = await this.requestJSON(request);
     return response.data as GetQueueUrlResult;

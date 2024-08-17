@@ -10,7 +10,8 @@ const MapFields: Array<{ from: string; to: string; }> = [
   { from: 'MessageAttributeNames', to: 'MessageAttributeName' },
 ];
 
-function transformMapFields(data: Record<string, unknown>): void {
+function transformMapFields(_data: Record<string, unknown>): void {
+  const data = _data;
   MapFields.forEach((each: { from: string; to: string; }) => {
     if (!data[each.from]) {
       return;
@@ -24,8 +25,8 @@ export function transformRequest(): ExpressMiddleware {
   return (req: Request & { sqnsBaseURL: string }, res, next) => {
     req.sqnsBaseURL = `${req.headers['x-forwarded-proto'] as string || req.protocol}://${req.get('host')}${req.baseUrl}`;
     const [, , region]: Array<string> = req.header('Authorization').split(' ')[1].split('=')[1].split('/');
-    req.body.region = region;
-    transformMapFields(req.body);
+    Object.assign(req.body, { region });
+    transformMapFields(req.body as Record<string, unknown>);
     if (req.body.SendMessageBatchRequestEntry) {
       req.body.SendMessageBatchRequestEntry.forEach((each: Record<string, unknown>) => transformMapFields(each));
     }

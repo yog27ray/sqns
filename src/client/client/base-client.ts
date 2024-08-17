@@ -15,6 +15,7 @@ export declare interface BaseClientRequest {
   headers?: KeyValue<string>;
   method?: 'POST' | 'PUT' | 'DELETE';
   requestId?: string;
+  service?: 'sqs' | 'sns';
 }
 
 export class BaseClient extends RequestClient {
