@@ -5,6 +5,15 @@ import { transformRequest } from '../../common/auth/transform-request';
 import { SQSManager } from '../manager/s-q-s-manager';
 import { SQSController } from './s-q-s-controller';
 
+function generateHealthRoutes(controller: SQSController): express.Router {
+  const router = express.Router();
+  router.get('/queue/health', (request: express.Request, response: express.Response) => {
+    response.send('success');
+  });
+  router.get('/queues/events/stats', controller.eventStats());
+  return router;
+}
+
 function generateV1Router(controller: SQSController, sqsManager: SQSManager): express.Router {
   const router = express.Router();
   router.post('/sqs/queues',
@@ -86,13 +95,9 @@ function generateRoutes(sqsManager: SQSManager): express.Router {
     controller.sqs());
 
   const router = express.Router();
-  router.get('/queue/health', (request: express.Request, response: express.Response) => {
-    response.send('success');
-  });
-  router.get('/queues/events/stats', controller.eventStats());
-  const v1Routes = generateV1Router(controller, sqsManager);
   router.use(oldRouter);
-  router.use('/v1', v1Routes);
+  router.use(generateHealthRoutes(controller));
+  router.use('/v1', generateV1Router(controller, sqsManager));
   return router;
 }
 

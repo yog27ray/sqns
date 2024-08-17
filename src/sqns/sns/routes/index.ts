@@ -4,10 +4,14 @@ import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transfor
 import { SNSManager } from '../manager/s-n-s-manager';
 import { SNSController } from './s-n-s-controller';
 
-function generateRouteV1(): express.Router {
+function generateHealth(): express.Router {
   const router = express.Router();
   router.use('/sns/health', (request: express.Request, response: express.Response) => response.send('success'));
+  return router;
+}
 
+function generateRouteV1(controller: SNSController, snsManager: SNSManager): express.Router {
+  const router = express.Router();
   return router;
 }
 
@@ -15,19 +19,17 @@ function generateRoutes(relativeURL: string, snsManager: SNSManager): express.Ro
   const controller = new SNSController(relativeURL, snsManager);
   const oldRouter = express.Router();
 
-  oldRouter.use('/sns/health', (request: express.Request, response: express.Response) => response.send('success'));
-
-  oldRouter.get('/sns', AwsToServerTransformer.transformRequestBody(), controller.snsGet());
   oldRouter.post(
     '/sns',
     authentication(getSecretKey(snsManager.getStorageEngine())),
     AwsToServerTransformer.transformRequestBody(),
     controller.sns());
 
-  const newRouter = express.Router();
-  newRouter.use(oldRouter);
-  newRouter.use('/v1', generateRouteV1());
-  return newRouter;
+  const router = express.Router();
+  router.use(oldRouter);
+  router.use(generateHealth());
+  router.use('/v1', generateRouteV1(controller, snsManager));
+  return router;
 }
 
 export { generateRoutes };

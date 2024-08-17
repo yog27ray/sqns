@@ -73,8 +73,7 @@ class SNSStorageEngine extends BaseStorageEngine {
     }
     const channelDeliveryPolicy = DeliveryPolicyHelper
       .verifyAndGetChannelDeliveryPolicy(Attributes.entry.find(({ key }: { key: string }) => key === 'DeliveryPolicy')?.value);
-    const confirmed = ['sqs'].includes(protocol);
-    return this._storageAdapter.createSubscription(user, topic, protocol, endPoint, Attributes, channelDeliveryPolicy, confirmed);
+    return this._storageAdapter.createSubscription(user, topic, protocol, endPoint, Attributes, channelDeliveryPolicy, true);
   }
 
   async findSubscription(topic: Topic, protocol: string, endPoint: string): Promise<Subscription> {

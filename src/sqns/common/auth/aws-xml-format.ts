@@ -231,9 +231,9 @@ class AwsXmlFormat {
     return AwsXmlFormat.jsonToXML('PublishResponse', json);
   }
 
-  static subscribe(requestId: string, subscription: Subscription, ReturnSubscriptionArn?: boolean): string {
+  static subscribe(requestId: string, subscription: Subscription): string {
     const json: Record<string, unknown> = {
-      SubscribeResult: { SubscriptionArn: this.getSubscriptionARN(subscription, ReturnSubscriptionArn) },
+      SubscribeResult: { SubscriptionArn: this.getSubscriptionARN(subscription) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('SubscribeResponse', json);
@@ -338,8 +338,8 @@ class AwsXmlFormat {
     return AwsXmlFormat.jsonToXML('ListSubscriptionsByTopicResponse', json);
   }
 
-  static getSubscriptionARN(subscription: Subscription, ReturnSubscriptionArn?: boolean): string {
-    return subscription.confirmed || ReturnSubscriptionArn ? subscription.arn : 'PendingConfirmation';
+  static getSubscriptionARN(subscription: Subscription): string {
+    return subscription.confirmed ? subscription.arn : 'PendingConfirmation';
   }
 
   private static transformNameValueArrayToMap(input: Array<{ Name: string; Value: MessageAttributeValue; }> = []): MessageAttributeMap {

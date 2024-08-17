@@ -1361,8 +1361,15 @@ describe('SQNSClient', () => {
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
         });
-        await Promise.all(new Array(150).fill(0)
-          .map((i: unknown, index: number) => client.createTopic({ Name: `Topic${index}` })));
+        async function createTopics(items: Array<number>): Promise<void> {
+          const item = items.shift();
+          if (!item) {
+            return;
+          }
+          await client.createTopic({ Name: `Topic${items.length}` });
+          await createTopics(items);
+        }
+        await createTopics(new Array(150).fill(1))
       });
 
       it('should list topics with pagination', async () => {
@@ -1589,19 +1596,9 @@ describe('SQNSClient', () => {
           Endpoint: 'http://test.sns.subscription/valid',
           Protocol: 'http',
         });
-        expect(result.SubscriptionArn).to.equal('PendingConfirmation');
-      });
-
-      it('should return subscriptionARN when ReturnSubscriptionArn is true', async () => {
-        const result = await client.subscribe({
-          TopicArn: topic.TopicArn,
-          Attributes: { key: 'value' },
-          Endpoint: 'http://test.sns.subscription/valid',
-          Protocol: 'http',
-          ReturnSubscriptionArn: true,
-        });
         expect(result.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
       });
+
     });
 
     context('listSubscriptions', () => {
@@ -1690,107 +1687,6 @@ describe('SQNSClient', () => {
       });
     });
 
-    context('confirmSubscription', () => {
-      let client: SQNSClient;
-      let topic: CreateTopicResponse;
-      beforeEach(async () => {
-        await dropDatabase();
-        client = new SQNSClient({
-          endpoint: `${Env.URL}/api`,
-          accessKeyId: Env.accessKeyId,
-          secretAccessKey: Env.secretAccessKey,
-        });
-        topic = await client.createTopic({ Name: 'Topic1' });
-      });
-
-      it('should give error when Token is invalid.', async () => {
-        try {
-          await client.confirmSubscription({ Token: 'InvalidToken', TopicArn: 'InvalidTopicArn' });
-          await Promise.reject({ code: 99, message: 'should not reach here.' });
-        } catch (error) {
-          const { code, message } = error as { code: number; message: string; };
-          expect({ code, message }).to.deep.equal({ code: 'InvalidParameter', message: 'Invalid token' });
-        }
-      });
-
-      it('should confirm subscription', async () => {
-        const promise = new Promise((resolve: (response: ConfirmSubscriptionResponse) => void) => {
-          nock('http://test.sns.subscription')
-            .persist()
-            .post('/valid', () => true)
-            // eslint-disable-next-line func-names
-            .reply(200, async function (path: string, body: SubscriptionConfirmationRequestBody)
-              : Promise<unknown> {
-              expect(this.req.headers['x-sqns-sns-message-id'][0]).to.equal(body.MessageId);
-              expect(this.req.headers['x-sqns-sns-message-type'][0]).to.equal('SubscriptionConfirmation');
-              expect(this.req.headers['x-sqns-sns-topic-arn'][0]).to.equal(topic.TopicArn);
-              expect(body.Type).to.equal('SubscriptionConfirmation');
-              expect(body.TopicArn).to.equal(topic.TopicArn);
-              expect(body.Message).to.equal(`You have chosen to subscribe to the topic ${topic.TopicArn}.\n`
-                + 'To confirm the subscription, visit the SubscribeURL included in this message.');
-              expect(body.SubscribeURL).to.equal(`${Env.URL}/api/sns?Action=SubscriptionConfirmation&TopicArn=${topic.TopicArn
-              }&Token=${body.Token}`);
-              expect(body.Token).to.exist;
-              expect(body.MessageId).to.exist;
-              expect(body.Timestamp).to.exist;
-              const result = await client.confirmSubscription({ TopicArn: body.TopicArn, Token: body.Token });
-              resolve(result);
-              return {};
-            });
-        });
-        const [subscriptionResponse] = await Promise.all([
-          promise,
-          client.subscribe({
-            TopicArn: topic.TopicArn,
-            Attributes: { key: 'value' },
-            Endpoint: 'http://test.sns.subscription/valid',
-            Protocol: 'http',
-          }),
-        ]);
-        expect(subscriptionResponse.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
-        const result = await client.subscribe({
-          TopicArn: topic.TopicArn,
-          Attributes: { key: 'value' },
-          Endpoint: 'http://test.sns.subscription/valid',
-          Protocol: 'http',
-        });
-        expect(result.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
-      });
-
-      it('should confirm subscription via SubscribeURL', async () => {
-        const promise = new Promise((resolve: (value?: unknown) => void) => {
-          nock('http://test.sns.subscription')
-            .persist()
-            .post('/valid', () => true)
-            .reply(200, async (path: string, body: SubscriptionConfirmationRequestBody) => {
-              expect(body.SubscribeURL).to.equal(`${Env.URL}/api/sns?Action=SubscriptionConfirmation&TopicArn=${topic.TopicArn
-              }&Token=${body.Token}`);
-              await new RequestClient().get(body.SubscribeURL);
-              resolve();
-              return {};
-            });
-        });
-        await Promise.all([
-          promise,
-          client.subscribe({
-            TopicArn: topic.TopicArn,
-            Attributes: { key: 'value' },
-            Endpoint: 'http://test.sns.subscription/valid',
-            Protocol: 'http',
-          }),
-        ]);
-        const result = await client.subscribe({
-          TopicArn: topic.TopicArn,
-          Attributes: { key: 'value' },
-          Endpoint: 'http://test.sns.subscription/valid',
-          Protocol: 'http',
-        });
-        expect(result.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
-      });
-
-      afterEach(() => nock.cleanAll());
-    });
-
     context('unsubscribe', () => {
       let subscriptionArn: string;
       let topicARN: string;
@@ -1812,7 +1708,6 @@ describe('SQNSClient', () => {
           Attributes: { key: 'value' },
           Endpoint: 'http://test.sns.subscription/valid',
           Protocol: 'http',
-          ReturnSubscriptionArn: true,
         })).SubscriptionArn;
       });
 
@@ -1944,19 +1839,6 @@ describe('SQNSClient', () => {
       it('should give error when action is not supported for POST method', async () => {
         try {
           await request({ uri: `${Env.URL}/api/sns`, method: 'POST', body: { Action: 'NotSupportedAction' } });
-          await Promise.reject({ code: 99, message: 'should not reach here' });
-        } catch (error) {
-          const { code, message } = error as { code: number; message: string; };
-          expect({ code, message }).to.deep.equal({
-            code: 'UnhandledFunction',
-            message: '"NotSupportedAction" function is not supported.',
-          });
-        }
-      });
-
-      it('should give error when action is not supported for GET method', async () => {
-        try {
-          await request({ uri: `${Env.URL}/api/sns?Action=NotSupportedAction`, method: 'GET' });
           await Promise.reject({ code: 99, message: 'should not reach here' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };

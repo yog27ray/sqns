@@ -11,22 +11,6 @@ import { SNSManager } from '../manager/s-n-s-manager';
 class SNSController {
   constructor(private serverURL: string, private snsManager: SNSManager) {}
 
-  snsGet(): ExpressMiddleware {
-    return ExpressHelper.requestHandler(async (req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string }, res: Response)
-      : Promise<any> => {
-      switch (req.serverBody.Action) {
-        case 'SubscriptionConfirmation': {
-          return this.confirmSubscription(req, res);
-        }
-        case 'Unsubscribe': {
-          return this.removeSubscription(req, res);
-        }
-        default:
-          return SQNSErrorCreator.unhandledFunction(req.serverBody.Action);
-      }
-    });
-  }
-
   sns(): ExpressMiddleware {
     return ExpressHelper.requestHandler(async (req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string }, res: Response)
       : Promise<any> => {
@@ -76,15 +60,12 @@ class SNSController {
           return res.send(AwsXmlFormat.publish(requestId, publish));
         }
         case 'Subscribe': {
-          const { requestId, Attributes, Endpoint, Protocol, TopicArn, ReturnSubscriptionArn } = req.serverBody;
+          const { requestId, Attributes, Endpoint, Protocol, TopicArn } = req.serverBody;
           const topic = await this.snsManager.findTopicByARN(TopicArn);
           const subscription = await this.snsManager
             .subscribe(req.user, topic, Protocol.toLowerCase() as SupportedProtocol, Endpoint, Attributes);
           this.snsManager.requestSubscriptionConfirmation(subscription, this.serverURL);
-          return res.send(AwsXmlFormat.subscribe(requestId, subscription, ReturnSubscriptionArn));
-        }
-        case 'ConfirmSubscription': {
-          return this.confirmSubscription(req, res);
+          return res.send(AwsXmlFormat.subscribe(requestId, subscription));
         }
         case 'ListSubscriptions': {
           const { requestId, NextToken = 'eyJza2lwIjowfQ==' } = req.serverBody;

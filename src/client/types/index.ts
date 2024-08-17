@@ -63,8 +63,6 @@ import {
   SendMessageResult,
 } from './send-message';
 import {
-  ConfirmSubscriptionInput,
-  ConfirmSubscriptionResponse,
   GetSubscriptionInput,
   GetSubscriptionResponse,
   ListSubscriptionsByTopicInput,
@@ -74,7 +72,6 @@ import {
   SubscribeInput,
   SubscribeResponse,
   SubscriptionAttributes,
-  SubscriptionConfirmationRequestBody,
   SubscriptionType,
   UnsubscribeInput,
 } from './subscription';
@@ -138,8 +135,6 @@ export {
   PublishResponse,
   CreateTopicInput,
   CreateTopicResponse,
-  ConfirmSubscriptionInput,
-  ConfirmSubscriptionResponse,
   ListSubscriptionsByTopicInput,
   ListSubscriptionsByTopicResponse,
   ListSubscriptionsInput,
@@ -152,7 +147,6 @@ export {
   DeleteTopicInput,
   SetTopicAttributesInput,
   MessageStructure,
-  SubscriptionConfirmationRequestBody,
   SUPPORTED_CHANNEL_TYPE,
   SUPPORTED_BACKOFF_FUNCTIONS_TYPE,
   MessageAttributes,

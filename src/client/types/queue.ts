@@ -30,7 +30,6 @@ export interface SNSServerBody {
   PhoneNumber: string;
   Subject: string;
   Endpoint: string;
-  ReturnSubscriptionArn: boolean;
   Protocol: string;
   MessageAttributes: MessageAttributes;
   MessageStructure: string;

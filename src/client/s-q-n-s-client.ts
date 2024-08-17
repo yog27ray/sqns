@@ -1,8 +1,6 @@
 import { BaseClient, BaseClientRequest } from './client/base-client';
 import {
   BatchResultErrorEntry,
-  ConfirmSubscriptionInput,
-  ConfirmSubscriptionResponse,
   CreateQueueRequest,
   CreateQueueResult,
   CreateTopicInput,
@@ -279,15 +277,6 @@ export class SQNSClient extends BaseClient {
     response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions = response
       .ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions.member;
     return response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult as ListSubscriptionsByTopicResponse;
-  }
-
-  async confirmSubscription(params: ConfirmSubscriptionInput): Promise<ConfirmSubscriptionResponse> {
-    const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'ConfirmSubscription' },
-    };
-    const response = await this.request(request);
-    return response.ConfirmSubscriptionResponse.ConfirmSubscriptionResult as ConfirmSubscriptionResponse;
   }
 
   async unsubscribe(params: UnsubscribeInput): Promise<void> {

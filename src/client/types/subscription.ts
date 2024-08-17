@@ -15,30 +15,10 @@ export interface SubscribeInput {
   Protocol: SupportedProtocol;
   Endpoint?: string;
   Attributes?: Record<string, string>;
-  ReturnSubscriptionArn?: boolean;
 }
 
 export interface SubscribeResponse {
   SubscriptionArn?: ARN;
-}
-
-export interface ConfirmSubscriptionInput {
-  TopicArn: ARN;
-  Token: string;
-}
-
-export interface ConfirmSubscriptionResponse {
-  SubscriptionArn?: ARN;
-}
-
-export interface SubscriptionConfirmationRequestBody {
-  Type: string;
-  MessageId: string;
-  Token: string;
-  TopicArn: ARN;
-  Message: string;
-  SubscribeURL: string;
-  Timestamp: string;
 }
 
 export interface ListSubscriptionsByTopicInput {
