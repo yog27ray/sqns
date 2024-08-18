@@ -2,10 +2,46 @@ import { v4 as uuid } from 'uuid';
 import { ResponseMessageJson } from '../../../../typings/response-item';
 import { Encryption, EventItem, MessageAttributeValue } from '../../../client';
 import { Queue } from '../model/queue';
+import { Topic } from '../model/topic';
+import { Publish } from '../model/publish';
+import { Subscription } from '../model/subscription';
 
 declare interface Return<T> { data: T; ResponseMetadata: { RequestId: string; }; }
 
 export class ResponseHelper {
+  static createTopic(requestId: string, topic: Topic): Return<{ TopicArn: string }> {
+    return ResponseHelper.send(requestId, { TopicArn: topic.arn });
+  }
+
+  static getTopicAttributes(requestId: string, topic: Topic): Return<{ Attributes: Record<string, string>; }> {
+    const attributes: Record<string, string> = topic.attributes.entry
+      .filter((each: { key: string, value: string }) => !['DeliveryPolicy'].includes(each.key))
+      .reduce((result: Record<string, string>, each: { key: string, value: string }) => ({
+        ...result,
+        [each.key]: each.value,
+      }), {
+        SubscriptionsConfirmed: '0',
+        SubscriptionsDeleted: '0',
+        TopicArn: topic.arn,
+        EffectiveDeliveryPolicy: JSON.stringify(topic.deliveryPolicy),
+      });
+    return ResponseHelper.send(requestId, { Attributes: attributes });
+  }
+
+  static listTopic(
+    requestId: string,
+    topics: Array<Topic>,
+    skip: number,
+    total: number): Return<{ Topics: unknown; NextToken?: string; }> {
+    const result: { Topics: unknown; NextToken?: string; } = {
+      Topics: topics.map((topic: Topic) => ({ TopicArn: topic.arn })),
+    };
+    if ((skip + topics.length) < total) {
+      result.NextToken = Encryption.encodeNextToken({ skip: skip + topics.length });
+    }
+    return ResponseHelper.send(requestId, result);
+  }
+
   static createQueue(requestId: string, host: string, queue: Queue): Return<{ QueueUrl: string }> {
     return ResponseHelper.send(requestId, { QueueUrl: ResponseHelper.generateSQSURL(queue, host) });
   }
@@ -51,8 +87,70 @@ export class ResponseHelper {
     return ResponseHelper.send(requestId, { QueueUrl: ResponseHelper.generateSQSURL(queue, host) });
   }
 
-  static deleteQueue(requestId: string): Return<{ message: 'success' }> {
+  static success(requestId: string): Return<{ message: 'success' }> {
     return ResponseHelper.send(requestId, { message: 'success' });
+  }
+
+  static publish(requestId: string, publish: Publish): Return<{ MessageId: string; }> {
+    return ResponseHelper.send(requestId, { MessageId: publish.id });
+  }
+
+  static subscribe(requestId: string, subscription: Subscription): Return<{ SubscriptionArn: string; }> {
+    return ResponseHelper.send(requestId, { SubscriptionArn: subscription.arn });
+  }
+
+  static getSubscription(
+    requestId: string,
+    host: string,
+    subscription: Subscription): Return<Record<string, unknown>> {
+    return ResponseHelper.send(requestId, {
+      Protocol: subscription.protocol,
+      EndPoint: subscription.endPoint,
+      Attributes: subscription.Attributes.entry.reduce((result, each) => ({
+        ...result,
+        [each.key]: each.value,
+      }), {}),
+      TopicARN: subscription.topicARN,
+      ARN: subscription.arn,
+      UnsubscribeUrl: subscription.getUnSubscribeURL(host),
+    });
+  }
+
+  static listSubscriptionsResult(
+    requestId: string,
+    subscriptions: Array<Subscription>,
+    skip: number,
+    total: number): Return<{ Subscriptions: Array<Record<string, unknown>>; NextToken?: string; }> {
+    const result: { Subscriptions: Array<Record<string, unknown>>; NextToken?: string; } = {
+      Subscriptions: subscriptions.map((subscription: Subscription) => ({
+        Protocol: subscription.protocol,
+        Endpoint: subscription.endPoint,
+        SubscriptionArn: subscription.arn,
+        TopicArn: subscription.topicARN,
+      }))
+    }
+    if ((skip + subscriptions.length) < total) {
+      result.NextToken = Encryption.encodeNextToken({ skip: skip + subscriptions.length });
+    }
+    return ResponseHelper.send(requestId, result);
+  }
+
+  static getPublish(requestId: string, publish: Publish): Return<Record<string, unknown>> {
+    console.log('??/???????', publish.MessageAttributes.entry);
+    const publishJSON: Record<string, unknown> = {
+      MessageId: publish.id,
+      MessageAttributes: (publish.MessageAttributes.entry || []).reduce((result, item) => ({
+        ...result,
+        [item.Name]: item.Value,
+      }), {}),
+      PublishArn: publish.destinationArn,
+    };
+    ['Message', 'PhoneNumber', 'Subject', 'MessageStructure', 'Status'].forEach((key: string) => {
+      if (publish[key]) {
+        publishJSON[key] = publish[key];
+      }
+    });
+    return ResponseHelper.send(requestId, publishJSON);
   }
 
   static listQueues(requestId: string, host: string, queues: Array<Queue>): Return<{ QueueUrls: Array<string>; }> {

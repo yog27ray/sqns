@@ -186,133 +186,128 @@ export class SQNSClient extends BaseClient {
 
   async createTopic(params: CreateTopicInput): Promise<CreateTopicResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'CreateTopic' },
+      uri: `${this._sns.config.endpoint}/topics`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    return response.CreateTopicResponse.CreateTopicResult as CreateTopicResponse;
+    const response = await this.requestJSON(request);
+    return response.data as CreateTopicResponse;
   }
 
   async listTopics(params: ListTopicsInput): Promise<ListTopicsResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'ListTopics' },
+      uri: `${this._sns.config.endpoint}/topics/list`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    if (!response.ListTopicsResponse.ListTopicsResult.Topics) {
-      response.ListTopicsResponse.ListTopicsResult.Topics = { member: [] };
-    }
-    response.ListTopicsResponse.ListTopicsResult.Topics = response.ListTopicsResponse.ListTopicsResult.Topics.member;
-    return response.ListTopicsResponse.ListTopicsResult as ListTopicsResponse;
+    const response = await this.requestJSON(request);
+    return response.data as ListTopicsResponse;
   }
 
   async getTopicAttributes(params: GetTopicAttributesInput): Promise<GetTopicAttributesResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'GetTopicAttributes' },
+      uri: `${this._sns.config.endpoint}/topic/attributes`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    response.GetTopicAttributesResponse.GetTopicAttributesResult.Attributes = response
-      .GetTopicAttributesResponse.GetTopicAttributesResult.Attributes.entrys;
-    return response.GetTopicAttributesResponse.GetTopicAttributesResult as GetTopicAttributesResponse;
+    const response = await this.requestJSON(request);
+    return response.data as GetTopicAttributesResponse;
   }
 
   async setTopicAttributes(params: SetTopicAttributesInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'SetTopicAttributes' },
+      uri: `${this._sns.config.endpoint}/topic/attributes`,
+      body: { ...params },
+      method: 'PUT',
     };
-    await this.request(request);
+    await this.requestJSON(request);
   }
 
   async deleteTopic(params: DeleteTopicInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'DeleteTopic' },
+      uri: `${this._sns.config.endpoint}/topic`,
+      body: { ...params },
+      method: 'DELETE',
     };
-    await this.request(request);
+    await this.requestJSON(request);
   }
 
   async publish(params: PublishInput): Promise<PublishResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'Publish' },
+      uri: `${this._sns.config.endpoint}/publish`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    return response.PublishResponse.PublishResult as PublishResponse;
+    console.log('>>>>>>>publishNewData', params);
+    const response = await this.requestJSON(request);
+    return response.data as PublishResponse;
   }
 
   async subscribe(params: SubscribeInput): Promise<SubscribeResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'Subscribe' },
+      uri: `${this._sns.config.endpoint}/subscribe`,
+      body: { ...params },
+      method: 'POST'
     };
-    const response = await this.request(request);
-    return response.SubscribeResponse.SubscribeResult as SubscribeResponse;
+    const response = await this.requestJSON(request);
+    return response.data as SubscribeResponse;
   }
 
   async listSubscriptions(params: ListSubscriptionsInput): Promise<ListSubscriptionsResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'ListSubscriptions' },
+      uri: `${this._sns.config.endpoint}/subscriptions/list`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    if (!response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions) {
-      response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions = { member: [] };
-    }
-    response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions = response
-      .ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions.member;
-    return response.ListSubscriptionsResponse.ListSubscriptionsResult as ListSubscriptionsResponse;
+    const response = await this.requestJSON(request);
+    return response.data as ListSubscriptionsResponse;
   }
 
   async listSubscriptionsByTopic(params: ListSubscriptionsByTopicInput): Promise<ListSubscriptionsByTopicResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'ListSubscriptionsByTopic' },
+      uri: `${this._sns.config.endpoint}/subscriptions/list/by-topic`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    if (!response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions) {
-      response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions = { member: [] };
-    }
-    response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions = response
-      .ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions.member;
-    return response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult as ListSubscriptionsByTopicResponse;
+    const response = await this.requestJSON(request);
+    return response.data as ListSubscriptionsByTopicResponse;
   }
 
   async unsubscribe(params: UnsubscribeInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'Unsubscribe' },
+      uri: `${this._sns.config.endpoint}/subscription`,
+      body: { ...params },
+      method: 'DELETE',
     };
-    await this.request(request);
+    await this.requestJSON(request);
   }
 
   async getPublish(params: GetPublishInput): Promise<GetPublishResponse> {
-    const request = {
-      uri: this._sns.config.endpoint,
-      body: { Action: 'GetPublish', ...params },
+    const request: BaseClientRequest = {
+      uri: `${this._sns.config.endpoint}/publish/find`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    if (response.GetPublishResponse.GetPublish.Message) {
-      response.GetPublishResponse.GetPublish.Message = response.GetPublishResponse.GetPublish.Message[0];
-    }
-    return response?.GetPublishResponse?.GetPublish as GetPublishResponse;
+    const response = await this.requestJSON(request);
+    return response.data as GetPublishResponse;
   }
 
   async getSubscription(params: GetSubscriptionInput): Promise<GetSubscriptionResponse> {
-    const request = {
-      uri: this._sns.config.endpoint,
-      body: { Action: 'GetSubscription', ...params },
+    const request: BaseClientRequest = {
+      uri: `${this._sns.config.endpoint}/subscription`,
+      body: { ...params },
+      method: 'POST',
     };
-    const response = await this.request(request);
-    return response?.GetSubscriptionResponse?.GetSubscriptionResult as GetSubscriptionResponse;
+    const response = await this.requestJSON(request);
+    return response.data as GetSubscriptionResponse;
   }
 
   async markPublished(params: MarkPublishedInput): Promise<void> {
-    const request = {
-      uri: this._sns.config.endpoint,
+    const request: BaseClientRequest = {
+      uri: `${this._sns.config.endpoint}/published`,
       body: { Action: 'MarkPublished', ...params },
+      method: 'POST',
     };
-    await this.request(request);
+    await this.requestJSON(request);
   }
 }

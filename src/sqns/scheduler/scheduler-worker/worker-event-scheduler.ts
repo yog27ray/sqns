@@ -119,7 +119,6 @@ class WorkerEventScheduler {
             TopicArn: subscription.TopicARN,
             Subject: published.Subject,
             Message: published.Message,
-            UnsubscribeURL: subscription.UnsubscribeUrl,
             SubscriptionArn: subscriptionArn,
             MessageAttributes: published.MessageAttributes,
           }),

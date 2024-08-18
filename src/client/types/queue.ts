@@ -10,6 +10,32 @@ export interface CreateQueueRequest {
   tags?: Record<string, string>;
 }
 
+export interface SNSServerJSONBody {
+  deliveryPolicy: DeliveryPolicy;
+  requestId: string;
+  Attributes: TopicAttributes;
+  Tags: TopicTag;
+  Token: string;
+  AttributeValue: string;
+  AttributeName: string;
+  MessageId: string;
+  NextToken: string;
+  TopicArn: string;
+  region: string;
+  displayName: string;
+  Name: string;
+  Action: string;
+  TargetArn: string;
+  Message: string;
+  PhoneNumber: string;
+  Subject: string;
+  Endpoint: string;
+  Protocol: string;
+  MessageAttributes: MessageAttributes;
+  MessageStructure: string;
+  SubscriptionArn: string;
+}
+
 export interface SNSServerBody {
   deliveryPolicy: DeliveryPolicy;
   requestId: string;

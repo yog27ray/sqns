@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { authentication, getSecretKey } from '../../common/auth/authentication';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
-import { transformRequest } from '../../common/auth/transform-request';
+import { transformSqsRequest } from '../../common/auth/transform-request';
 import { SQSManager } from '../manager/s-q-s-manager';
 import { SQSController } from './s-q-s-controller';
 
@@ -18,57 +18,57 @@ function generateV1Router(controller: SQSController, sqsManager: SQSManager): ex
   const router = express.Router();
   router.post('/sqs/queues',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.createQueueHandler());
   router.post('/sqs/queues/getUrl',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.getQueueUrlHandler());
   router.post('/sqs/queues/list',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.listQueueHandler());
   router.post('/sqs/receiveMessages',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.receiveMessageHandler());
   router.delete('/sqs/:region/:companyId/:queueName',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.deleteQueueHandler());
   router.post('/sqs/:region/:companyId/:queueName/send-message',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.createMessageHandler());
   router.post('/sqs/:region/:companyId/:queueName/send-message/batch',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.createMessageBatchHandler());
   router.post('/sqs/:region/:companyId/:queueName/id/:messageId',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.findMessageByIdHandler());
   router.post('/sqs/:region/:companyId/:queueName/duplication-id/:duplicationId',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.findMessageByDuplicationIdHandler());
   router.put('/sqs/:region/:companyId/:queueName/id/:messageId',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.updateMessageByIdHandler());
   router.put('/sqs/:region/:companyId/:queueName/duplication-id/:duplicationId',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.updateMessageByDuplicationIdHandler());
   router.put(
     '/sqs/:region/:companyId/:queueName/event/:eventId/success',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.eventSuccessHandler());
   router.put(
     '/sqs/:region/:companyId/:queueName/event/:eventId/failure',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformRequest(),
+    transformSqsRequest(),
     controller.eventFailureHandler());
   return router;
 }
@@ -95,7 +95,7 @@ function generateRoutes(sqsManager: SQSManager): express.Router {
     controller.sqs());
 
   const router = express.Router();
-  router.use(oldRouter);
+  // router.use(oldRouter);
   router.use(generateHealthRoutes(controller));
   router.use('/v1', generateV1Router(controller, sqsManager));
   return router;

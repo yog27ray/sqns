@@ -35,7 +35,7 @@ export class BaseClient extends RequestClient {
     super();
     this._config = { ...config, region: BaseClient.REGION };
     this._sqs = new SQSService({ ...this._config, endpoint: `${config.endpoint}/v1/sqs` });
-    this._sns = new SNSService({ ...this._config, endpoint: `${config.endpoint}/sns` });
+    this._sns = new SNSService({ ...this._config, endpoint: `${config.endpoint}/v1/sns` });
     updateLogging(config.logging);
   }
 
@@ -164,7 +164,7 @@ export class BaseClient extends RequestClient {
       'x-sqns-date': moment().utc().format('YYYYMMDDTHHmmss'),
       host: request.uri.split('/')[2],
     };
-    const isSNSRequest = request.uri.startsWith(`${this._config.endpoint}/sns`);
+    const isSNSRequest = request.uri.startsWith(`${this._config.endpoint}/v1/sns`);
     this.updateRequestBody(request.body, isSNSRequest);
     request.body = this.normalizeNestedJSONBody(request.body, isSNSRequest);
     signRequest({

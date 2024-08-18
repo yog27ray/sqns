@@ -6,7 +6,6 @@ import {
   ARN,
   BaseClient,
   ChannelDeliveryPolicy,
-  ConfirmSubscriptionResponse,
   CreateQueueResult,
   CreateTopicResponse,
   EventItem,
@@ -17,7 +16,6 @@ import {
   signRequest,
   SQNSClient,
   SQNSError,
-  SubscriptionConfirmationRequestBody,
   SupportedProtocol,
 } from '../client';
 import { app, delay, dropDatabase, setupConfig } from '../setup';
@@ -1369,7 +1367,7 @@ describe('SQNSClient', () => {
           await client.createTopic({ Name: `Topic${items.length}` });
           await createTopics(items);
         }
-        await createTopics(new Array(150).fill(1))
+        await createTopics(new Array(150).fill(1) as Array<number>);
       });
 
       it('should list topics with pagination', async () => {
@@ -1403,12 +1401,11 @@ describe('SQNSClient', () => {
 
       it('should find topic attributes of topic "Topic1"', async () => {
         const topicAttributesResponse = await client.getTopicAttributes({ TopicArn: topic1ARN });
-        expect(topicAttributesResponse.Attributes.SubscriptionsPending).to.equal('0');
+        expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');
         expect(topicAttributesResponse.Attributes.TopicArn).to.equal(topic1ARN);
         expect(topicAttributesResponse.Attributes.EffectiveDeliveryPolicy).to.equal('{"default":{"defaultHealthyRetryPolicy":'
           + '{"numRetries":3,"numNoDelayRetries":0,"minDelayTarget":20,"maxDelayTarget":20,"numMinDelayRetries":0,"numMaxDelayRetries":0,'
           + '"backoffFunction":"exponential"},"disableOverrides":false}}');
-        expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');
         expect(topicAttributesResponse.Attributes.DisplayName).to.equal('Topic One');
         expect(topicAttributesResponse.Attributes.SubscriptionsDeleted).to.equal('0');
       });
@@ -1598,7 +1595,6 @@ describe('SQNSClient', () => {
         });
         expect(result.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
       });
-
     });
 
     context('listSubscriptions', () => {
@@ -1614,13 +1610,20 @@ describe('SQNSClient', () => {
         });
         topicArn = (await client.createTopic({ Name: 'Topic1' })).TopicArn;
         await delay(100);
-        await Promise.all(new Array(150).fill(0)
-          .map((i: unknown, index: number) => client.subscribe({
+        async function createSubscription(items: Array<number>): Promise<void> {
+          if (!items.length) {
+            return;
+          }
+          items.shift();
+          await client.subscribe({
             TopicArn: topicArn,
             Attributes: { key: 'value' },
-            Endpoint: `http://test.sns.subscription/valid${index}`,
+            Endpoint: `http://test.sns.subscription/valid${items.length}`,
             Protocol: 'http',
-          })));
+          });
+          await createSubscription(items);
+        }
+        await createSubscription(new Array(150).fill(1));
       });
 
       it('should list subscriptions with pagination', async () => {
@@ -1647,20 +1650,21 @@ describe('SQNSClient', () => {
         });
         topic1Arn = (await client.createTopic({ Name: 'Topic1' })).TopicArn;
         topic2Arn = (await client.createTopic({ Name: 'Topic2' })).TopicArn;
-        await Promise.all(new Array(150).fill(0)
-          .map((i: unknown, index: number) => client.subscribe({
-            TopicArn: topic1Arn,
+        async function createSubscribe(items: Array<number>, arn: string): Promise<void> {
+          if (!items.length) {
+            return;
+          }
+          items.shift();
+          await client.subscribe({
+            TopicArn: arn,
             Attributes: { key: 'value' },
-            Endpoint: `http://test.sns.subscription/valid${index}`,
+            Endpoint: `http://test.sns.subscription/valid${items.length}`,
             Protocol: 'http',
-          })));
-        await Promise.all(new Array(49).fill(0)
-          .map((i: unknown, index: number) => client.subscribe({
-            TopicArn: topic2Arn,
-            Attributes: { key: 'value' },
-            Endpoint: `http://test.sns.subscription/valid${index}`,
-            Protocol: 'http',
-          })));
+          });
+          await createSubscribe(items, arn);
+        }
+        await createSubscribe(new Array(150).fill(1), topic1Arn);
+        await createSubscribe(new Array(49).fill(1), topic2Arn);
       });
 
       it('should list subscriptions for topic', async () => {
@@ -1851,7 +1855,7 @@ describe('SQNSClient', () => {
 
       it('should handle error when response is not json ', async () => {
         try {
-          nock(Env.URL).persist().post('/api/sns', () => true).reply(200, { reply: 'json' });
+          nock(Env.URL).persist().post('/api/v1/sns/publish/find', () => true).reply(400, 'json');
           const client = new SQNSClient({
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
@@ -1861,10 +1865,7 @@ describe('SQNSClient', () => {
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };
-          expect({ code, message }).to.deep.equal({
-            code: 'Error',
-            message: 'Non-whitespace before first tag.\nLine: 0\nColumn: 1\nChar: {',
-          });
+          expect({ code, message }).to.deep.equal({ code: '400', message: 'json' });
         }
       });
 
@@ -1885,7 +1886,6 @@ describe('SQNSClient', () => {
 
       async function checkForCreateTopicAttributes(topicARN: string, name: string, deliveryPolicy: string): Promise<void> {
         const topicAttributesResponse = await client.getTopicAttributes({ TopicArn: topicARN });
-        expect(topicAttributesResponse.Attributes.SubscriptionsPending).to.equal('0');
         expect(topicAttributesResponse.Attributes.TopicArn).to.equal(topicARN);
         expect(topicAttributesResponse.Attributes.EffectiveDeliveryPolicy).to.equal(deliveryPolicy);
         expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');

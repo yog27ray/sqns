@@ -241,7 +241,7 @@ class SQSController {
       }
       const queue = await this.eventManager.getQueue(Queue.arn(req.user.organizationId, region, QueueName));
       await this.eventManager.deleteQueue(queue);
-      res.json(ResponseHelper.deleteQueue(requestId));
+      res.json(ResponseHelper.success(requestId));
     });
   }
 
