@@ -21,6 +21,24 @@
   "bugs": {
     "url": "https://github.com/yog27ray/sqns/issues"
   },
+  "keywords": [
+    "sqs",
+    "sns",
+    "sqns",
+    "serverless",
+    "message queue",
+    "event-driven",
+    "pub-sub",
+    "notification service",
+    "message broker",
+    "cloud messaging",
+    "nodejs",
+    "typescript",
+    "cloud integration",
+    "event processing",
+    "message delivery",
+    "queue management"
+  ],
   "homepage": "https://github.com/yog27ray/sqns#readme",
   "devDependencies": {
     "@types/chai": "4.3.17",
