@@ -28,10 +28,12 @@ function generateV1Router(controller: SQSController, sqsManager: SQSManager): ex
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
     transformSqsRequest(),
     controller.listQueueHandler());
-  router.post('/sqs/receiveMessages',
-    authentication(getSecretKey(sqsManager.getStorageEngine()), true),
-    transformSqsRequest(),
-    controller.receiveMessageHandler());
+  if (!SQSManager.DISABLE_RECEIVE_MESSAGE) {
+    router.post('/sqs/receiveMessages',
+      authentication(getSecretKey(sqsManager.getStorageEngine()), true),
+      transformSqsRequest(),
+      controller.receiveMessageHandler());
+  }
   router.delete('/sqs/:region/:companyId/:queueName',
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
     transformSqsRequest(),

@@ -23,6 +23,7 @@ export declare interface SQSConfig {
   requestTasks?: Array<string>;
   cronInterval?: string;
   enableSNSQueue?: boolean;
+  disableReceiveMessage?: boolean;
 }
 
 export declare interface SNSConfig {
@@ -39,7 +40,7 @@ export declare interface SQNSConfig {
   endpoint: string;
   adminSecretKeys: Array<{ accessKey: string; secretAccessKey: string }>;
   db: DatabaseConfig;
-  sqs?: { cronInterval?: string; disable?: boolean };
+  sqs?: { cronInterval?: string; disable?: boolean; disableReceiveMessage?: boolean; };
   sns?: {
     queueEndpoint?: string;
     queueSecretAccessKey?: string;
