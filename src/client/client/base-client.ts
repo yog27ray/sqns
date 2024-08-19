@@ -89,7 +89,7 @@ export class BaseClient extends RequestClient {
           json: true,
           body: JSON.stringify(request.body),
           headers: request.headers,
-          jsonBody: true
+          jsonBody: true,
         },
         request.method);
     } catch (originalError) {
