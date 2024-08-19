@@ -55,7 +55,7 @@ describe('SQNSClient', () => {
           endpoint: `${Env.URL}/api`,
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
-        }).requestJSON({
+        }).request({
           method: 'POST',
           uri: `${Env.URL}/api/v1/sqs/queues`,
           body: { QueueName: 'queue1' },

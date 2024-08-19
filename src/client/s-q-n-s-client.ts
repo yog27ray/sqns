@@ -53,7 +53,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const result = await this.requestJSON(request);
+    const result = await this.request(request);
     return result.data as CreateQueueResult;
   }
 
@@ -63,7 +63,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as ListQueuesResponse;
   }
 
@@ -73,7 +73,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as GetQueueUrlResult;
   }
 
@@ -83,7 +83,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const result = await this.requestJSON(request);
+    const result = await this.request(request);
     return result.data as SendMessageResult;
   }
 
@@ -93,7 +93,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const result = await this.requestJSON(request);
+    const result = await this.request(request);
     return result.data as FindMessageByIdResult;
   }
 
@@ -103,7 +103,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const result = await this.requestJSON(request);
+    const result = await this.request(request);
     return result.data as FindMessageByDeduplicationIdResult;
   }
 
@@ -113,7 +113,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'PUT',
     };
-    const result = await this.requestJSON(request);
+    const result = await this.request(request);
     return result.data as UpdateMessageByIdResult;
   }
 
@@ -123,7 +123,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'PUT',
     };
-    const result = await this.requestJSON(request);
+    const result = await this.request(request);
     return result.data as UpdateMessageByDeduplicationIdResult;
   }
 
@@ -133,7 +133,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const result = await this.requestJSON(request);
+    const result = await this.request(request);
     return result.data as ReceiveMessageResult;
   }
 
@@ -143,7 +143,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'DELETE',
     };
-    await this.requestJSON(request);
+    await this.request(request);
   }
 
   async sendMessageBatch(params: SendMessageBatchRequest): Promise<SendMessageBatchResult> {
@@ -154,7 +154,7 @@ export class SQNSClient extends BaseClient {
     };
     request.body.SendMessageBatchRequestEntry = request.body.Entries;
     delete request.body.Entries;
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     const result: SendMessageBatchResult = { Successful: [], Failed: [] };
     response.data.forEach((each: { MD5OfMessageBody?: string; }) => {
       if (each.MD5OfMessageBody) {
@@ -172,7 +172,7 @@ export class SQNSClient extends BaseClient {
       body: { successMessage },
       method: 'PUT',
     };
-    await this.requestJSON(request);
+    await this.request(request);
   }
 
   async markEventFailure(MessageId: string, QueueUrl: string, failureMessage: string = ''): Promise<void> {
@@ -181,7 +181,7 @@ export class SQNSClient extends BaseClient {
       body: { failureMessage },
       method: 'PUT',
     };
-    await this.requestJSON(request);
+    await this.request(request);
   }
 
   async createTopic(params: CreateTopicInput): Promise<CreateTopicResponse> {
@@ -190,7 +190,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as CreateTopicResponse;
   }
 
@@ -200,7 +200,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as ListTopicsResponse;
   }
 
@@ -210,7 +210,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as GetTopicAttributesResponse;
   }
 
@@ -220,7 +220,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'PUT',
     };
-    await this.requestJSON(request);
+    await this.request(request);
   }
 
   async deleteTopic(params: DeleteTopicInput): Promise<void> {
@@ -229,7 +229,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'DELETE',
     };
-    await this.requestJSON(request);
+    await this.request(request);
   }
 
   async publish(params: PublishInput): Promise<PublishResponse> {
@@ -238,7 +238,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as PublishResponse;
   }
 
@@ -248,7 +248,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as SubscribeResponse;
   }
 
@@ -258,7 +258,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as ListSubscriptionsResponse;
   }
 
@@ -268,7 +268,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as ListSubscriptionsByTopicResponse;
   }
 
@@ -278,7 +278,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'DELETE',
     };
-    await this.requestJSON(request);
+    await this.request(request);
   }
 
   async getPublish(params: GetPublishInput): Promise<GetPublishResponse> {
@@ -287,7 +287,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as GetPublishResponse;
   }
 
@@ -297,7 +297,7 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    const response = await this.requestJSON(request);
+    const response = await this.request(request);
     return response.data as GetSubscriptionResponse;
   }
 
@@ -307,6 +307,6 @@ export class SQNSClient extends BaseClient {
       body: { Action: 'MarkPublished', ...params },
       method: 'POST',
     };
-    await this.requestJSON(request);
+    await this.request(request);
   }
 }
