@@ -16,6 +16,8 @@ const log = logger.instance('EventManager');
 export class SQSManager extends BaseManager {
   static DEFAULT_PRIORITIES: SQSPriorities = { PRIORITY_TOTAL: 0 };
 
+  static DISABLE_RECEIVE_MESSAGE: boolean = false;
+
   private requestClient = new RequestClient();
 
   private readonly _sQSStorageEngine: SQSStorageEngine;
@@ -95,7 +97,11 @@ export class SQSManager extends BaseManager {
     this._eventQueue = new SQSQueue();
     this._eventQueue.notifyNeedTaskURLS = sqsConfig.requestTasks || [];
     this._sQSStorageEngine = new SQSStorageEngine(sqsConfig.db);
-    this.storageToQueueWorker = new StorageToQueueWorker(this._sQSStorageEngine, this.addEventInQueueListener, sqsConfig.cronInterval);
+    if (!sqsConfig.disableReceiveMessage) {
+      this.storageToQueueWorker = new StorageToQueueWorker(this._sQSStorageEngine, this.addEventInQueueListener, sqsConfig.cronInterval);
+    } else {
+      SQSManager.DISABLE_RECEIVE_MESSAGE = true;
+    }
   }
 
   comparatorFunction(queueARN: string, value: (event1: EventItem, event2: EventItem) => boolean): void {
@@ -198,6 +204,9 @@ export class SQSManager extends BaseManager {
       priority,
       eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),
     });
+    if (SQSManager.DISABLE_RECEIVE_MESSAGE) {
+      return eventItem;
+    }
     const inQueueEvent = this._eventQueue.findEventInQueue(queue.arn, eventItem);
     if (inQueueEvent) {
       return inQueueEvent;
@@ -218,6 +227,9 @@ export class SQSManager extends BaseManager {
   }
 
   cancel(): void {
+    if (!this.storageToQueueWorker) {
+      return;
+    }
     this.storageToQueueWorker.cancel();
   }
 

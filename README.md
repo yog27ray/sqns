@@ -380,13 +380,6 @@ client.listSubscriptionsByTopic({
  NextToken: 'NextToken' // optional
 });
 ```
-### confirmSubscription
-```js
-client.confirmSubscription({
- TopicArn: 'topicArn',
- Token: 'verificationToken',
-});
-```
 ### unsubscribe
 ```js
 client.unsubscribe({ SubscriptionArn: 'subscriptionArn' });
