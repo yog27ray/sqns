@@ -2,7 +2,7 @@ import moment from 'moment';
 import { v4 as uuid } from 'uuid';
 import { signRequest } from '../auth/authentication';
 import { SQNSError } from '../auth/s-q-n-s-error';
-import { updateLogging } from '../logger/logger';
+import { logger, updateLogging } from '../logger/logger';
 import { RequestClient } from '../request-client/request-client';
 import { ClientConfiguration, KeyValue } from '../types';
 import { SNSService } from './s-n-s-service';
@@ -16,6 +16,8 @@ export declare interface BaseClientRequest {
   requestId?: string;
   service?: 'sqs' | 'sns';
 }
+
+const log = logger.instance('BaseClient');
 
 export class BaseClient extends RequestClient {
   static readonly REGION: string = 'sqns';
@@ -93,6 +95,7 @@ export class BaseClient extends RequestClient {
         },
         request.method);
     } catch (originalError) {
+      log.error(request);
       const { message, code } = originalError as SQNSError;
       try {
         return Promise.reject(new SQNSError(JSON.parse(message) as { code: string; message: string; }));
