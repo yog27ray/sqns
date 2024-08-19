@@ -28,7 +28,7 @@ function generateV1Router(controller: SQSController, sqsManager: SQSManager): ex
     authentication(getSecretKey(sqsManager.getStorageEngine()), true),
     transformSqsRequest(),
     controller.listQueueHandler());
-  if (SQSManager.DISABLE_RECEIVE_MESSAGE) {
+  if (!SQSManager.DISABLE_RECEIVE_MESSAGE) {
     router.post('/sqs/receiveMessages',
       authentication(getSecretKey(sqsManager.getStorageEngine()), true),
       transformSqsRequest(),
