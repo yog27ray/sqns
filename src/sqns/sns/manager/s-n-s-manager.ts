@@ -1,12 +1,15 @@
 import { SNSConfig } from '../../../../typings/config';
 import {
   ARN,
-  DeliveryPolicy, Encryption,
-  MessageAttributes, MessageStructure,
+  DeliveryPolicy,
+  Encryption,
+  MessageAttributes,
+  MessageStructure,
   RequestClient,
   SQNSClient,
-  SQNSClientConfig, SQNSError, SubscriptionAttributes,
-  SubscriptionConfirmationRequestBody,
+  SQNSClientConfig,
+  SQNSError,
+  SubscriptionAttributes,
   SupportedProtocol,
   SUPPORTED_CHANNEL_TYPE,
   TopicAttributes,
@@ -163,7 +166,7 @@ class SNSManager extends BaseManager {
     }
     this.sNSStorageEngine.createSubscriptionVerificationToken(subscription)
       .then((subscriptionVerificationToken: SubscriptionVerificationToken) => {
-        const requestBody: SubscriptionConfirmationRequestBody = {
+        const requestBody = {
           Type: subscriptionVerificationToken.Type,
           MessageId: subscriptionVerificationToken.id,
           Token: subscriptionVerificationToken.token,

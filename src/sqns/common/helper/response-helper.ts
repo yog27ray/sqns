@@ -1,10 +1,10 @@
 import { v4 as uuid } from 'uuid';
 import { ResponseMessageJson } from '../../../../typings/response-item';
 import { Encryption, EventItem, MessageAttributeValue } from '../../../client';
-import { Queue } from '../model/queue';
-import { Topic } from '../model/topic';
 import { Publish } from '../model/publish';
+import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';
+import { Topic } from '../model/topic';
 
 declare interface Return<T> { data: T; ResponseMetadata: { RequestId: string; }; }
 
@@ -127,8 +127,8 @@ export class ResponseHelper {
         Endpoint: subscription.endPoint,
         SubscriptionArn: subscription.arn,
         TopicArn: subscription.topicARN,
-      }))
-    }
+      })),
+    };
     if ((skip + subscriptions.length) < total) {
       result.NextToken = Encryption.encodeNextToken({ skip: skip + subscriptions.length });
     }
@@ -136,7 +136,6 @@ export class ResponseHelper {
   }
 
   static getPublish(requestId: string, publish: Publish): Return<Record<string, unknown>> {
-    console.log('??/???????', publish.MessageAttributes.entry);
     const publishJSON: Record<string, unknown> = {
       MessageId: publish.id,
       MessageAttributes: (publish.MessageAttributes.entry || []).reduce((result, item) => ({

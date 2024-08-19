@@ -238,7 +238,6 @@ export class SQNSClient extends BaseClient {
       body: { ...params },
       method: 'POST',
     };
-    console.log('>>>>>>>publishNewData', params);
     const response = await this.requestJSON(request);
     return response.data as PublishResponse;
   }
@@ -247,7 +246,7 @@ export class SQNSClient extends BaseClient {
     const request: BaseClientRequest = {
       uri: `${this._sns.config.endpoint}/subscribe`,
       body: { ...params },
-      method: 'POST'
+      method: 'POST',
     };
     const response = await this.requestJSON(request);
     return response.data as SubscribeResponse;

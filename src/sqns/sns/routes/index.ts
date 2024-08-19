@@ -1,9 +1,9 @@
 import * as express from 'express';
 import { authentication, getSecretKey } from '../../common/auth/authentication';
 import { AwsToServerTransformer } from '../../common/auth/aws-to-server-transformer';
+import { transformSnsRequest } from '../../common/auth/transform-request';
 import { SNSManager } from '../manager/s-n-s-manager';
 import { SNSController } from './s-n-s-controller';
-import { transformSnsRequest } from '../../common/auth/transform-request';
 
 function generateHealth(): express.Router {
   const router = express.Router();
@@ -63,7 +63,7 @@ function generateRouteV1(controller: SNSController, snsManager: SNSManager): exp
     authentication(getSecretKey(snsManager.getStorageEngine()), true),
     transformSnsRequest(),
     controller.listSubscriptionByTopicHandler());
-   router.post(
+  router.post(
     '/sns/subscription',
     authentication(getSecretKey(snsManager.getStorageEngine()), true),
     transformSnsRequest(),

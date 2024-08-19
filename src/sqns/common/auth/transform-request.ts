@@ -44,7 +44,7 @@ export function transformSnsRequest(): ExpressMiddleware {
     const [, , region]: Array<string> = req.header('Authorization').split(' ')[1].split('=')[1].split('/');
     Object.assign(req.body, { region });
     if (req.body.Attributes) {
-      const attributes = Object.keys(req.body.Attributes)
+      const attributes = Object.keys(req.body.Attributes as Record<string, unknown>)
         .reduce((result, key) => {
           result.push({ key, value: req.body.Attributes[key] });
           return result;
@@ -52,7 +52,7 @@ export function transformSnsRequest(): ExpressMiddleware {
       Object.assign(req.body, { Attributes: { entry: attributes } });
     }
     if (req.body.MessageAttributes) {
-      const attributes = Object.keys(req.body.MessageAttributes)
+      const attributes = Object.keys(req.body.MessageAttributes as Record<string, unknown>)
         .reduce((result, key) => {
           result.push({ Name: key, Value: req.body.MessageAttributes[key] });
           return result;

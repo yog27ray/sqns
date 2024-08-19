@@ -1623,7 +1623,7 @@ describe('SQNSClient', () => {
           });
           await createSubscription(items);
         }
-        await createSubscription(new Array(150).fill(1));
+        await createSubscription(new Array(150).fill(1) as Array<number>);
       });
 
       it('should list subscriptions with pagination', async () => {
@@ -1663,8 +1663,8 @@ describe('SQNSClient', () => {
           });
           await createSubscribe(items, arn);
         }
-        await createSubscribe(new Array(150).fill(1), topic1Arn);
-        await createSubscribe(new Array(49).fill(1), topic2Arn);
+        await createSubscribe(new Array(150).fill(1) as Array<number>, topic1Arn);
+        await createSubscribe(new Array(49).fill(1) as Array<number>, topic2Arn);
       });
 
       it('should list subscriptions for topic', async () => {

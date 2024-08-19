@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import { ExpressMiddleware } from '../../../../typings/express';
 import { Encryption, SNSServerBody, SupportedProtocol } from '../../../client';
+import { SNSServerJSONBody } from '../../../client/types/queue';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
+import { ResponseHelper } from '../../common/helper/response-helper';
 import { User } from '../../common/model/user';
 import { ExpressHelper } from '../../common/routes/express-helper';
 import { SNSManager } from '../manager/s-n-s-manager';
-import { SNSServerJSONBody } from '../../../client/types/queue';
-import { ResponseHelper } from '../../common/helper/response-helper';
 
 class SNSController {
   constructor(private serverURL: string, private snsManager: SNSManager) {}
