@@ -35,6 +35,7 @@ import {
   SQNSLoggingConfig,
   SQSServerBody,
   SubscriptionAttributes,
+  SubscriptionConfirmationRequestBody,
   SubscriptionType,
   SupportedProtocol,
   SUPPORTED_BACKOFF_FUNCTIONS_TYPE,
@@ -50,6 +51,7 @@ import {
 
 export {
   SQNSErrorType,
+  SubscriptionConfirmationRequestBody,
   FindMessageByIdResult,
   UpdateMessageByDeduplicationIdResult,
   UpdateMessageByIdResult,

@@ -58,6 +58,9 @@ function generateRouteV1(controller: SNSController, snsManager: SNSManager): exp
     authentication(getSecretKey(snsManager.getStorageEngine()), true),
     transformSnsRequest(),
     controller.listSubscriptionHandler());
+  router.get(
+    '/sns/subscriptions/confirm',
+    controller.confirmSubscriptionHandler());
   router.post(
     '/sns/subscriptions/list/by-topic',
     authentication(getSecretKey(snsManager.getStorageEngine()), true),
@@ -92,7 +95,7 @@ function generateRoutes(relativeURL: string, snsManager: SNSManager): express.Ro
     controller.sns());
 
   const router = express.Router();
-  // router.use(oldRouter);
+  router.use(oldRouter);
   router.use(generateHealth());
   router.use('/v1', generateRouteV1(controller, snsManager));
   return router;

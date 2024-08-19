@@ -1401,6 +1401,7 @@ describe('SQNSClient', () => {
 
       it('should find topic attributes of topic "Topic1"', async () => {
         const topicAttributesResponse = await client.getTopicAttributes({ TopicArn: topic1ARN });
+        expect(topicAttributesResponse.Attributes.SubscriptionsPending).to.equal('0');
         expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');
         expect(topicAttributesResponse.Attributes.TopicArn).to.equal(topic1ARN);
         expect(topicAttributesResponse.Attributes.EffectiveDeliveryPolicy).to.equal('{"default":{"defaultHealthyRetryPolicy":'
@@ -1593,6 +1594,17 @@ describe('SQNSClient', () => {
           Endpoint: 'http://test.sns.subscription/valid',
           Protocol: 'http',
         });
+        expect(result.SubscriptionArn).to.equal('PendingConfirmation');
+      });
+
+      it('should return subscriptionARN when ReturnSubscriptionArn is true', async () => {
+        const result = await client.subscribe({
+          TopicArn: topic.TopicArn,
+          Attributes: { key: 'value' },
+          Endpoint: 'http://test.sns.subscription/valid',
+          Protocol: 'http',
+          ReturnSubscriptionArn: true,
+        });
         expect(result.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
       });
     });
@@ -1712,6 +1724,7 @@ describe('SQNSClient', () => {
           Attributes: { key: 'value' },
           Endpoint: 'http://test.sns.subscription/valid',
           Protocol: 'http',
+          ReturnSubscriptionArn: true,
         })).SubscriptionArn;
       });
 
@@ -1891,6 +1904,7 @@ describe('SQNSClient', () => {
         expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');
         expect(topicAttributesResponse.Attributes.DisplayName).to.equal(name);
         expect(topicAttributesResponse.Attributes.SubscriptionsDeleted).to.equal('0');
+        expect(topicAttributesResponse.Attributes.SubscriptionsPending).to.equal('0');
       }
 
       it('should set the DeliveryPolicy provided', async () => {

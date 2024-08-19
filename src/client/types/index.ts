@@ -72,6 +72,7 @@ import {
   SubscribeInput,
   SubscribeResponse,
   SubscriptionAttributes,
+  SubscriptionConfirmationRequestBody,
   SubscriptionType,
   UnsubscribeInput,
 } from './subscription';
@@ -88,6 +89,7 @@ import {
 
 export {
   Message,
+  SubscriptionConfirmationRequestBody,
   SNSServerBody,
   SQSServerBody,
   SendMessageReceived,

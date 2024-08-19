@@ -231,9 +231,9 @@ class AwsXmlFormat {
     return AwsXmlFormat.jsonToXML('PublishResponse', json);
   }
 
-  static subscribe(requestId: string, subscription: Subscription): string {
+  static subscribe(requestId: string, subscription: Subscription, returnSubscriptionArn: boolean): string {
     const json: Record<string, unknown> = {
-      SubscribeResult: { SubscriptionArn: this.getSubscriptionARN(subscription) },
+      SubscribeResult: { SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription, returnSubscriptionArn) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('SubscribeResponse', json);
@@ -241,7 +241,7 @@ class AwsXmlFormat {
 
   static confirmSubscription(requestId: string, subscription: Subscription): string {
     const json: Record<string, unknown> = {
-      ConfirmSubscriptionResult: { SubscriptionArn: this.getSubscriptionARN(subscription) },
+      ConfirmSubscriptionResult: { SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('ConfirmSubscriptionResponse', json);
@@ -303,7 +303,7 @@ class AwsXmlFormat {
           member: subscriptions.map((subscription: Subscription) => ({
             Protocol: subscription.protocol,
             Endpoint: subscription.endPoint,
-            SubscriptionArn: this.getSubscriptionARN(subscription),
+            SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription),
             TopicArn: subscription.topicARN,
           })),
         },
@@ -324,7 +324,7 @@ class AwsXmlFormat {
           member: subscriptions.map((subscription: Subscription) => ({
             Protocol: subscription.protocol,
             Endpoint: subscription.endPoint,
-            SubscriptionArn: this.getSubscriptionARN(subscription),
+            SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription),
             TopicArn: subscription.topicARN,
           })),
         },
@@ -336,10 +336,6 @@ class AwsXmlFormat {
         .from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
     }
     return AwsXmlFormat.jsonToXML('ListSubscriptionsByTopicResponse', json);
-  }
-
-  static getSubscriptionARN(subscription: Subscription): string {
-    return subscription.confirmed ? subscription.arn : 'PendingConfirmation';
   }
 
   private static transformNameValueArrayToMap(input: Array<{ Name: string; Value: MessageAttributeValue; }> = []): MessageAttributeMap {

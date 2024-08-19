@@ -10,6 +10,7 @@ import {
   SQNSClientConfig,
   SQNSError,
   SubscriptionAttributes,
+  SubscriptionConfirmationRequestBody,
   SupportedProtocol,
   SUPPORTED_CHANNEL_TYPE,
   TopicAttributes,
@@ -166,7 +167,7 @@ class SNSManager extends BaseManager {
     }
     this.sNSStorageEngine.createSubscriptionVerificationToken(subscription)
       .then((subscriptionVerificationToken: SubscriptionVerificationToken) => {
-        const requestBody = {
+        const requestBody: SubscriptionConfirmationRequestBody = {
           Type: subscriptionVerificationToken.Type,
           MessageId: subscriptionVerificationToken.id,
           Token: subscriptionVerificationToken.token,

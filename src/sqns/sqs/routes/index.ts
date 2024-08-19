@@ -95,7 +95,7 @@ function generateRoutes(sqsManager: SQSManager): express.Router {
     controller.sqs());
 
   const router = express.Router();
-  // router.use(oldRouter);
+  router.use(oldRouter);
   router.use(generateHealthRoutes(controller));
   router.use('/v1', generateV1Router(controller, sqsManager));
   return router;

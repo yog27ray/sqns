@@ -19,7 +19,7 @@ class SubscriptionVerificationToken extends BaseObject {
   }
 
   getSubscribeURL(serverURL: string): string {
-    return `${serverURL}/sns?Action=${this.Type}&TopicArn=${this.TopicArn}&Token=${this.token}`;
+    return `${serverURL}/v1/sns/subscriptions/confirm?TopicArn=${this.TopicArn}&Token=${this.token}`;
   }
 }
 

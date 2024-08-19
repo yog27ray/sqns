@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
+import { v4 as uuid } from 'uuid';
 import { ExpressMiddleware } from '../../../../typings/express';
 import { Encryption, SNSServerBody, SupportedProtocol } from '../../../client';
-import { SNSServerJSONBody } from '../../../client/types/queue';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
@@ -15,7 +15,7 @@ class SNSController {
 
   createTopicHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       this.updateDeliveryPolicyAndDisplayName(req.body);
       const { Name, displayName, Attributes, Tags, requestId, region, deliveryPolicy } = req.body;
@@ -26,7 +26,7 @@ class SNSController {
 
   listTopicHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, NextToken = 'eyJza2lwIjowfQ==' } = req.body;
       const { skip } = Encryption.decodeNextToken(NextToken) as { skip: number };
@@ -38,7 +38,7 @@ class SNSController {
 
   getTopicAttributesHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { TopicArn, requestId } = req.body;
       const topic = await this.snsManager.findTopicByARN(TopicArn);
@@ -48,7 +48,7 @@ class SNSController {
 
   setTopicAttributesHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, AttributeName, AttributeValue, TopicArn } = req.body;
       const topic = await this.snsManager.findTopicByARN(TopicArn);
@@ -60,7 +60,7 @@ class SNSController {
 
   deleteTopicHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, TopicArn } = req.body;
       const topic = await this.snsManager.findTopicByARN(TopicArn);
@@ -73,7 +73,7 @@ class SNSController {
 
   publishHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, Message, MessageAttributes, MessageStructure, PhoneNumber, Subject, TargetArn, TopicArn } = req.body;
       const publish = await this.snsManager
@@ -84,7 +84,7 @@ class SNSController {
 
   getPublishHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, MessageId } = req.body;
       const publish = await this.snsManager.findPublishById(MessageId);
@@ -94,20 +94,20 @@ class SNSController {
 
   subscribeHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
-      const { requestId, Attributes, Endpoint, Protocol, TopicArn } = req.body;
+      const { requestId, Attributes, Endpoint, Protocol, TopicArn, ReturnSubscriptionArn } = req.body;
       const topic = await this.snsManager.findTopicByARN(TopicArn);
       const subscription = await this.snsManager
         .subscribe(req.user, topic, Protocol.toLowerCase() as SupportedProtocol, Endpoint, Attributes);
       this.snsManager.requestSubscriptionConfirmation(subscription, this.serverURL);
-      res.json(ResponseHelper.subscribe(requestId, subscription));
+      res.json(ResponseHelper.subscribe(requestId, subscription, ReturnSubscriptionArn));
     });
   }
 
   unsubscribeHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, SubscriptionArn } = req.body;
       const subscription = await this.snsManager.findSubscriptionFromArn(SubscriptionArn);
@@ -118,7 +118,7 @@ class SNSController {
 
   listSubscriptionHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, NextToken = 'eyJza2lwIjowfQ==' } = req.body;
       const { skip } = Encryption.decodeNextToken(NextToken) as { skip: number };
@@ -128,9 +128,21 @@ class SNSController {
     });
   }
 
+  confirmSubscriptionHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { Token } = req.query as { Token: string; };
+      const subscriptionVerificationToken = await this.snsManager.findSubscriptionVerificationToken(Token);
+      const subscription = await this.snsManager.findSubscriptionFromArn(subscriptionVerificationToken.SubscriptionArn);
+      await this.snsManager.confirmSubscription(subscription);
+      res.json(ResponseHelper.success(uuid() as string));
+    });
+  }
+
   listSubscriptionByTopicHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, TopicArn, NextToken = 'eyJza2lwIjowfQ==' } = req.body;
       const { skip } = Encryption.decodeNextToken(NextToken) as { skip: number };
@@ -142,7 +154,7 @@ class SNSController {
 
   getSubscriptionHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, SubscriptionArn } = req.body;
       const subscription = await this.snsManager.findSubscriptionFromArn(SubscriptionArn);
@@ -152,7 +164,7 @@ class SNSController {
 
   publishedTopicHandler(): ExpressMiddleware {
     return ExpressHelper.requestHandlerJSON(async (
-      req: Omit<Request, 'body'> & { body: SNSServerJSONBody; user: User; sqnsBaseURL: string },
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
       res: Response): Promise<void> => {
       const { requestId, MessageId } = req.body;
       const publish = await this.snsManager.findPublishById(MessageId);
@@ -210,12 +222,12 @@ class SNSController {
           return res.send(AwsXmlFormat.publish(requestId, publish));
         }
         case 'Subscribe': {
-          const { requestId, Attributes, Endpoint, Protocol, TopicArn } = req.serverBody;
+          const { requestId, Attributes, Endpoint, Protocol, TopicArn, ReturnSubscriptionArn } = req.serverBody;
           const topic = await this.snsManager.findTopicByARN(TopicArn);
           const subscription = await this.snsManager
             .subscribe(req.user, topic, Protocol.toLowerCase() as SupportedProtocol, Endpoint, Attributes);
           this.snsManager.requestSubscriptionConfirmation(subscription, this.serverURL);
-          return res.send(AwsXmlFormat.subscribe(requestId, subscription));
+          return res.send(AwsXmlFormat.subscribe(requestId, subscription, ReturnSubscriptionArn));
         }
         case 'ListSubscriptions': {
           const { requestId, NextToken = 'eyJza2lwIjowfQ==' } = req.serverBody;
@@ -249,16 +261,6 @@ class SNSController {
           return SQNSErrorCreator.unhandledFunction(req.serverBody.Action);
       }
     });
-  }
-
-  private async confirmSubscription(
-    req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string },
-    res: Response): Promise<void> {
-    const { requestId, Token } = req.serverBody;
-    const subscriptionVerificationToken = await this.snsManager.findSubscriptionVerificationToken(Token);
-    let subscription = await this.snsManager.findSubscriptionFromArn(subscriptionVerificationToken.SubscriptionArn);
-    subscription = await this.snsManager.confirmSubscription(subscription);
-    res.send(AwsXmlFormat.confirmSubscription(requestId, subscription));
   }
 
   private async removeSubscription(

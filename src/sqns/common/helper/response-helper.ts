@@ -20,6 +20,7 @@ export class ResponseHelper {
         ...result,
         [each.key]: each.value,
       }), {
+        SubscriptionsPending: '0',
         SubscriptionsConfirmed: '0',
         SubscriptionsDeleted: '0',
         TopicArn: topic.arn,
@@ -95,8 +96,8 @@ export class ResponseHelper {
     return ResponseHelper.send(requestId, { MessageId: publish.id });
   }
 
-  static subscribe(requestId: string, subscription: Subscription): Return<{ SubscriptionArn: string; }> {
-    return ResponseHelper.send(requestId, { SubscriptionArn: subscription.arn });
+  static subscribe(requestId: string, subscription: Subscription, returnSubscriptionArn: boolean): Return<{ SubscriptionArn: string; }> {
+    return ResponseHelper.send(requestId, { SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription, returnSubscriptionArn) });
   }
 
   static getSubscription(
@@ -125,7 +126,7 @@ export class ResponseHelper {
       Subscriptions: subscriptions.map((subscription: Subscription) => ({
         Protocol: subscription.protocol,
         Endpoint: subscription.endPoint,
-        SubscriptionArn: subscription.arn,
+        SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription),
         TopicArn: subscription.topicARN,
       })),
     };
@@ -189,6 +190,10 @@ export class ResponseHelper {
       data: responseValue,
       ResponseMetadata: { RequestId: requestId },
     };
+  }
+
+  static getSubscriptionARN(subscription: Subscription, returnSubscriptionArn?: boolean): string {
+    return subscription.confirmed || returnSubscriptionArn ? subscription.arn : 'PendingConfirmation';
   }
 
   private static responseMessage(_event: EventItem, AttributeName: Array<string>, MessageAttributeName: Array<string>)

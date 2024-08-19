@@ -291,6 +291,7 @@ describe('WorkerEventSchedulerSpec', () => {
         Attributes: { key: 'value', key2: 'value2' },
         Endpoint: 'http://test.sns.subscription/valid',
         Protocol: 'http',
+        ReturnSubscriptionArn: true,
       }));
       ({ MessageId: PublishId } = await client.publish({
         Message: 'This is message',

@@ -15,6 +15,17 @@ export interface SubscribeInput {
   Protocol: SupportedProtocol;
   Endpoint?: string;
   Attributes?: Record<string, string>;
+  ReturnSubscriptionArn?: boolean;
+}
+
+export interface SubscriptionConfirmationRequestBody {
+  Type: string;
+  MessageId: string;
+  Token: string;
+  TopicArn: ARN;
+  Message: string;
+  SubscribeURL: string;
+  Timestamp: string;
 }
 
 export interface SubscribeResponse {
