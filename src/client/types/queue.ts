@@ -1,8 +1,8 @@
 import { EventState } from '../model/event-item';
 import { TopicAttributes, TopicTag } from './class-types';
-import { MessageAttributes } from './common';
+import { MessageAttributes, MessageAttributeValue } from './common';
 import { DeliveryPolicy } from './delivery-policy';
-import { SendMessageReceived } from './send-message';
+import { SendMessageJsonReceived, SendMessageReceived } from './send-message';
 
 export interface CreateQueueRequest {
   QueueName: string;
@@ -30,11 +30,11 @@ export interface SNSServerBody {
   PhoneNumber: string;
   Subject: string;
   Endpoint: string;
-  ReturnSubscriptionArn: boolean;
   Protocol: string;
   MessageAttributes: MessageAttributes;
   MessageStructure: string;
   SubscriptionArn: string;
+  ReturnSubscriptionArn: boolean;
 }
 
 export interface SQSServerBody {
@@ -58,6 +58,31 @@ export interface SQSServerBody {
   Attribute: Array<{ Name: string; Value: string; }>;
   Tag: Array<{ Name: string; Value: string; }>;
   requestId: string;
+}
+
+export interface SQSServerJSONBody {
+  QueueName: string;
+  ReceiveCount: number;
+  MaxNumberOfMessages: string;
+  VisibilityTimeout: string;
+  QueueNamePrefix: string;
+  AttributeName: Array<string>;
+  MessageAttributeName: Array<string>;
+  region: string;
+  MessageId: string;
+  ReturnSubscriptionArn: boolean;
+  State: EventState.PENDING;
+  MessageBody: string;
+  DelaySeconds: string;
+  MessageDeduplicationId: string;
+  MessageSystemAttribute: Record<string, MessageAttributeValue>;
+  MessageAttribute: Record<string, MessageAttributeValue>;
+  SendMessageBatchRequestEntry: Array<SendMessageJsonReceived & { Id: string }>;
+  Attribute: Record<string, string>;
+  Tag: Record<string, string>;
+  requestId: string;
+  successMessage: string;
+  failureMessage: string;
 }
 
 export interface CreateQueueResult {

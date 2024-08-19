@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import xml2js from 'xml2js';
 import { ResponseMessage } from '../../../../typings/response-item';
 import { Encryption, EventItem, KeyValue, MessageAttributeMap, MessageAttributeValue } from '../../../client';
+import { ResponseHelper } from '../helper/response-helper';
 import { Publish } from '../model/publish';
 import { Queue } from '../model/queue';
 import { Subscription } from '../model/subscription';
@@ -28,7 +29,7 @@ class AwsXmlFormat {
 
   static createQueue(requestId: string, host: string, queue: Queue): string {
     const json = {
-      CreateQueueResult: { QueueUrl: AwsXmlFormat.generateSQSURL(queue, host) },
+      CreateQueueResult: { QueueUrl: ResponseHelper.generateSQSURL(queue, host) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('CreateQueueResponse', json);
@@ -36,7 +37,7 @@ class AwsXmlFormat {
 
   static getQueueURL(requestId: string, host: string, queue: Queue): string {
     const json = {
-      GetQueueUrlResult: { QueueUrl: AwsXmlFormat.generateSQSURL(queue, host) },
+      GetQueueUrlResult: { QueueUrl: ResponseHelper.generateSQSURL(queue, host) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('GetQueueURLResponse', json);
@@ -66,7 +67,7 @@ class AwsXmlFormat {
 
   static listQueues(requestId: string, host: string, queues: Array<Queue>): string {
     const json = {
-      ListQueuesResult: { QueueUrl: queues.map((queue: Queue) => AwsXmlFormat.generateSQSURL(queue, host)) },
+      ListQueuesResult: { QueueUrl: queues.map((queue: Queue) => ResponseHelper.generateSQSURL(queue, host)) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('ListQueuesResponse', json);
@@ -230,9 +231,9 @@ class AwsXmlFormat {
     return AwsXmlFormat.jsonToXML('PublishResponse', json);
   }
 
-  static subscribe(requestId: string, subscription: Subscription, ReturnSubscriptionArn?: boolean): string {
+  static subscribe(requestId: string, subscription: Subscription, returnSubscriptionArn: boolean): string {
     const json: Record<string, unknown> = {
-      SubscribeResult: { SubscriptionArn: this.getSubscriptionARN(subscription, ReturnSubscriptionArn) },
+      SubscribeResult: { SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription, returnSubscriptionArn) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('SubscribeResponse', json);
@@ -240,7 +241,7 @@ class AwsXmlFormat {
 
   static confirmSubscription(requestId: string, subscription: Subscription): string {
     const json: Record<string, unknown> = {
-      ConfirmSubscriptionResult: { SubscriptionArn: this.getSubscriptionARN(subscription) },
+      ConfirmSubscriptionResult: { SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription) },
       ResponseMetadata: { RequestId: requestId },
     };
     return AwsXmlFormat.jsonToXML('ConfirmSubscriptionResponse', json);
@@ -302,7 +303,7 @@ class AwsXmlFormat {
           member: subscriptions.map((subscription: Subscription) => ({
             Protocol: subscription.protocol,
             Endpoint: subscription.endPoint,
-            SubscriptionArn: this.getSubscriptionARN(subscription),
+            SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription),
             TopicArn: subscription.topicARN,
           })),
         },
@@ -323,7 +324,7 @@ class AwsXmlFormat {
           member: subscriptions.map((subscription: Subscription) => ({
             Protocol: subscription.protocol,
             Endpoint: subscription.endPoint,
-            SubscriptionArn: this.getSubscriptionARN(subscription),
+            SubscriptionArn: ResponseHelper.getSubscriptionARN(subscription),
             TopicArn: subscription.topicARN,
           })),
         },
@@ -335,10 +336,6 @@ class AwsXmlFormat {
         .from(JSON.stringify({ skip: skip + subscriptions.length })).toString('base64');
     }
     return AwsXmlFormat.jsonToXML('ListSubscriptionsByTopicResponse', json);
-  }
-
-  static getSubscriptionARN(subscription: Subscription, ReturnSubscriptionArn?: boolean): string {
-    return subscription.confirmed || ReturnSubscriptionArn ? subscription.arn : 'PendingConfirmation';
   }
 
   private static transformNameValueArrayToMap(input: Array<{ Name: string; Value: MessageAttributeValue; }> = []): MessageAttributeMap {
@@ -383,10 +380,6 @@ class AwsXmlFormat {
       result.Attribute = attributeFields.map((key: string) => ({ Name: key, Value: attributes[key] }));
     }
     return result;
-  }
-
-  private static generateSQSURL(queue: Queue, baseURL: string): string {
-    return `${baseURL}/sqs/${queue.region}/${queue.companyId}/${queue.name}`;
   }
 }
 

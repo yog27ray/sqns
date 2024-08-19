@@ -6,7 +6,6 @@ import {
   ARN,
   BaseClient,
   ChannelDeliveryPolicy,
-  ConfirmSubscriptionResponse,
   CreateQueueResult,
   CreateTopicResponse,
   EventItem,
@@ -17,7 +16,6 @@ import {
   signRequest,
   SQNSClient,
   SQNSError,
-  SubscriptionConfirmationRequestBody,
   SupportedProtocol,
 } from '../client';
 import { app, delay, dropDatabase, setupConfig } from '../setup';
@@ -49,7 +47,7 @@ describe('SQNSClient', () => {
           Attributes: { attribute: 'attribute1' },
           tags: { tag: 'tag1' },
         });
-        expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/sqns/1/queue1`);
+        expect(result.QueueUrl).to.equal(`${Env.URL}/api/v1/sqs/sqns/1/queue1`);
       });
 
       it('should return queue url protocol as provided in headers', async () => {
@@ -58,18 +56,19 @@ describe('SQNSClient', () => {
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
         }).request({
-          uri: `${Env.URL}/api/sqs`,
-          body: { Action: 'CreateQueue', QueueName: 'queue1' },
+          method: 'POST',
+          uri: `${Env.URL}/api/v1/sqs/queues`,
+          body: { QueueName: 'queue1' },
           headers: { 'x-forwarded-proto': 'https' },
         });
-        expect(result.CreateQueueResponse.CreateQueueResult.QueueUrl).to
-          .equal(`https:${Env.URL.split(':').slice(1).join(':')}/api/sqs/sqns/1/queue1`);
+        expect(result.data.QueueUrl).to
+          .equal(`https:${Env.URL.split(':').slice(1).join(':')}/api/v1/sqs/sqns/1/queue1`);
       });
 
       it('should allow request create same queue multiple times', async () => {
         await client.createQueue({ QueueName: 'queue1' });
         const result = await client.createQueue({ QueueName: 'queue1' });
-        expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/sqns/1/queue1`);
+        expect(result.QueueUrl).to.equal(`${Env.URL}/api/v1/sqs/sqns/1/queue1`);
       });
 
       it('should receive message maximum of 2 times', async () => {
@@ -726,15 +725,53 @@ describe('SQNSClient', () => {
         const results = await client.sendMessageBatch({
           QueueUrl: queue.QueueUrl,
           Entries: [
-            { Id: '1', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '1' } } },
-            { Id: '2', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '3.1' } } },
-            { Id: '3', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '2' } } },
-            { Id: '4', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: 'abc' } } },
-            { Id: '5', MessageBody: 'PriorityTest', MessageAttributes: { Priority: { DataType: 'String', StringValue: '-2' } } },
+            {
+              Id: '1',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: '1' },
+                rank: { DataType: 'String', StringValue: '1' },
+              },
+            },
+            {
+              Id: '2',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: '3.1' },
+                rank: { DataType: 'String', StringValue: '2' },
+              },
+            },
+            {
+              Id: '3',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: '2' },
+                rank: { DataType: 'String', StringValue: '3' },
+              },
+            },
+            {
+              Id: '4',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: 'abc' },
+                rank: { DataType: 'String', StringValue: '4' },
+              },
+            },
+            {
+              Id: '5',
+              MessageBody: 'PriorityTest',
+              MessageAttributes: {
+                Priority: { DataType: 'String', StringValue: '-2' },
+                rank: { DataType: 'String', StringValue: '5' },
+              },
+            },
           ],
         });
         expect(results.Successful.length).to.equal(5);
-        const events = await setupConfig.mongoConnection.find('Event', { MessageBody: 'PriorityTest' });
+        const events = await setupConfig.mongoConnection.find(
+          'Event',
+          { MessageBody: 'PriorityTest' },
+          { 'MessageAttribute.rank.StringValue': 1 });
         expect(events.length).to.equal(5);
         expect(events[0].priority).to.equal(1);
         expect(events[1].priority).to.equal(3);
@@ -771,17 +808,17 @@ describe('SQNSClient', () => {
       it('should return list of all queues', async () => {
         const list = await client.listQueues();
         expect(list.QueueUrls).to.deep.equal([
-          `${Env.URL}/api/sqs/sqns/1/1queue1`,
-          `${Env.URL}/api/sqs/sqns/1/1queue2`,
-          `${Env.URL}/api/sqs/sqns/1/2queue3`,
+          `${Env.URL}/api/v1/sqs/sqns/1/1queue1`,
+          `${Env.URL}/api/v1/sqs/sqns/1/1queue2`,
+          `${Env.URL}/api/v1/sqs/sqns/1/2queue3`,
         ]);
       });
 
       it('should return list of all queues starting with "1q"', async () => {
         const list = await client.listQueues({ QueueNamePrefix: '1q' });
         expect(list.QueueUrls).to.deep.equal([
-          `${Env.URL}/api/sqs/sqns/1/1queue1`,
-          `${Env.URL}/api/sqs/sqns/1/1queue2`,
+          `${Env.URL}/api/v1/sqs/sqns/1/1queue1`,
+          `${Env.URL}/api/v1/sqs/sqns/1/1queue2`,
         ]);
       });
     });
@@ -801,7 +838,7 @@ describe('SQNSClient', () => {
 
       it('should give error when deleting system queue.', async () => {
         try {
-          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/${SYSTEM_QUEUE_NAME.SNS}` });
+          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/v1/sqs/sqns/1/${SYSTEM_QUEUE_NAME.SNS}` });
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };
@@ -811,7 +848,7 @@ describe('SQNSClient', () => {
 
       it('should give error when queue doesn\'t exists.', async () => {
         try {
-          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/sqs/queue11` });
+          await client.deleteQueue({ QueueUrl: `${Env.URL}/api/v1/sqs/sqns/1/queue11` });
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };
@@ -872,7 +909,7 @@ describe('SQNSClient', () => {
 
       it('should return queue1 url', async () => {
         const result = await client.getQueueUrl({ QueueName: 'queue1' });
-        expect(result.QueueUrl).to.equal(`${Env.URL}/api/sqs/sqns/1/queue1`);
+        expect(result.QueueUrl).to.equal(`${Env.URL}/api/v1/sqs/sqns/1/queue1`);
       });
     });
 
@@ -1322,8 +1359,15 @@ describe('SQNSClient', () => {
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
         });
-        await Promise.all(new Array(150).fill(0)
-          .map((i: unknown, index: number) => client.createTopic({ Name: `Topic${index}` })));
+        async function createTopics(items: Array<number>): Promise<void> {
+          const item = items.shift();
+          if (!item) {
+            return;
+          }
+          await client.createTopic({ Name: `Topic${items.length}` });
+          await createTopics(items);
+        }
+        await createTopics(new Array(150).fill(1) as Array<number>);
       });
 
       it('should list topics with pagination', async () => {
@@ -1358,11 +1402,11 @@ describe('SQNSClient', () => {
       it('should find topic attributes of topic "Topic1"', async () => {
         const topicAttributesResponse = await client.getTopicAttributes({ TopicArn: topic1ARN });
         expect(topicAttributesResponse.Attributes.SubscriptionsPending).to.equal('0');
+        expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');
         expect(topicAttributesResponse.Attributes.TopicArn).to.equal(topic1ARN);
         expect(topicAttributesResponse.Attributes.EffectiveDeliveryPolicy).to.equal('{"default":{"defaultHealthyRetryPolicy":'
           + '{"numRetries":3,"numNoDelayRetries":0,"minDelayTarget":20,"maxDelayTarget":20,"numMinDelayRetries":0,"numMaxDelayRetries":0,'
           + '"backoffFunction":"exponential"},"disableOverrides":false}}');
-        expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');
         expect(topicAttributesResponse.Attributes.DisplayName).to.equal('Topic One');
         expect(topicAttributesResponse.Attributes.SubscriptionsDeleted).to.equal('0');
       });
@@ -1578,13 +1622,20 @@ describe('SQNSClient', () => {
         });
         topicArn = (await client.createTopic({ Name: 'Topic1' })).TopicArn;
         await delay(100);
-        await Promise.all(new Array(150).fill(0)
-          .map((i: unknown, index: number) => client.subscribe({
+        async function createSubscription(items: Array<number>): Promise<void> {
+          if (!items.length) {
+            return;
+          }
+          items.shift();
+          await client.subscribe({
             TopicArn: topicArn,
             Attributes: { key: 'value' },
-            Endpoint: `http://test.sns.subscription/valid${index}`,
+            Endpoint: `http://test.sns.subscription/valid${items.length}`,
             Protocol: 'http',
-          })));
+          });
+          await createSubscription(items);
+        }
+        await createSubscription(new Array(150).fill(1) as Array<number>);
       });
 
       it('should list subscriptions with pagination', async () => {
@@ -1611,20 +1662,21 @@ describe('SQNSClient', () => {
         });
         topic1Arn = (await client.createTopic({ Name: 'Topic1' })).TopicArn;
         topic2Arn = (await client.createTopic({ Name: 'Topic2' })).TopicArn;
-        await Promise.all(new Array(150).fill(0)
-          .map((i: unknown, index: number) => client.subscribe({
-            TopicArn: topic1Arn,
+        async function createSubscribe(items: Array<number>, arn: string): Promise<void> {
+          if (!items.length) {
+            return;
+          }
+          items.shift();
+          await client.subscribe({
+            TopicArn: arn,
             Attributes: { key: 'value' },
-            Endpoint: `http://test.sns.subscription/valid${index}`,
+            Endpoint: `http://test.sns.subscription/valid${items.length}`,
             Protocol: 'http',
-          })));
-        await Promise.all(new Array(49).fill(0)
-          .map((i: unknown, index: number) => client.subscribe({
-            TopicArn: topic2Arn,
-            Attributes: { key: 'value' },
-            Endpoint: `http://test.sns.subscription/valid${index}`,
-            Protocol: 'http',
-          })));
+          });
+          await createSubscribe(items, arn);
+        }
+        await createSubscribe(new Array(150).fill(1) as Array<number>, topic1Arn);
+        await createSubscribe(new Array(49).fill(1) as Array<number>, topic2Arn);
       });
 
       it('should list subscriptions for topic', async () => {
@@ -1649,107 +1701,6 @@ describe('SQNSClient', () => {
         expect(listSubscriptionsResponse.Subscriptions.length).to.equal(99);
         expect(listSubscriptionsResponse.NextToken).to.not.exist;
       });
-    });
-
-    context('confirmSubscription', () => {
-      let client: SQNSClient;
-      let topic: CreateTopicResponse;
-      beforeEach(async () => {
-        await dropDatabase();
-        client = new SQNSClient({
-          endpoint: `${Env.URL}/api`,
-          accessKeyId: Env.accessKeyId,
-          secretAccessKey: Env.secretAccessKey,
-        });
-        topic = await client.createTopic({ Name: 'Topic1' });
-      });
-
-      it('should give error when Token is invalid.', async () => {
-        try {
-          await client.confirmSubscription({ Token: 'InvalidToken', TopicArn: 'InvalidTopicArn' });
-          await Promise.reject({ code: 99, message: 'should not reach here.' });
-        } catch (error) {
-          const { code, message } = error as { code: number; message: string; };
-          expect({ code, message }).to.deep.equal({ code: 'InvalidParameter', message: 'Invalid token' });
-        }
-      });
-
-      it('should confirm subscription', async () => {
-        const promise = new Promise((resolve: (response: ConfirmSubscriptionResponse) => void) => {
-          nock('http://test.sns.subscription')
-            .persist()
-            .post('/valid', () => true)
-            // eslint-disable-next-line func-names
-            .reply(200, async function (path: string, body: SubscriptionConfirmationRequestBody)
-              : Promise<unknown> {
-              expect(this.req.headers['x-sqns-sns-message-id'][0]).to.equal(body.MessageId);
-              expect(this.req.headers['x-sqns-sns-message-type'][0]).to.equal('SubscriptionConfirmation');
-              expect(this.req.headers['x-sqns-sns-topic-arn'][0]).to.equal(topic.TopicArn);
-              expect(body.Type).to.equal('SubscriptionConfirmation');
-              expect(body.TopicArn).to.equal(topic.TopicArn);
-              expect(body.Message).to.equal(`You have chosen to subscribe to the topic ${topic.TopicArn}.\n`
-                + 'To confirm the subscription, visit the SubscribeURL included in this message.');
-              expect(body.SubscribeURL).to.equal(`${Env.URL}/api/sns?Action=SubscriptionConfirmation&TopicArn=${topic.TopicArn
-              }&Token=${body.Token}`);
-              expect(body.Token).to.exist;
-              expect(body.MessageId).to.exist;
-              expect(body.Timestamp).to.exist;
-              const result = await client.confirmSubscription({ TopicArn: body.TopicArn, Token: body.Token });
-              resolve(result);
-              return {};
-            });
-        });
-        const [subscriptionResponse] = await Promise.all([
-          promise,
-          client.subscribe({
-            TopicArn: topic.TopicArn,
-            Attributes: { key: 'value' },
-            Endpoint: 'http://test.sns.subscription/valid',
-            Protocol: 'http',
-          }),
-        ]);
-        expect(subscriptionResponse.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
-        const result = await client.subscribe({
-          TopicArn: topic.TopicArn,
-          Attributes: { key: 'value' },
-          Endpoint: 'http://test.sns.subscription/valid',
-          Protocol: 'http',
-        });
-        expect(result.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
-      });
-
-      it('should confirm subscription via SubscribeURL', async () => {
-        const promise = new Promise((resolve: (value?: unknown) => void) => {
-          nock('http://test.sns.subscription')
-            .persist()
-            .post('/valid', () => true)
-            .reply(200, async (path: string, body: SubscriptionConfirmationRequestBody) => {
-              expect(body.SubscribeURL).to.equal(`${Env.URL}/api/sns?Action=SubscriptionConfirmation&TopicArn=${topic.TopicArn
-              }&Token=${body.Token}`);
-              await new RequestClient().get(body.SubscribeURL);
-              resolve();
-              return {};
-            });
-        });
-        await Promise.all([
-          promise,
-          client.subscribe({
-            TopicArn: topic.TopicArn,
-            Attributes: { key: 'value' },
-            Endpoint: 'http://test.sns.subscription/valid',
-            Protocol: 'http',
-          }),
-        ]);
-        const result = await client.subscribe({
-          TopicArn: topic.TopicArn,
-          Attributes: { key: 'value' },
-          Endpoint: 'http://test.sns.subscription/valid',
-          Protocol: 'http',
-        });
-        expect(result.SubscriptionArn.startsWith(`${topic.TopicArn}:`)).to.be.true;
-      });
-
-      afterEach(() => nock.cleanAll());
     });
 
     context('unsubscribe', () => {
@@ -1887,7 +1838,7 @@ describe('SQNSClient', () => {
         request.headers = { ...(request.headers || {}), ...headers };
         await (request.method === 'GET'
           ? requestClient.get(request.uri)
-          : requestClient.post(request.uri, { headers: request.headers, body: JSON.stringify(request.body) }))
+          : requestClient.http(request.uri, { headers: request.headers, body: JSON.stringify(request.body) }))
           .catch(({ statusCode, message, error }) => new Promise((
             resolve: (value: unknown) => void,
             reject: (error: SQNSError) => void) => {
@@ -1915,22 +1866,9 @@ describe('SQNSClient', () => {
         }
       });
 
-      it('should give error when action is not supported for GET method', async () => {
-        try {
-          await request({ uri: `${Env.URL}/api/sns?Action=NotSupportedAction`, method: 'GET' });
-          await Promise.reject({ code: 99, message: 'should not reach here' });
-        } catch (error) {
-          const { code, message } = error as { code: number; message: string; };
-          expect({ code, message }).to.deep.equal({
-            code: 'UnhandledFunction',
-            message: '"NotSupportedAction" function is not supported.',
-          });
-        }
-      });
-
       it('should handle error when response is not json ', async () => {
         try {
-          nock(Env.URL).persist().post('/api/sns', () => true).reply(200, { reply: 'json' });
+          nock(Env.URL).persist().post('/api/v1/sns/publish/find', () => true).reply(400, 'json');
           const client = new SQNSClient({
             endpoint: `${Env.URL}/api`,
             accessKeyId: Env.accessKeyId,
@@ -1940,10 +1878,7 @@ describe('SQNSClient', () => {
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const { code, message } = error as { code: number; message: string; };
-          expect({ code, message }).to.deep.equal({
-            code: 'Error',
-            message: 'Non-whitespace before first tag.\nLine: 0\nColumn: 1\nChar: {',
-          });
+          expect({ code, message }).to.deep.equal({ code: '400', message: 'json' });
         }
       });
 
@@ -1964,12 +1899,12 @@ describe('SQNSClient', () => {
 
       async function checkForCreateTopicAttributes(topicARN: string, name: string, deliveryPolicy: string): Promise<void> {
         const topicAttributesResponse = await client.getTopicAttributes({ TopicArn: topicARN });
-        expect(topicAttributesResponse.Attributes.SubscriptionsPending).to.equal('0');
         expect(topicAttributesResponse.Attributes.TopicArn).to.equal(topicARN);
         expect(topicAttributesResponse.Attributes.EffectiveDeliveryPolicy).to.equal(deliveryPolicy);
         expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');
         expect(topicAttributesResponse.Attributes.DisplayName).to.equal(name);
         expect(topicAttributesResponse.Attributes.SubscriptionsDeleted).to.equal('0');
+        expect(topicAttributesResponse.Attributes.SubscriptionsPending).to.equal('0');
       }
 
       it('should set the DeliveryPolicy provided', async () => {

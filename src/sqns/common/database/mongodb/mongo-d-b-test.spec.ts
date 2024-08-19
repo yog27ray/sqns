@@ -1,6 +1,7 @@
 /* tslint:disable:no-null-keyword */
 import { expect } from 'chai';
 import moment from 'moment';
+import { ResponseItem } from '../../../../../typings/response-item';
 import { ChannelDeliveryPolicy, CreateQueueResult, MessageAttributeMap, RequestClient, SQNSClient } from '../../../../client';
 import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
@@ -57,18 +58,24 @@ describe('mongoDB test cases', () => {
       });
       await new Promise((resolve: (value: unknown) => void) => {
         let count = 0;
-        const workerQueueConfig = new WorkerQueueConfig('queue1', async () => {
+        const workerQueueConfig = new WorkerQueueConfig('queue1', async (queueName: string, item: ResponseItem): Promise<string> => {
           count += 1;
-          if (count === 2) {
-            return Promise.resolve('this is success message');
+          let result: Promise<string>;
+          if (item.Body === '123') {
+            result = Promise.reject('Error in processing');
           }
-          if (count === 3) {
-            setTimeout(resolve, 0);
-            return new Promise(() => {
+          if (item.Body === '1235') {
+            result = Promise.resolve('this is success message');
+          }
+          if (item.Body === '1234') {
+            result = new Promise(() => {
               const x = 1;
             });
           }
-          return Promise.reject('Error in processing');
+          if (count === 3) {
+            setTimeout(resolve, 0);
+          }
+          return result;
         });
         slaveScheduler = new WorkerEventScheduler(
           {
@@ -314,7 +321,7 @@ describe('mongoDB test cases', () => {
           accessKeyId: 'wrongAccessKey',
           secretAccessKey: 'wrongSecret',
         });
-        await client.markEventFailure('eventId', `${Env.URL}/api/sqs/sqns/1/queue1`, 'failureMessage');
+        await client.markEventFailure('eventId', `${Env.URL}/api/v1/sqs/sqns/1/queue1`, 'failureMessage');
         await Promise.reject({ code: 99, message: 'should not reach here.' });
       } catch (error) {
         const { code, message } = error as { code: number; message: string; };
@@ -339,7 +346,7 @@ describe('mongoDB test cases', () => {
         expect({ code, message }).to.deep.equal({
           code: '404',
           message: '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Error</title>\n</head>\n'
-              + '<body>\n<pre>Cannot POST /api/wrong/sqs/queue/queue1/event/eventId/success</pre>\n</body>\n</html>\n',
+              + '<body>\n<pre>Cannot PUT /api/wrong/sqs/queue/queue1/event/eventId/success</pre>\n</body>\n</html>\n',
         });
       }
     });

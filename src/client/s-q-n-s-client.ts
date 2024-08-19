@@ -1,8 +1,6 @@
 import { BaseClient, BaseClientRequest } from './client/base-client';
 import {
   BatchResultErrorEntry,
-  ConfirmSubscriptionInput,
-  ConfirmSubscriptionResponse,
   CreateQueueRequest,
   CreateQueueResult,
   CreateTopicInput,
@@ -51,287 +49,263 @@ import {
 export class SQNSClient extends BaseClient {
   async createQueue(params: CreateQueueRequest): Promise<CreateQueueResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'CreateQueue' },
+      uri: `${this._sqs.config.endpoint}/queues`,
+      body: { ...params },
+      method: 'POST',
     };
     const result = await this.request(request);
-    return result.CreateQueueResponse.CreateQueueResult as CreateQueueResult;
+    return result.data as CreateQueueResult;
+  }
+
+  async listQueues(params: ListQueuesRequest = {}): Promise<ListQueuesResponse> {
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/queues/list`,
+      body: { ...params },
+      method: 'POST',
+    };
+    const response = await this.request(request);
+    return response.data as ListQueuesResponse;
+  }
+
+  async getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult> {
+    const request: BaseClientRequest = {
+      uri: `${this._sqs.config.endpoint}/queues/getUrl`,
+      body: { ...params },
+      method: 'POST',
+    };
+    const response = await this.request(request);
+    return response.data as GetQueueUrlResult;
   }
 
   async sendMessage(params: SendMessageRequest): Promise<SendMessageResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'SendMessage' },
+      uri: `${params.QueueUrl}/send-message`,
+      body: { ...params },
+      method: 'POST',
     };
     const result = await this.request(request);
-    return result.SendMessageResponse.SendMessageResult as SendMessageResult;
+    return result.data as SendMessageResult;
   }
 
   async findByMessageId(params: FindMessageById): Promise<FindMessageByIdResult> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { Action: 'FindMessageById', ...params },
+    const request: BaseClientRequest = {
+      uri: `${params.QueueUrl}/id/${params.MessageId}`,
+      body: { ...params },
+      method: 'POST',
     };
     const result = await this.request(request);
-    result.FindMessageByIdResponse.FindMessageByIdResult.Message = result.FindMessageByIdResponse.FindMessageByIdResult.Message[0];
-    return result.FindMessageByIdResponse.FindMessageByIdResult as FindMessageByIdResult;
+    return result.data as FindMessageByIdResult;
   }
 
   async findByMessageDeduplicationId(params: FindMessageByDeduplicationId): Promise<FindMessageByDeduplicationIdResult> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { Action: 'FindMessageByDeduplicationId', ...params },
+    const request: BaseClientRequest = {
+      uri: `${params.QueueUrl}/duplication-id/${params.MessageDeduplicationId}`,
+      body: { ...params },
+      method: 'POST',
     };
     const result = await this.request(request);
-    result.FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult.Message = result
-      .FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult.Message[0];
-    return result.FindMessageByDeduplicationIdResponse.FindMessageByDeduplicationIdResult as FindMessageByDeduplicationIdResult;
+    return result.data as FindMessageByDeduplicationIdResult;
   }
 
   async updateMessageById(params: UpdateMessageById): Promise<UpdateMessageByIdResult> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { Action: 'UpdateMessageById', ...params },
+    const request: BaseClientRequest = {
+      uri: `${params.QueueUrl}/id/${params.MessageId}`,
+      body: { ...params },
+      method: 'PUT',
     };
     const result = await this.request(request);
-    result.UpdateMessageByIdResponse.UpdateMessageByIdResult.Message = result
-      .UpdateMessageByIdResponse.UpdateMessageByIdResult.Message[0];
-    return result.UpdateMessageByIdResponse.UpdateMessageByIdResult as UpdateMessageByIdResult;
+    return result.data as UpdateMessageByIdResult;
   }
 
   async updateMessageByDeduplicationId(params: UpdateMessageByDeduplicationId): Promise<UpdateMessageByDeduplicationIdResult> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { Action: 'UpdateMessageByDeduplicationId', ...params },
+    const request: BaseClientRequest = {
+      uri: `${params.QueueUrl}/duplication-id/${params.MessageDeduplicationId}`,
+      body: { ...params },
+      method: 'PUT',
     };
     const result = await this.request(request);
-    result.UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult.Message = result
-      .UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult.Message[0];
-    return result.UpdateMessageByDeduplicationIdResponse.UpdateMessageByDeduplicationIdResult as UpdateMessageByDeduplicationIdResult;
+    return result.data as UpdateMessageByDeduplicationIdResult;
   }
 
   async receiveMessage(params: ReceiveMessageRequest): Promise<ReceiveMessageResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'ReceiveMessage' },
+      uri: `${this._sqs.config.endpoint}/receiveMessages`,
+      body: { ...params },
+      method: 'POST',
     };
     const result = await this.request(request);
-    if (!result.ReceiveMessageResponse.ReceiveMessageResult) {
-      result.ReceiveMessageResponse.ReceiveMessageResult = {};
-    }
-    result.ReceiveMessageResponse.ReceiveMessageResult.Messages = result.ReceiveMessageResponse.ReceiveMessageResult.Message;
-    delete result.ReceiveMessageResponse.ReceiveMessageResult.Message;
-    const response = result.ReceiveMessageResponse.ReceiveMessageResult as ReceiveMessageResult;
-    response.Messages = response.Messages || [];
-    return response;
-  }
-
-  async listQueues(params: ListQueuesRequest = {}): Promise<ListQueuesResponse> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'ListQueues' },
-    };
-    const response = await this.request(request);
-    if (!response.ListQueuesResponse.ListQueuesResult) {
-      response.ListQueuesResponse.ListQueuesResult = {};
-    }
-    response.ListQueuesResponse.ListQueuesResult.QueueUrls = response.ListQueuesResponse.ListQueuesResult.QueueUrl;
-    delete response.ListQueuesResponse.ListQueuesResult.QueueUrl;
-    const result = response.ListQueuesResponse.ListQueuesResult as ListQueuesResponse;
-    result.QueueUrls = result.QueueUrls || [];
-    return result;
+    return result.data as ReceiveMessageResult;
   }
 
   async deleteQueue(params: DeleteQueueRequest): Promise<void> {
-    const request = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'DeleteQueue' },
+    const request: BaseClientRequest = {
+      uri: params.QueueUrl,
+      body: { ...params },
+      method: 'DELETE',
     };
     await this.request(request);
   }
 
   async sendMessageBatch(params: SendMessageBatchRequest): Promise<SendMessageBatchResult> {
     const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'SendMessageBatch' },
+      uri: `${params.QueueUrl}/send-message/batch`,
+      body: { ...params },
+      method: 'POST',
     };
     request.body.SendMessageBatchRequestEntry = request.body.Entries;
     delete request.body.Entries;
     const response = await this.request(request);
     const result: SendMessageBatchResult = { Successful: [], Failed: [] };
-    response.SendMessageBatchResponse.SendMessageBatchResult.SendMessageBatchResultEntry
-      .forEach((each: { MD5OfMessageBody?: string; }) => {
-        if (each.MD5OfMessageBody) {
-          result.Successful.push(each as SendMessageResult & { Id: string });
-        } else {
-          result.Failed.push(each as BatchResultErrorEntry);
-        }
-      });
+    response.data.forEach((each: { MD5OfMessageBody?: string; }) => {
+      if (each.MD5OfMessageBody) {
+        result.Successful.push(each as SendMessageResult & { Id: string });
+      } else {
+        result.Failed.push(each as BatchResultErrorEntry);
+      }
+    });
     return result;
   }
 
-  async getQueueUrl(params: GetQueueUrlRequest): Promise<GetQueueUrlResult> {
-    const request: BaseClientRequest = {
-      uri: this._sqs.config.endpoint,
-      body: { ...params, Action: 'GetQueueUrl' },
-    };
-    const response = await this.request(request);
-    return response.GetQueueURLResponse.GetQueueUrlResult as GetQueueUrlResult;
-  }
-
   async markEventSuccess(MessageId: string, QueueUrl: string, successMessage: string = ''): Promise<void> {
-    const request = {
+    const request: BaseClientRequest = {
       uri: `${QueueUrl}/event/${MessageId}/success`,
       body: { successMessage },
+      method: 'PUT',
     };
     await this.request(request);
   }
 
   async markEventFailure(MessageId: string, QueueUrl: string, failureMessage: string = ''): Promise<void> {
-    const request = {
+    const request: BaseClientRequest = {
       uri: `${QueueUrl}/event/${MessageId}/failure`,
       body: { failureMessage },
+      method: 'PUT',
     };
     await this.request(request);
   }
 
   async createTopic(params: CreateTopicInput): Promise<CreateTopicResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'CreateTopic' },
+      uri: `${this._sns.config.endpoint}/topics`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    return response.CreateTopicResponse.CreateTopicResult as CreateTopicResponse;
+    return response.data as CreateTopicResponse;
   }
 
   async listTopics(params: ListTopicsInput): Promise<ListTopicsResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'ListTopics' },
+      uri: `${this._sns.config.endpoint}/topics/list`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    if (!response.ListTopicsResponse.ListTopicsResult.Topics) {
-      response.ListTopicsResponse.ListTopicsResult.Topics = { member: [] };
-    }
-    response.ListTopicsResponse.ListTopicsResult.Topics = response.ListTopicsResponse.ListTopicsResult.Topics.member;
-    return response.ListTopicsResponse.ListTopicsResult as ListTopicsResponse;
+    return response.data as ListTopicsResponse;
   }
 
   async getTopicAttributes(params: GetTopicAttributesInput): Promise<GetTopicAttributesResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'GetTopicAttributes' },
+      uri: `${this._sns.config.endpoint}/topic/attributes`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    response.GetTopicAttributesResponse.GetTopicAttributesResult.Attributes = response
-      .GetTopicAttributesResponse.GetTopicAttributesResult.Attributes.entrys;
-    return response.GetTopicAttributesResponse.GetTopicAttributesResult as GetTopicAttributesResponse;
+    return response.data as GetTopicAttributesResponse;
   }
 
   async setTopicAttributes(params: SetTopicAttributesInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'SetTopicAttributes' },
+      uri: `${this._sns.config.endpoint}/topic/attributes`,
+      body: { ...params },
+      method: 'PUT',
     };
     await this.request(request);
   }
 
   async deleteTopic(params: DeleteTopicInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'DeleteTopic' },
+      uri: `${this._sns.config.endpoint}/topic`,
+      body: { ...params },
+      method: 'DELETE',
     };
     await this.request(request);
   }
 
   async publish(params: PublishInput): Promise<PublishResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'Publish' },
+      uri: `${this._sns.config.endpoint}/publish`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    return response.PublishResponse.PublishResult as PublishResponse;
+    return response.data as PublishResponse;
   }
 
   async subscribe(params: SubscribeInput): Promise<SubscribeResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'Subscribe' },
+      uri: `${this._sns.config.endpoint}/subscribe`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    return response.SubscribeResponse.SubscribeResult as SubscribeResponse;
+    return response.data as SubscribeResponse;
   }
 
   async listSubscriptions(params: ListSubscriptionsInput): Promise<ListSubscriptionsResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'ListSubscriptions' },
+      uri: `${this._sns.config.endpoint}/subscriptions/list`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    if (!response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions) {
-      response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions = { member: [] };
-    }
-    response.ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions = response
-      .ListSubscriptionsResponse.ListSubscriptionsResult.Subscriptions.member;
-    return response.ListSubscriptionsResponse.ListSubscriptionsResult as ListSubscriptionsResponse;
+    return response.data as ListSubscriptionsResponse;
   }
 
   async listSubscriptionsByTopic(params: ListSubscriptionsByTopicInput): Promise<ListSubscriptionsByTopicResponse> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'ListSubscriptionsByTopic' },
+      uri: `${this._sns.config.endpoint}/subscriptions/list/by-topic`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    if (!response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions) {
-      response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions = { member: [] };
-    }
-    response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions = response
-      .ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult.Subscriptions.member;
-    return response.ListSubscriptionsByTopicResponse.ListSubscriptionsByTopicResult as ListSubscriptionsByTopicResponse;
-  }
-
-  async confirmSubscription(params: ConfirmSubscriptionInput): Promise<ConfirmSubscriptionResponse> {
-    const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'ConfirmSubscription' },
-    };
-    const response = await this.request(request);
-    return response.ConfirmSubscriptionResponse.ConfirmSubscriptionResult as ConfirmSubscriptionResponse;
+    return response.data as ListSubscriptionsByTopicResponse;
   }
 
   async unsubscribe(params: UnsubscribeInput): Promise<void> {
     const request: BaseClientRequest = {
-      uri: this._sns.config.endpoint,
-      body: { ...params, Action: 'Unsubscribe' },
+      uri: `${this._sns.config.endpoint}/subscription`,
+      body: { ...params },
+      method: 'DELETE',
     };
     await this.request(request);
   }
 
   async getPublish(params: GetPublishInput): Promise<GetPublishResponse> {
-    const request = {
-      uri: this._sns.config.endpoint,
-      body: { Action: 'GetPublish', ...params },
+    const request: BaseClientRequest = {
+      uri: `${this._sns.config.endpoint}/publish/find`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    if (response.GetPublishResponse.GetPublish.Message) {
-      response.GetPublishResponse.GetPublish.Message = response.GetPublishResponse.GetPublish.Message[0];
-    }
-    return response?.GetPublishResponse?.GetPublish as GetPublishResponse;
+    return response.data as GetPublishResponse;
   }
 
   async getSubscription(params: GetSubscriptionInput): Promise<GetSubscriptionResponse> {
-    const request = {
-      uri: this._sns.config.endpoint,
-      body: { Action: 'GetSubscription', ...params },
+    const request: BaseClientRequest = {
+      uri: `${this._sns.config.endpoint}/subscription`,
+      body: { ...params },
+      method: 'POST',
     };
     const response = await this.request(request);
-    return response?.GetSubscriptionResponse?.GetSubscriptionResult as GetSubscriptionResponse;
+    return response.data as GetSubscriptionResponse;
   }
 
   async markPublished(params: MarkPublishedInput): Promise<void> {
-    const request = {
-      uri: this._sns.config.endpoint,
+    const request: BaseClientRequest = {
+      uri: `${this._sns.config.endpoint}/published`,
       body: { Action: 'MarkPublished', ...params },
+      method: 'POST',
     };
     await this.request(request);
   }

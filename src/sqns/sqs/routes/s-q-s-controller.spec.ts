@@ -46,7 +46,7 @@ describe('EventManagerMasterSpec', () => {
 
     it('should give error when authentication header is missing.', async () => {
       try {
-        await requestClient.post(`${Env.URL}/api/sqs`, {
+        await requestClient.http(`${Env.URL}/api/v1/sqs/queues`, {
           body: JSON.stringify({ Action: 'AddPermission' }),
         });
         await Promise.reject({ code: 99, message: 'should not reach here.' });
@@ -54,23 +54,15 @@ describe('EventManagerMasterSpec', () => {
         const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: '400',
-          message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
-            + '<ErrorResponse>\n'
-            + '  <RequestId/>\n'
-            + '  <Error>\n'
-            + '    <Type>Sender</Type>\n'
-            + '    <Code>SignatureDoesNotMatch</Code>\n'
-            + '    <Message>The request signature we calculated does not match the signature you provided.</Message>\n'
-            + '    <Detail/>\n'
-            + '  </Error>\n'
-            + '</ErrorResponse>',
+          message: '{"code":"SignatureDoesNotMatch","message":"The request signature we calculated'
+            + ' does not match the signature you provided."}',
         });
       }
     });
 
     it('should give error when authentication header is inValid.', async () => {
       try {
-        await requestClient.post(`${Env.URL}/api/sqs`, {
+        await requestClient.http(`${Env.URL}/api/v1/sqs/queues`, {
           body: JSON.stringify({ Action: 'AddPermission' }),
           headers: { authorization: '' },
         });
@@ -79,16 +71,8 @@ describe('EventManagerMasterSpec', () => {
         const { code, message } = error as { code: number; message: string; };
         expect({ code, message }).to.deep.equal({
           code: '400',
-          message: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
-            + '<ErrorResponse>\n'
-            + '  <RequestId/>\n'
-            + '  <Error>\n'
-            + '    <Type>Sender</Type>\n'
-            + '    <Code>SignatureDoesNotMatch</Code>\n'
-            + '    <Message>The request signature we calculated does not match the signature you provided.</Message>\n'
-            + '    <Detail/>\n'
-            + '  </Error>\n'
-            + '</ErrorResponse>',
+          message: '{"code":"SignatureDoesNotMatch","message":"The request signature we calculated'
+            + ' does not match the signature you provided."}',
         });
       }
     });
@@ -113,7 +97,7 @@ describe('EventManagerMasterSpec', () => {
           },
           { accessKeyId: Env.accessKeyId, secretAccessKey: Env.secretAccessKey },
           ['x-sqns-date', 'host', 'x-sqns-content-sha256']);
-        await requestClient.post(`${Env.URL}/api/sqs`, {
+        await requestClient.http(`${Env.URL}/api/sqs`, {
           body: JSON.stringify(request.body),
           headers: request.headers,
         });

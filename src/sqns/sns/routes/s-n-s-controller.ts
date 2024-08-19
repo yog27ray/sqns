@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
+import { v4 as uuid } from 'uuid';
 import { ExpressMiddleware } from '../../../../typings/express';
 import { Encryption, SNSServerBody, SupportedProtocol } from '../../../client';
 import { AwsXmlFormat } from '../../common/auth/aws-xml-format';
 import { SQNSErrorCreator } from '../../common/auth/s-q-n-s-error-creator';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
+import { ResponseHelper } from '../../common/helper/response-helper';
 import { User } from '../../common/model/user';
 import { ExpressHelper } from '../../common/routes/express-helper';
 import { SNSManager } from '../manager/s-n-s-manager';
@@ -11,19 +13,163 @@ import { SNSManager } from '../manager/s-n-s-manager';
 class SNSController {
   constructor(private serverURL: string, private snsManager: SNSManager) {}
 
-  snsGet(): ExpressMiddleware {
-    return ExpressHelper.requestHandler(async (req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string }, res: Response)
-      : Promise<any> => {
-      switch (req.serverBody.Action) {
-        case 'SubscriptionConfirmation': {
-          return this.confirmSubscription(req, res);
-        }
-        case 'Unsubscribe': {
-          return this.removeSubscription(req, res);
-        }
-        default:
-          return SQNSErrorCreator.unhandledFunction(req.serverBody.Action);
-      }
+  createTopicHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      this.updateDeliveryPolicyAndDisplayName(req.body);
+      const { Name, displayName, Attributes, Tags, requestId, region, deliveryPolicy } = req.body;
+      const topic = await this.snsManager.createTopic(Name, displayName, region, deliveryPolicy, req.user, Attributes, Tags);
+      res.json(ResponseHelper.createTopic(requestId, topic));
+    });
+  }
+
+  listTopicHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, NextToken = 'eyJza2lwIjowfQ==' } = req.body;
+      const { skip } = Encryption.decodeNextToken(NextToken) as { skip: number };
+      const totalTopics = await this.snsManager.totalTopics();
+      const topics = await this.snsManager.findTopics(skip);
+      res.json(ResponseHelper.listTopic(requestId, topics, skip, totalTopics));
+    });
+  }
+
+  getTopicAttributesHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { TopicArn, requestId } = req.body;
+      const topic = await this.snsManager.findTopicByARN(TopicArn);
+      res.json(ResponseHelper.getTopicAttributes(requestId, topic));
+    });
+  }
+
+  setTopicAttributesHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, AttributeName, AttributeValue, TopicArn } = req.body;
+      const topic = await this.snsManager.findTopicByARN(TopicArn);
+      topic.updateAttributes(AttributeName, AttributeValue);
+      await this.snsManager.updateTopicAttributes(topic);
+      res.json(ResponseHelper.success(requestId));
+    });
+  }
+
+  deleteTopicHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, TopicArn } = req.body;
+      const topic = await this.snsManager.findTopicByARN(TopicArn);
+      const subscriptions = await this.snsManager.findSubscriptions({ topicARN: topic.arn }, 0, 0);
+      await this.snsManager.removeSubscriptions(subscriptions);
+      await this.snsManager.deleteTopic(topic);
+      res.json(ResponseHelper.success(requestId));
+    });
+  }
+
+  publishHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, Message, MessageAttributes, MessageStructure, PhoneNumber, Subject, TargetArn, TopicArn } = req.body;
+      const publish = await this.snsManager
+        .publish(TopicArn, TargetArn, Message, PhoneNumber, Subject, MessageAttributes, MessageStructure);
+      res.json(ResponseHelper.publish(requestId, publish));
+    });
+  }
+
+  getPublishHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, MessageId } = req.body;
+      const publish = await this.snsManager.findPublishById(MessageId);
+      res.json(ResponseHelper.getPublish(requestId, publish));
+    });
+  }
+
+  subscribeHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, Attributes, Endpoint, Protocol, TopicArn, ReturnSubscriptionArn } = req.body;
+      const topic = await this.snsManager.findTopicByARN(TopicArn);
+      const subscription = await this.snsManager
+        .subscribe(req.user, topic, Protocol.toLowerCase() as SupportedProtocol, Endpoint, Attributes);
+      this.snsManager.requestSubscriptionConfirmation(subscription, this.serverURL);
+      res.json(ResponseHelper.subscribe(requestId, subscription, ReturnSubscriptionArn));
+    });
+  }
+
+  unsubscribeHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, SubscriptionArn } = req.body;
+      const subscription = await this.snsManager.findSubscriptionFromArn(SubscriptionArn);
+      await this.snsManager.removeSubscriptions([subscription]);
+      res.json(ResponseHelper.success(requestId));
+    });
+  }
+
+  listSubscriptionHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, NextToken = 'eyJza2lwIjowfQ==' } = req.body;
+      const { skip } = Encryption.decodeNextToken(NextToken) as { skip: number };
+      const totalSubscriptions = await this.snsManager.totalSubscriptions();
+      const subscriptions = await this.snsManager.findSubscriptions({}, skip, 100);
+      res.json(ResponseHelper.listSubscriptionsResult(requestId, subscriptions, skip, totalSubscriptions));
+    });
+  }
+
+  confirmSubscriptionHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { Token } = req.query as { Token: string; };
+      const subscriptionVerificationToken = await this.snsManager.findSubscriptionVerificationToken(Token);
+      const subscription = await this.snsManager.findSubscriptionFromArn(subscriptionVerificationToken.SubscriptionArn);
+      await this.snsManager.confirmSubscription(subscription);
+      res.json(ResponseHelper.success(uuid() as string));
+    });
+  }
+
+  listSubscriptionByTopicHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, TopicArn, NextToken = 'eyJza2lwIjowfQ==' } = req.body;
+      const { skip } = Encryption.decodeNextToken(NextToken) as { skip: number };
+      const totalSubscriptions = await this.snsManager.totalSubscriptions({ topicARN: TopicArn });
+      const subscriptions = await this.snsManager.findSubscriptions({ topicARN: TopicArn }, skip, 100);
+      res.json(ResponseHelper.listSubscriptionsResult(requestId, subscriptions, skip, totalSubscriptions));
+    });
+  }
+
+  getSubscriptionHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, SubscriptionArn } = req.body;
+      const subscription = await this.snsManager.findSubscriptionFromArn(SubscriptionArn);
+      res.json(ResponseHelper.getSubscription(requestId, req.sqnsBaseURL, subscription));
+    });
+  }
+
+  publishedTopicHandler(): ExpressMiddleware {
+    return ExpressHelper.requestHandlerJSON(async (
+      req: Omit<Request, 'body'> & { body: SNSServerBody; user: User; sqnsBaseURL: string },
+      res: Response): Promise<void> => {
+      const { requestId, MessageId } = req.body;
+      const publish = await this.snsManager.findPublishById(MessageId);
+      await this.snsManager.markPublished(publish);
+      res.json(ResponseHelper.success(requestId));
     });
   }
 
@@ -83,9 +229,6 @@ class SNSController {
           this.snsManager.requestSubscriptionConfirmation(subscription, this.serverURL);
           return res.send(AwsXmlFormat.subscribe(requestId, subscription, ReturnSubscriptionArn));
         }
-        case 'ConfirmSubscription': {
-          return this.confirmSubscription(req, res);
-        }
         case 'ListSubscriptions': {
           const { requestId, NextToken = 'eyJza2lwIjowfQ==' } = req.serverBody;
           const { skip } = Encryption.decodeNextToken(NextToken) as { skip: number };
@@ -118,16 +261,6 @@ class SNSController {
           return SQNSErrorCreator.unhandledFunction(req.serverBody.Action);
       }
     });
-  }
-
-  private async confirmSubscription(
-    req: Request & { serverBody: SNSServerBody; user: User; sqnsBaseURL: string },
-    res: Response): Promise<void> {
-    const { requestId, Token } = req.serverBody;
-    const subscriptionVerificationToken = await this.snsManager.findSubscriptionVerificationToken(Token);
-    let subscription = await this.snsManager.findSubscriptionFromArn(subscriptionVerificationToken.SubscriptionArn);
-    subscription = await this.snsManager.confirmSubscription(subscription);
-    res.send(AwsXmlFormat.confirmSubscription(requestId, subscription));
   }
 
   private async removeSubscription(

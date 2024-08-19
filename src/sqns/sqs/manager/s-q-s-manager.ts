@@ -105,7 +105,7 @@ export class SQSManager extends BaseManager {
   async poll(queue: Queue, visibilityTimeout: number): Promise<EventItem> {
     if (!this._eventQueue.size(queue.arn)) {
       await Promise.all(this._eventQueue.notifyNeedTaskURLS
-        .map((url: string) => this.requestClient.post(url, { body: JSON.stringify({ arn: queue.arn }), json: true })))
+        .map((url: string) => this.requestClient.http(url, { body: JSON.stringify({ arn: queue.arn }), json: true })))
         .catch((error: unknown) => {
           log.error(error);
         });

@@ -46,21 +46,28 @@ function verifyRequest(authRequest: AuthRequest, credentials: Credentials, user:
   }
 }
 
-function authentication(getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>): ExpressMiddleware {
+function authentication(
+  getSecretKeyCallback: (accessKey: string) => Promise<GetSecretKeyResult>,
+  jsonError: boolean = false): ExpressMiddleware {
   return (req: Request, res: Response, next: NextFunction): void => {
     log.verbose('Authorization header received:', req.header('Authorization'));
     if (!req.header('Authorization') || req.header('Authorization').split(' ').length !== 4) {
-      ExpressHelper.errorHandler(new SQNSError({
+      const error = new SQNSError({
         code: 'SignatureDoesNotMatch',
         message: 'The request signature we calculated does not match the signature you provided.',
-      }) as Error, res);
+      }) as Error;
+      if (jsonError) {
+        ExpressHelper.errorHandlerJson(error, res);
+      } else {
+        ExpressHelper.errorHandler(error, res);
+      }
       return;
     }
     const [accessKey, , region, service]: Array<string> = req.header('Authorization')
       .split(' ')[1].split('=')[1].split('/');
     log.verbose('AccessKey:', accessKey, '\tregion:', region, '\tservice:', service);
     getSecretKeyCallback(accessKey)
-      .then(({ accessKeyId, secretAccessKey, user }: GetSecretKeyResult): Promise<void> => {
+      .then(({ accessKeyId, secretAccessKey, user }: GetSecretKeyResult) => {
         log.verbose('DB AccessKey:', accessKeyId, '\tsecret:', secretAccessKey, '\tuser:', user.id);
         verifyRequest({
           region,
@@ -71,10 +78,16 @@ function authentication(getSecretKeyCallback: (accessKey: string) => Promise<Get
           service,
         }, { accessKeyId, secretAccessKey }, user);
         Object.assign(req, { user });
-        return Promise.resolve();
+        next();
+        return 0;
       })
-      .then(next)
-      .catch((error: Error) => ExpressHelper.errorHandler(error, res));
+      .catch((error: Error) => {
+        if (jsonError) {
+          ExpressHelper.errorHandlerJson(error, res);
+        } else {
+          ExpressHelper.errorHandler(error, res);
+        }
+      });
   };
 }
 

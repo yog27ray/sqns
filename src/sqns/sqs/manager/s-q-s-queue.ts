@@ -36,7 +36,7 @@ class SQSQueue {
   }
 
   isEventPresent(eventItem: EventItem): boolean {
-    return typeof this.eventIds(eventItem.queueARN)[eventItem.id] !== 'undefined';
+    return !!this.eventIds(eventItem.queueARN)[eventItem.id];
   }
 
   findEventInQueue(queueARN: ARN, eventItem: EventItem): EventItem {

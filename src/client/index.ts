@@ -13,7 +13,6 @@ import {
   AuthRequest,
   BaseObjectType,
   ChannelDeliveryPolicy,
-  ConfirmSubscriptionResponse,
   CreateQueueResult,
   CreateTopicResponse,
   Credentials,
@@ -33,6 +32,7 @@ import {
   SendMessageRequest,
   SNSServerBody,
   SQNSClientConfig,
+  SQNSLoggingConfig,
   SQSServerBody,
   SubscriptionAttributes,
   SubscriptionConfirmationRequestBody,
@@ -48,10 +48,10 @@ import {
   UpdateMessageById,
   UpdateMessageByIdResult,
 } from './types';
-import { SQNSLoggingConfig } from './types/config';
 
 export {
   SQNSErrorType,
+  SubscriptionConfirmationRequestBody,
   FindMessageByIdResult,
   UpdateMessageByDeduplicationIdResult,
   UpdateMessageByIdResult,
@@ -59,7 +59,6 @@ export {
   UpdateMessageById,
   SendMessage,
   SendMessageRequest,
-  ConfirmSubscriptionResponse,
   Message,
   BaseClient,
   SNSServerBody,
@@ -67,7 +66,6 @@ export {
   Credentials,
   SendMessageReceived,
   SQSServerBody,
-  SubscriptionConfirmationRequestBody,
   SUPPORTED_CHANNEL_TYPE,
   signRequest,
   CreateTopicResponse,
