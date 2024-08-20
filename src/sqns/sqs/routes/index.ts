@@ -10,7 +10,9 @@ function generateHealthRoutes(controller: SQSController): express.Router {
   router.get('/queue/health', (request: express.Request, response: express.Response) => {
     response.send('success');
   });
-  router.get('/queues/events/stats', controller.eventStats());
+  if (!SQSManager.DISABLE_RECEIVE_MESSAGE) {
+    router.get('/queues/events/stats', controller.eventStats());
+  }
   return router;
 }
 
