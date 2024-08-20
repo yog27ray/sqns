@@ -41,7 +41,7 @@ jobs:
         VERSION=$(npm version ${{ github.event.inputs.increment-type }})
         npm run build
         cd dist
-        # npm publish
+        npm publish
         cd ..
         git push
       env:
