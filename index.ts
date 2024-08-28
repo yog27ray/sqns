@@ -4,6 +4,7 @@ import {
   MessageAttributeMap,
   SendMessage,
   SendMessageRequest,
+  SendMessageResult,
   SQNSClient,
   SQNSClientConfig,
   UpdateMessageByDeduplicationId,
@@ -21,6 +22,7 @@ import { ResponseItem } from './typings/response-item';
 
 export {
   EventState,
+  SendMessageResult,
   UpdateMessageByDeduplicationId,
   UpdateMessageByDeduplicationIdResult,
   UpdateMessageById,
