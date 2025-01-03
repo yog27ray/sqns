@@ -907,7 +907,6 @@ describe('SQNSClient', () => {
 
     context('getQueueUrl', () => {
       let client: SQNSClient;
-      let queue: CreateQueueResult;
       before(async () => {
         await dropDatabase();
         client = new SQNSClient({
@@ -915,7 +914,7 @@ describe('SQNSClient', () => {
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
         });
-        queue = await client.createQueue({ QueueName: 'queue1' });
+        await client.createQueue({ QueueName: 'queue1' });
       });
 
       it('should give error when queue doesn\'t exists.', async () => {
