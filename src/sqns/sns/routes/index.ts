@@ -7,7 +7,7 @@ import { SNSController } from './s-n-s-controller';
 
 function generateHealth(): express.Router {
   const router = express.Router();
-  router.get('/sns/health', (request: express.Request, response: express.Response) => {
+  router.get('/sns/health', (_request: express.Request, response: express.Response) => {
     response.send('success');
   });
   return router;
