@@ -43,7 +43,7 @@
   "devDependencies": {
     "@types/chai": "4.3.17",
     "@types/express": "5.0.0",
-    "@types/mocha": "10.0.7",
+    "@types/mocha": "10.0.10",
     "@types/mongodb": "4.0.7",
     "@types/node-fetch": "2.6.12",
     "@types/node-schedule": "2.1.7",
