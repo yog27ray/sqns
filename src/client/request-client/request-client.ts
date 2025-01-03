@@ -1,5 +1,9 @@
-import fetch, { BodyInit, HeaderInit, Response } from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 import { SQNSError } from '../auth/s-q-n-s-error';
+
+type RequestInit = Parameters<typeof fetch>[1];
+type BodyInit = RequestInit['body'];
+type HeadersInit = RequestInit['headers'];
 
 class RequestClient {
   private static MAX_RE_ATTEMPT = 3;
@@ -10,7 +14,7 @@ class RequestClient {
 
   async http(
     url: string,
-    { body, headers: headers_ = {}, json, jsonBody }: { body?: BodyInit; headers?: HeaderInit; json?: boolean; jsonBody?: boolean } = {},
+    { body, headers: headers_ = {}, json, jsonBody }: { body?: BodyInit; headers?: HeadersInit; json?: boolean; jsonBody?: boolean } = {},
     method: 'PUT' | 'POST' | 'DELETE' = 'POST'): Promise<unknown> {
     const headers = headers_;
     if (jsonBody) {

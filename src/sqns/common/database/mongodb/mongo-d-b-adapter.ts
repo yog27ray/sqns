@@ -86,7 +86,8 @@ class MongoDBAdapter implements StorageAdapter {
     delete mongoDocument.id;
     try {
       await this.connection.insert(MongoDBAdapter.Table.Event, mongoDocument);
-    } catch (error) {
+    } catch (_error) {
+      const error = _error as Error & { code: number };
       if ((error as { code: number }).code === 11000 && mongoDocument.MessageDeduplicationId) {
         const dBItem = await this.connection.findOne(MongoDBAdapter.Table.Event, {
           MessageDeduplicationId: mongoDocument.MessageDeduplicationId,

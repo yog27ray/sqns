@@ -40,7 +40,7 @@ describe('WorkerEventSchedulerSpec', () => {
       const result: Array<ResponseItem> = [];
       await new Promise((resolve: (value?: unknown) => void) => {
         let itemCheck = 2;
-        const workerQueueConfig = new WorkerQueueConfig('queue1', async (queueName: string, item: ResponseItem) => {
+        const workerQueueConfig = new WorkerQueueConfig('queue1', async (_queueName: string, item: ResponseItem) => {
           result.push(item);
           itemCheck -= 1;
           if (!itemCheck) {
@@ -89,7 +89,7 @@ describe('WorkerEventSchedulerSpec', () => {
       const queue = await client.createQueue({ QueueName: 'queue1' });
       await client.sendMessageBatch({
         QueueUrl: queue.QueueUrl,
-        Entries: new Array(ITEM_COUNT).fill(0).map((v: number, id: number) => ({ Id: `${id}`, MessageBody: 'type1' })),
+        Entries: new Array(ITEM_COUNT).fill(0).map((_v: number, id: number) => ({ Id: `${id}`, MessageBody: 'type1' })),
       });
       await delay();
     });
@@ -266,8 +266,8 @@ describe('WorkerEventSchedulerSpec', () => {
       nock('http://test.sns.subscription')
         .persist()
         .post('/valid', () => true)
-        // eslint-disable-next-line func-names
-        .reply(200, async function (path: string, body: KeyValue): Promise<unknown> {
+
+        .reply(200, async function (_path: string, body: KeyValue): Promise<unknown> {
           if (body.SubscribeURL) {
             await new RequestClient().get(body.SubscribeURL as string);
             return {};
@@ -330,9 +330,7 @@ describe('WorkerEventSchedulerSpec', () => {
     let workerEventScheduler: WorkerEventScheduler;
     let client: SQNSClient;
     let interval: NodeJS.Timeout;
-    let PublishId: string;
     let queueUrl: string;
-    let SubscriptionArn: ARN;
     let topic: CreateTopicResponse;
 
     beforeEach(async () => {
@@ -356,12 +354,12 @@ describe('WorkerEventSchedulerSpec', () => {
 
     it('should give error while subscribing to invalid queue name', async () => {
       try {
-        ({ SubscriptionArn } = await client.subscribe({
+        await client.subscribe({
           TopicArn: topic.TopicArn,
           Attributes: {},
           Endpoint: `${queueUrl}Invalid`,
           Protocol: 'sqs',
-        }));
+        });
         await Promise.reject({ code: 99, message: 'should not reach here' });
       } catch (error) {
         const { code, message } = error as { code: number; message: string; };
@@ -373,17 +371,17 @@ describe('WorkerEventSchedulerSpec', () => {
     });
 
     it('should update published events as completed when subscriptions to topic exists', async () => {
-      ({ SubscriptionArn } = await client.subscribe({
+      await client.subscribe({
         TopicArn: topic.TopicArn,
         Attributes: {},
         Endpoint: queueUrl,
         Protocol: 'sqs',
-      }));
-      ({ MessageId: PublishId } = await client.publish({
+      });
+      await client.publish({
         Message: 'This is message',
         TopicArn: topic.TopicArn,
         MessageAttributes: { DelaySeconds: { DataType: 'String', StringValue: '20' }, key1: { DataType: 'String', StringValue: 'value' } },
-      }));
+      });
       const workerQueueConfig = new WorkerQueueConfig(SYSTEM_QUEUE_NAME.SNS, undefined);
       workerEventScheduler = new WorkerEventScheduler(
         {
@@ -394,7 +392,7 @@ describe('WorkerEventSchedulerSpec', () => {
         [workerQueueConfig],
         '*/2 * * * * *',
       );
-      // eslint-disable-next-line promise/param-names
+
       await new Promise((resolve: (value?: unknown) => void, reject: (error: unknown) => void) => {
         interval = setInterval(async () => {
           const items = await setupConfig.mongoConnection.find(

@@ -134,7 +134,6 @@ class WorkerEventScheduler {
         return response as string;
       }
       default:
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         throw Error(`Unhandled Protocol: "${subscription.Protocol}"`);
     }
   }
