@@ -136,7 +136,7 @@ class SNSController {
       const subscriptionVerificationToken = await this.snsManager.findSubscriptionVerificationToken(Token);
       const subscription = await this.snsManager.findSubscriptionFromArn(subscriptionVerificationToken.SubscriptionArn);
       await this.snsManager.confirmSubscription(subscription);
-      res.json(ResponseHelper.success(uuid() as string));
+      res.json(ResponseHelper.success(uuid() as unknown as string));
     });
   }
 
