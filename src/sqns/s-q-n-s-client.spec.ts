@@ -245,6 +245,28 @@ describe('SQNSClient', () => {
         expect(result.MD5OfMessageAttributes).to.equal('1f6df54e17f7612231ee7afc7a22e216');
         expect(result.MessageId).to.exist;
       });
+
+      it('should create event in DB when SQSManager.DISABLE_RECEIVE_MESSAGE is true', async () => {
+        SQSManager.DISABLE_RECEIVE_MESSAGE = true;
+        const result = await client.sendMessage({
+          QueueUrl: queue.QueueUrl,
+          MessageAttributes: { type: { StringValue: 'type1', DataType: 'String' } },
+          MessageDeduplicationId: 'uniqueId1',
+          MessageBody: '123',
+        });
+        expect(result.MD5OfMessageBody).to.equal('202cb962ac59075b964b07152d234b70');
+        expect(result.MD5OfMessageAttributes).to.equal('c1b9ac65410316db3f02fe3a75c21021');
+        expect(result.MessageId).to.exist;
+        const { Messages } = await client.receiveMessage({ QueueUrl: queue.QueueUrl, MaxNumberOfMessages: 10 });
+        expect(Messages.length).to.deep.equal(0);
+        const events = await setupConfig.mongoConnection.find('Event', {}, {});
+        expect(events.length).to.equal(1);
+        expect(events[0].MessageDeduplicationId).to.equal('uniqueId1');
+      });
+
+      afterEach(() => {
+        SQSManager.DISABLE_RECEIVE_MESSAGE = false;
+      });
     });
 
     context('FindMessageById', () => {
