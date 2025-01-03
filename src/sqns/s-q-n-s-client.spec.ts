@@ -907,7 +907,6 @@ describe('SQNSClient', () => {
 
     context('getQueueUrl', () => {
       let client: SQNSClient;
-      let queue: CreateQueueResult;
       before(async () => {
         await dropDatabase();
         client = new SQNSClient({
@@ -915,7 +914,7 @@ describe('SQNSClient', () => {
           accessKeyId: Env.accessKeyId,
           secretAccessKey: Env.secretAccessKey,
         });
-        queue = await client.createQueue({ QueueName: 'queue1' });
+        await client.createQueue({ QueueName: 'queue1' });
       });
 
       it('should give error when queue doesn\'t exists.', async () => {
@@ -1960,7 +1959,7 @@ describe('SQNSClient', () => {
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const nodeVersion = Number(process.versions.node.split('.')[0]);
-           
+
           const errorMessage: string = (nodeVersion <= 18)
             ? 'Unexpected token : in JSON at position 6'
             : (nodeVersion <= 20
