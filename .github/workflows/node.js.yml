@@ -42,7 +42,7 @@ jobs:
     - run: rm -r dist
     - name: coverage
       run: |
-        node_modules/.bin/nyc node_modules/.bin/mocha --require ts-node/register src/setup.ts '**/*.spec.ts'
+        node_modules/.bin/nyc node_modules/.bin/mocha src/setup.ts '**/*.spec.ts'
         node_modules/.bin/nyc report --reporter=text-lcov > coverage1.lcov
       env:
         DEBUG: no
