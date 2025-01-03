@@ -20,7 +20,15 @@ app.use(bodyParser.json({ type: 'text/plain' }));
 app.use(bodyParser.json());
 
 let databaseConfig: DatabaseConfig;
-const setupConfig: { sqns?: SQNS; mongoConnection?: MongoDBConnection; sqnsConfig?: SQNSConfig } = {};
+const setupConfig: {
+  sqns: SQNS;
+  mongoConnection: MongoDBConnection;
+  sqnsConfig: SQNSConfig;
+} = {
+  sqns: undefined as SQNS,
+  mongoConnection: undefined as MongoDBConnection,
+  sqnsConfig: undefined as SQNSConfig,
+};
 
 if (process.env.PORT) {
   Env.PORT = Number(process.env.PORT);
