@@ -1960,7 +1960,6 @@ describe('SQNSClient', () => {
           await Promise.reject({ code: 99, message: 'should not reach here.' });
         } catch (error) {
           const nodeVersion = Number(process.versions.node.split('.')[0]);
-           
           const errorMessage: string = (nodeVersion <= 18)
             ? 'Unexpected token : in JSON at position 6'
             : (nodeVersion <= 20

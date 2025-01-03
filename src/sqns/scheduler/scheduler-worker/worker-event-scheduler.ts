@@ -134,7 +134,6 @@ class WorkerEventScheduler {
         return response as string;
       }
       default:
-         
         throw Error(`Unhandled Protocol: "${subscription.Protocol}"`);
     }
   }

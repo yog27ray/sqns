@@ -266,7 +266,6 @@ describe('WorkerEventSchedulerSpec', () => {
       nock('http://test.sns.subscription')
         .persist()
         .post('/valid', () => true)
-         
         .reply(200, async function (path: string, body: KeyValue): Promise<unknown> {
           if (body.SubscribeURL) {
             await new RequestClient().get(body.SubscribeURL as string);
@@ -394,7 +393,7 @@ describe('WorkerEventSchedulerSpec', () => {
         [workerQueueConfig],
         '*/2 * * * * *',
       );
-       
+
       await new Promise((resolve: (value?: unknown) => void, reject: (error: unknown) => void) => {
         interval = setInterval(async () => {
           const items = await setupConfig.mongoConnection.find(
