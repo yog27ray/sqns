@@ -62,10 +62,8 @@ export class SQSManager extends BaseManager {
         }
         SQSManager.DEFAULT_PRIORITIES[queueARN][statKey] = 0;
 
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         priorityStats[queueARN][statKey] = (priorityStats[queueARN][statKey] || 0) + 1;
         (priorityStats[queueARN] as SQSPriorities).PRIORITY_TOTAL += 1;
-        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         priorityStats[statKey] = (priorityStats[statKey] as number || 0) + 1;
         priorityStats.PRIORITY_TOTAL += 1;
       });
