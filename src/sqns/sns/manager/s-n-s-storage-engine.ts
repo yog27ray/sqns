@@ -83,7 +83,7 @@ class SNSStorageEngine extends BaseStorageEngine {
   }
 
   createSubscriptionVerificationToken(subscription: Subscription): Promise<SubscriptionVerificationToken> {
-    const token = `${Encryption.createHash('md5', uuid() as string)}${Encryption.createHash('md5', subscription.arn)}`;
+    const token = `${Encryption.createHash('md5', uuid() as unknown as string)}${Encryption.createHash('md5', subscription.arn)}`;
     return this._storageAdapter.createSubscriptionVerificationToken(subscription, token);
   }
 
