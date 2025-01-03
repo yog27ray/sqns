@@ -5,7 +5,7 @@ const typescriptEslintPlugin = require("@typescript-eslint/eslint-plugin"); // I
 
 module.exports = [
   {
-    files: ["src/**/*.ts", "src/**/*.tsx"],
+    files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
       parser: typescriptEslintParser, // Use parser object directly
       parserOptions: {
