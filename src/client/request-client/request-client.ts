@@ -1,5 +1,9 @@
-import fetch, { BodyInit, HeaderInit, Response } from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 import { SQNSError } from '../auth/s-q-n-s-error';
+
+type RequestInit = Parameters<typeof fetch>[1];
+type BodyInit = RequestInit['body'];
+type HeaderInit = RequestInit['headers'];
 
 class RequestClient {
   private static MAX_RE_ATTEMPT = 3;
