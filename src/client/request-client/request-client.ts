@@ -3,7 +3,7 @@ import { SQNSError } from '../auth/s-q-n-s-error';
 
 type RequestInit = Parameters<typeof fetch>[1];
 type BodyInit = RequestInit['body'];
-type HeaderInit = RequestInit['headers'];
+type HeadersInit = RequestInit['headers'];
 
 class RequestClient {
   private static MAX_RE_ATTEMPT = 3;
