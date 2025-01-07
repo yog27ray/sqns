@@ -3,7 +3,7 @@ import { ResponseItem } from '../../../../typings/response-item';
 import { DeliveryPolicy, SQNSClient, SQNSClientConfig } from '../../../client';
 import { SNS_QUEUE_EVENT_TYPES, SYSTEM_QUEUE_NAME } from '../../common/helper/common';
 import { DeliveryPolicyHelper } from '../../common/helper/delivery-policy-helper';
-import { logger } from '../../common/logger/logger';
+import { logger, updateLogging } from '../../common/logger/logger';
 import { WorkerQueueConfig } from './worker-queue-config';
 
 const log = logger.instance('WorkerEventScheduler');
@@ -18,6 +18,7 @@ class WorkerEventScheduler {
   private job: schedule.Job;
 
   constructor(options: SQNSClientConfig, queueConfigs: Array<WorkerQueueConfig>, cronInterval?: string) {
+    updateLogging(options.logging);
     this.queueNames = [];
     this.queueConfigs = {};
     queueConfigs.forEach((each: WorkerQueueConfig) => {
@@ -197,6 +198,7 @@ class WorkerEventScheduler {
     if (!eventItem) {
       workerQueueConfig.hasMore = false;
     } else {
+      log.debug('MessageReceived', eventItem.MessageId);
       const [isSuccess, response] = await this.processEvent(workerQueueConfig, eventItem);
       if (isSuccess) {
         await this.sqnsClient.markEventSuccess(eventItem.MessageId, workerQueueConfig.queue.QueueUrl, response);
