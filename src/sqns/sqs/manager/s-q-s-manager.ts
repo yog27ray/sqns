@@ -11,7 +11,7 @@ import { StorageToQueueWorker } from '../worker/storage-to-queue-worker';
 import { SQSQueue } from './s-q-s-queue';
 import { SQSStorageEngine } from './s-q-s-storage-engine';
 
-const log = logger.instance('EventManager');
+const log = logger.instance('SQSManager');
 
 export class SQSManager extends BaseManager {
   static DEFAULT_PRIORITIES: SQSPriorities = { PRIORITY_TOTAL: 0 };
@@ -116,11 +116,14 @@ export class SQSManager extends BaseManager {
       return undefined;
     }
     const eventItem = this._eventQueue.popInitiate(queue.arn);
+    log.debug('PollInitiate', eventItem.id);
     await this._sQSStorageEngine.updateEventStateProcessing(queue, eventItem, visibilityTimeout, 'sent to slave');
     this._eventQueue.popComplete(eventItem);
+    log.debug('PollComplete', eventItem.id);
     if (eventItem.eventTime.getTime() <= new Date().getTime()) {
       const event: EventItem = await this._sQSStorageEngine.findEvent(eventItem.id);
       if (event && event.receiveCount < event.maxReceiveCount) {
+        log.debug('AddToQueue', eventItem.id);
         this.addItemInQueue(event);
       }
     }
