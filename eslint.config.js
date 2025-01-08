@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const importPlugin = require("eslint-plugin-import");
 const { configs } = require("@eslint/js");
 const promisePlugin = require("eslint-plugin-promise");
