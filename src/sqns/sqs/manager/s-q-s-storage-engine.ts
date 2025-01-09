@@ -30,12 +30,11 @@ class SQSStorageEngine extends BaseStorageEngine {
       {
         state: EventItem.State.PROCESSING.valueOf(),
         processingResponse: message,
-        receiveCount: eventItem.receiveCount,
         firstSentTime: eventItem.firstSentTime,
         maxAttemptCompleted: eventItem.maxAttemptCompleted,
         sentTime: eventItem.sentTime,
         eventTime: eventItem.eventTime,
-      });
+      }, { receiveCount: 1 });
   }
 
   async updateEvent(queue: Queue, eventItem: EventItem): Promise<any> {

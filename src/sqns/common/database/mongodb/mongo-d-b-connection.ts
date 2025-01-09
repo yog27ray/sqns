@@ -87,12 +87,23 @@ class MongoDBConnection {
     return newDocument.insertedId as unknown as string;
   }
 
-  async update(collectionName: string, documentId: string, document: Record<string, unknown>): Promise<void> {
+  async update(
+    collectionName: string,
+    documentId: string,
+    document: Record<string, unknown>,
+    dbOperations: { increment?: Record<string, number>; } = {}): Promise<void> {
     await this.connect();
+    const update: {
+      $set: Record<string, unknown>;
+      $inc?: Record<string, number>;
+    } = { $set: { ...document, updatedAt: new Date() } };
+    if (dbOperations?.increment) {
+      update.$inc = dbOperations.increment;
+    }
     await this.getDB().collection(collectionName)
       .updateOne(
         { _id: documentId as unknown as Condition<ObjectId> },
-        { $set: { ...document, updatedAt: new Date() } });
+        update as unknown);
   }
 
   async deleteOne(collectionName: string, filter: Record<string, unknown>): Promise<void> {
