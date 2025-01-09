@@ -15,9 +15,8 @@ class SQSStorageEngine extends BaseStorageEngine {
   }
 
   async updateEventStateProcessing(queue: Queue, eventItem_: EventItem, visibilityTimeout: number, message: string): Promise<any> {
-    const eventItem = eventItem_;
-    eventItem.updateSentTime(new Date());
-    eventItem.incrementReceiveCount();
+    const eventItem = await this._storageAdapter.incrementReceiveCountWithSentTime(eventItem_, new Date());
+    eventItem.updateFirstSentTime();
     const effectiveDeliveryPolicy = eventItem.DeliveryPolicy
       || queue.DeliveryPolicy
       || DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy;

@@ -52,6 +52,7 @@ interface StorageAdapter {
   createPublish(topicArn: ARN, targetArn: ARN, Message: string, PhoneNumber: string, Subject: string, messageAttributes: MessageAttributes
     , messageStructure: string, MessageStructureFinal: MessageStructure, status: string): Promise<Publish>;
   findPublishes(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<Publish>>;
+  incrementReceiveCountWithSentTime(eventItem: EventItem, date: Date): Promise<EventItem>;
 }
 
 export { StorageAdapter };
