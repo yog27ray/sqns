@@ -1,5 +1,4 @@
-import { Document } from 'bson';
-import { Collection, Condition, Db, MongoClient, ObjectId, UpdateFilter } from 'mongodb';
+import { Collection, Condition, Db, MongoClient, ObjectId } from 'mongodb';
 import { KeyValue } from '../../../../client';
 
 class MongoDBConnection {
@@ -94,14 +93,17 @@ class MongoDBConnection {
     document: Record<string, unknown>,
     dbOperations: { increment?: Record<string, number>; } = {}): Promise<void> {
     await this.connect();
-    const update: UpdateFilter<Document> = { $set: { ...document, updatedAt: new Date() } };
+    const update: {
+      $set: Record<string, unknown>;
+      $inc?: Record<string, number>;
+    } = { $set: { ...document, updatedAt: new Date() } };
     if (dbOperations?.increment) {
       update.$inc = dbOperations.increment;
     }
     await this.getDB().collection(collectionName)
       .updateOne(
         { _id: documentId as unknown as Condition<ObjectId> },
-        update);
+        update as unknown);
   }
 
   async deleteOne(collectionName: string, filter: Record<string, unknown>): Promise<void> {
