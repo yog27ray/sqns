@@ -15,8 +15,9 @@ class SQSStorageEngine extends BaseStorageEngine {
   }
 
   async updateEventStateProcessing(queue: Queue, eventItem_: EventItem, visibilityTimeout: number, message: string): Promise<any> {
-    const eventItem = await this._storageAdapter.incrementReceiveCountWithSentTime(eventItem_, new Date());
-    eventItem.updateFirstSentTime();
+    const eventItem = eventItem_;
+    eventItem.updateSentTime(new Date());
+    eventItem.incrementReceiveCount();
     const effectiveDeliveryPolicy = eventItem.DeliveryPolicy
       || queue.DeliveryPolicy
       || DeliveryPolicyHelper.DEFAULT_DELIVERY_POLICY.default.defaultHealthyRetryPolicy;
@@ -29,12 +30,11 @@ class SQSStorageEngine extends BaseStorageEngine {
       {
         state: EventItem.State.PROCESSING.valueOf(),
         processingResponse: message,
-        receiveCount: eventItem.receiveCount,
         firstSentTime: eventItem.firstSentTime,
         maxAttemptCompleted: eventItem.maxAttemptCompleted,
         sentTime: eventItem.sentTime,
         eventTime: eventItem.eventTime,
-      });
+      }, { receiveCount: 1 });
   }
 
   async updateEvent(queue: Queue, eventItem: EventItem): Promise<any> {

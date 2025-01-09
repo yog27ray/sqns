@@ -80,11 +80,6 @@ class MongoDBAdapter implements StorageAdapter {
     this.connection = new MongoDBConnection(uri, option);
   }
 
-  async incrementReceiveCountWithSentTime(eventItem: EventItem, startTime: Date): Promise<EventItem> {
-    await this.connection.update(MongoDBAdapter.Table.Event, eventItem.id, { startTime }, { increment: { receiveCount: 1 } });
-    return this.findById(eventItem.id);
-  }
-
   async addEventItem(queue: Queue, eventItem: EventItem): Promise<EventItem> {
     const mongoDocument = eventItem.toJSON();
     mongoDocument._id = mongoDocument.id || uuid();
@@ -133,8 +128,8 @@ class MongoDBAdapter implements StorageAdapter {
     return queues.map((queue: unknown) => new Queue(MongoDBAdapter.dbToSystemItem(queue as Record<string, unknown>) as QueueType));
   }
 
-  async updateEvent(id: string, data: Record<string, unknown>): Promise<any> {
-    await this.connection.update(MongoDBAdapter.Table.Event, id, data);
+  async updateEvent(id: string, data: Record<string, unknown>, increment?: Record<string, number>): Promise<any> {
+    await this.connection.update(MongoDBAdapter.Table.Event, id, data, { increment });
   }
 
   async findById(id: string): Promise<EventItem> {

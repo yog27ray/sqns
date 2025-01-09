@@ -75,10 +75,15 @@ export class EventItem extends BaseObject {
     this.DeliveryPolicy = item.DeliveryPolicy;
   }
 
-  updateFirstSentTime(): void {
+  updateSentTime(date: Date): void {
+    this.sentTime = date;
     if (!this.firstSentTime) {
       this.firstSentTime = this.sentTime;
     }
+  }
+
+  incrementReceiveCount(): void {
+    this.setReceiveCount(this.receiveCount + 1);
   }
 
   setState(state: EventState = EventState.PENDING): void {

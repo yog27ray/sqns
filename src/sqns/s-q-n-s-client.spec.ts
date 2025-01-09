@@ -632,6 +632,7 @@ describe('SQNSClient', () => {
           MaxNumberOfMessages: 1,
         });
         expect(Messages.length).to.deep.equal(1);
+        console.log('>>>', Messages[0].MessageId);
         expect(Messages[0].Attributes.SenderId).not.exist;
         expect(Messages[0].Attributes.SentTimestamp).not.exist;
         expect(Messages[0].Attributes).to.deep.equal({ ApproximateReceiveCount: '1' });
