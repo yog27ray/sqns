@@ -72,7 +72,7 @@
   "dependencies": {
     "express": "4.21.2",
     "fastpriorityqueue": "0.7.5",
-    "logger4node": "1.0.49",
+    "logger4node": "1.0.50",
     "moment": "2.30.1",
     "mongodb": "6.12.0",
     "node-fetch": "2.7.0",
