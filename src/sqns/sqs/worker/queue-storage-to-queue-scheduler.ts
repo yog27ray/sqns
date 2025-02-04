@@ -3,6 +3,7 @@ import { BASE_CONFIG } from '../../../../typings/common';
 import { QueueStorageToQueueConfigListener } from '../../../../typings/config';
 import { KeyValue } from '../../../client';
 import { logger } from '../../common/logger/logger';
+import { ActiveEventManagement } from './active-event-management';
 import { QueueStorageToQueueConfig } from './queue-storage-to-queue-config';
 
 const log = logger.instance('QueueStorageToQueueScheduler');
@@ -19,6 +20,7 @@ export class QueueStorageToQueueScheduler {
     log.info('Adding scheduler job');
     this._job = schedule.scheduleJob(cronInterval || '*/5 * * * * *', () => {
       log.info('Executing Manage Job Interval');
+      ActiveEventManagement.resetActiveEvents();
       this.startProcessingOfQueue();
     });
   }

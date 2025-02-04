@@ -7,6 +7,7 @@ import { BaseManager } from '../../common/model/base-manager';
 import { BaseStorageEngine } from '../../common/model/base-storage-engine';
 import { Queue } from '../../common/model/queue';
 import { User } from '../../common/model/user';
+import { ActiveEventManagement } from '../worker/active-event-management';
 import { StorageToQueueWorker } from '../worker/storage-to-queue-worker';
 import { SQSQueue } from './s-q-s-queue';
 import { SQSStorageEngine } from './s-q-s-storage-engine';
@@ -27,6 +28,9 @@ export class SQSManager extends BaseManager {
   private storageToQueueWorker: StorageToQueueWorker;
 
   private addEventInQueueListener: (item: EventItem) => void = ((item: EventItem) => {
+    if (ActiveEventManagement.isEventPresent(item)) {
+      return;
+    }
     this.addItemInQueue(item);
   });
 
@@ -117,6 +121,7 @@ export class SQSManager extends BaseManager {
     }
     const eventItem = this._eventQueue.popInitiate(queue.arn);
     log.debug('PollInitiate', eventItem.id);
+    ActiveEventManagement.addActiveEvent(eventItem);
     await this._sQSStorageEngine.updateEventStateProcessing(queue, eventItem, visibilityTimeout, 'sent to slave');
     this._eventQueue.popComplete(eventItem);
     log.debug('PollComplete', eventItem.id);
