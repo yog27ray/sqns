@@ -9,3 +9,15 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    groups:
+      eslint-deps:
+        patterns:
+          - "@typescript-eslint/*"
+          - "eslint-plugin-import"
+          - "eslint-plugin-promise"
+          - "eslint-plugin-typescript"
+          - "eslint"
+          - "typescript"
+          - "tslint"
+          - "ts-node"
+          - "ts-jest"
