@@ -1426,7 +1426,7 @@ describe('SQNSClient', () => {
         expect(topicAttributesResponse.Attributes.SubscriptionsConfirmed).to.equal('0');
         expect(topicAttributesResponse.Attributes.TopicArn).to.equal(topic1ARN);
         expect(topicAttributesResponse.Attributes.EffectiveDeliveryPolicy).to.equal('{"default":{"defaultHealthyRetryPolicy":'
-          + '{"numRetries":3,"numNoDelayRetries":0,"minDelayTarget":20,"maxDelayTarget":20,"numMinDelayRetries":0,"numMaxDelayRetries":0,'
+          + '{"numRetries":3,"numNoDelayRetries":0,"minDelayTarget":60,"maxDelayTarget":60,"numMinDelayRetries":0,"numMaxDelayRetries":0,'
           + '"backoffFunction":"exponential"},"disableOverrides":false}}');
         expect(topicAttributesResponse.Attributes.DisplayName).to.equal('Topic One');
         expect(topicAttributesResponse.Attributes.SubscriptionsDeleted).to.equal('0');
