@@ -228,7 +228,7 @@ export class SQSManager extends BaseManager {
     return insertedEventItem;
   }
 
-  receiveMessage(queue: Queue, VisibilityTimeout: string = '30', MaxNumberOfMessages: string = '1'): Promise<Array<EventItem>> {
+  receiveMessage(queue: Queue, VisibilityTimeout: string = '60', MaxNumberOfMessages: string = '1'): Promise<Array<EventItem>> {
     return this.pollN(queue, Number(VisibilityTimeout), Number(MaxNumberOfMessages));
   }
 

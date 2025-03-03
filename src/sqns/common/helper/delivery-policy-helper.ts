@@ -15,8 +15,8 @@ export class DeliveryPolicyHelper {
       defaultHealthyRetryPolicy: {
         numRetries: 3,
         numNoDelayRetries: 0,
-        minDelayTarget: 20,
-        maxDelayTarget: 20,
+        minDelayTarget: 60,
+        maxDelayTarget: 60,
         numMinDelayRetries: 0,
         numMaxDelayRetries: 0,
         backoffFunction: 'exponential',
