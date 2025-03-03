@@ -20,7 +20,6 @@ export class QueueStorageToQueueScheduler {
     log.info('Adding scheduler job');
     this._job = schedule.scheduleJob(cronInterval || '*/5 * * * * *', () => {
       log.info('Executing Manage Job Interval');
-      ActiveEventManagement.resetActiveEvents();
       this.startProcessingOfQueue();
     });
   }
@@ -35,6 +34,7 @@ export class QueueStorageToQueueScheduler {
       return;
     }
     log.info('start fetching events.');
+    ActiveEventManagement.resetActiveEvents();
     this.findEventsToAddInQueueAsynchronous(this.config.cloneBaseParams);
   }
 
