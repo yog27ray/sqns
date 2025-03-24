@@ -42,7 +42,7 @@
   "homepage": "https://github.com/yog27ray/sqns#readme",
   "devDependencies": {
     "@types/chai": "5.0.1",
-    "@types/express": "5.0.0",
+    "@types/express": "5.0.1",
     "@types/mocha": "10.0.10",
     "@types/mongodb": "4.0.7",
     "@types/node-fetch": "2.6.12",
