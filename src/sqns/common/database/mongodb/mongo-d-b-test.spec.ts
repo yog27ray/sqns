@@ -7,6 +7,7 @@ import { delay, dropDatabase, setupConfig } from '../../../../setup';
 import { Env } from '../../../../test-env';
 import { WorkerEventScheduler } from '../../../scheduler/scheduler-worker/worker-event-scheduler';
 import { WorkerQueueConfig } from '../../../scheduler/scheduler-worker/worker-queue-config';
+import { ActiveEventManagement } from '../../../sqs/worker/active-event-management';
 import { DeliveryPolicyHelper } from '../../helper/delivery-policy-helper';
 import { BaseStorageEngine } from '../../model/base-storage-engine';
 import { MongoDBAdapter } from './mongo-d-b-adapter';
@@ -401,6 +402,7 @@ describe('mongoDB test cases', () => {
         storageAdapter.getDBTableName('Event'),
         MessageId,
         { eventTime: new Date(new Date().getTime() - 3600000) });
+      ActiveEventManagement.resetActiveEvents();
 
       await client.sendMessage({
         QueueUrl: queue.QueueUrl,
