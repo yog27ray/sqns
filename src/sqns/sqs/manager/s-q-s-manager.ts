@@ -214,11 +214,11 @@ export class SQSManager extends BaseManager {
       priority,
       eventTime: new Date(new Date().getTime() + (Number(DelaySeconds) * 1000)),
     });
-    const inQueueEvent = this._eventQueue.findEventInQueue(queue.arn, eventItem);
+    const insertedEventItem = await this._sQSStorageEngine.addEventItem(queue, eventItem);
+    const inQueueEvent = this._eventQueue.findEventInQueue(queue.arn, insertedEventItem);
     if (inQueueEvent) {
       return inQueueEvent;
     }
-    const insertedEventItem = await this._sQSStorageEngine.addEventItem(queue, eventItem);
     if (SQSManager.DISABLE_RECEIVE_MESSAGE) {
       return insertedEventItem;
     }
