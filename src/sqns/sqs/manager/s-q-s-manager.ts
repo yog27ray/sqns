@@ -31,6 +31,7 @@ export class SQSManager extends BaseManager {
     if (ActiveEventManagement.isEventPresent(item)) {
       return;
     }
+    log.debug('TrackDuplicateProcessing AddToQueue', item.id, item.eventTime);
     this.addItemInQueue(item);
   });
 
@@ -120,15 +121,18 @@ export class SQSManager extends BaseManager {
       return undefined;
     }
     const eventItem = this._eventQueue.popInitiate(queue.arn);
-    log.debug('PollInitiate', eventItem.id);
+    log.debug('TrackDuplicateProcessing PollInitiate', eventItem.id, eventItem.eventTime);
     ActiveEventManagement.addActiveEvent(eventItem);
     await this._sQSStorageEngine.updateEventStateProcessing(queue, eventItem, visibilityTimeout, 'sent to slave');
     this._eventQueue.popComplete(eventItem);
-    log.debug('PollComplete', eventItem.id);
+    log.debug('TrackDuplicateProcessing PollComplete', eventItem.id, eventItem.eventTime);
     if (eventItem.eventTime.getTime() <= new Date().getTime()) {
       const event: EventItem = await this._sQSStorageEngine.findEvent(eventItem.id);
       if (event && event.receiveCount < event.maxReceiveCount) {
-        log.debug('AddToQueue', eventItem.id);
+        if (ActiveEventManagement.isEventPresent(event)) {
+          return;
+        }
+        log.debug('TrackDuplicateProcessing AddToQueue', eventItem.id, eventItem.eventTime);
         this.addItemInQueue(event);
       }
     }
@@ -221,6 +225,7 @@ export class SQSManager extends BaseManager {
     if (insertedEventItem.completionPending
       && !insertedEventItem.maxAttemptCompleted
       && (insertedEventItem.eventTime.getTime() <= new Date().getTime())) {
+      log.debug('TrackDuplicateProcessing AddToQueue', eventItem.id, eventItem.eventTime);
       this.addItemInQueue(insertedEventItem);
       await this._sQSStorageEngine.findEvent(insertedEventItem.id);
     }
