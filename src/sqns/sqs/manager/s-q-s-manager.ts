@@ -214,7 +214,7 @@ export class SQSManager extends BaseManager {
     const insertedEventItem = await this._sQSStorageEngine.addEventItem(queue, eventItem);
     const inQueueEvent = this._eventQueue.findEventInQueue(queue.arn, insertedEventItem);
     if (inQueueEvent || ActiveEventManagement.isEventPresent(insertedEventItem)) {
-      return inQueueEvent;
+      return insertedEventItem;
     }
     if (SQSManager.DISABLE_RECEIVE_MESSAGE) {
       return insertedEventItem;
@@ -222,7 +222,7 @@ export class SQSManager extends BaseManager {
     if (insertedEventItem.completionPending
       && !insertedEventItem.maxAttemptCompleted
       && (insertedEventItem.eventTime.getTime() <= new Date().getTime())) {
-      log.debug('TrackDuplicateProcessing AddToQueue', eventItem.id, eventItem.eventTime);
+      log.debug('TrackDuplicateProcessing AddToQueue', insertedEventItem.id, insertedEventItem.eventTime);
       this.addItemInQueue(insertedEventItem);
       await this._sQSStorageEngine.findEvent(insertedEventItem.id);
     }
