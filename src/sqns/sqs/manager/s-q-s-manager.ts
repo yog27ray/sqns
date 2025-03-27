@@ -213,7 +213,7 @@ export class SQSManager extends BaseManager {
     });
     const insertedEventItem = await this._sQSStorageEngine.addEventItem(queue, eventItem);
     const inQueueEvent = this._eventQueue.findEventInQueue(queue.arn, insertedEventItem);
-    if (inQueueEvent) {
+    if (inQueueEvent || ActiveEventManagement.isEventPresent(insertedEventItem)) {
       return inQueueEvent;
     }
     if (SQSManager.DISABLE_RECEIVE_MESSAGE) {
