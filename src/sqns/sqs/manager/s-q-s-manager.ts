@@ -129,9 +129,6 @@ export class SQSManager extends BaseManager {
     if (eventItem.eventTime.getTime() <= new Date().getTime()) {
       const event: EventItem = await this._sQSStorageEngine.findEvent(eventItem.id);
       if (event && event.receiveCount < event.maxReceiveCount) {
-        if (ActiveEventManagement.isEventPresent(event)) {
-          return;
-        }
         log.debug('TrackDuplicateProcessing AddToQueue', eventItem.id, eventItem.eventTime);
         this.addItemInQueue(event);
       }
