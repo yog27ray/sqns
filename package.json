@@ -1,6 +1,6 @@
 {
   "name": "sqns",
-  "version": "2.3.29",
+  "version": "2.3.30",
   "description": "",
   "main": "index.js",
   "types": "typings/index.d.ts",
