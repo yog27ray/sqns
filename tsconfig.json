@@ -3,6 +3,7 @@
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
+    "isolatedModules": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "sourceMap": true,

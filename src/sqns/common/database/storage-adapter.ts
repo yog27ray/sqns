@@ -54,4 +54,4 @@ interface StorageAdapter {
   findPublishes(where: Record<string, unknown>, skip?: number, limit?: number): Promise<Array<Publish>>;
 }
 
-export { StorageAdapter };
+export type { StorageAdapter };
