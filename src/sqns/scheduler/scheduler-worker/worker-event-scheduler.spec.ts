@@ -279,10 +279,10 @@ describe('WorkerEventSchedulerSpec', () => {
           expect(body.Message).to.equal('This is message');
           expect(body.SubscriptionArn).to.equal(SubscriptionArn);
           expect(body.MessageAttributes).to.deep.equal({ key1: { DataType: 'String', StringValue: 'value' } });
-          expect(this.req.headers['x-sqns-sns-message-id'][0]).to.equal(body.MessageId);
-          expect(this.req.headers['x-sqns-sns-message-type'][0]).to.equal('Notification');
-          expect(this.req.headers['x-sqns-sns-topic-arn'][0]).to.equal(body.TopicArn);
-          expect(this.req.headers['x-sqns-sns-subscription-arn'][0]).to.equal(body.SubscriptionArn);
+          expect(this.req.headers['x-sqns-sns-message-id']).to.equal(body.MessageId);
+          expect(this.req.headers['x-sqns-sns-message-type']).to.equal('Notification');
+          expect(this.req.headers['x-sqns-sns-topic-arn']).to.equal(body.TopicArn);
+          expect(this.req.headers['x-sqns-sns-subscription-arn']).to.equal(body.SubscriptionArn);
           callReceivedResolver();
           return {};
         });
