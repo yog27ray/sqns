@@ -87,7 +87,7 @@ import {
   SetTopicAttributesInput,
 } from './topic';
 
-export {
+export type {
   Message,
   SubscriptionConfirmationRequestBody,
   SNSServerBody,
