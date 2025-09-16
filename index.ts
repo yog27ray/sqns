@@ -20,24 +20,27 @@ import { WorkerEventScheduler } from './src/sqns/scheduler/scheduler-worker/work
 import { WorkerQueueConfig } from './src/sqns/scheduler/scheduler-worker/worker-queue-config';
 import { ResponseItem } from './typings/response-item';
 
-export {
-  EventState,
+export type {
   SendMessageResult,
   UpdateMessageByDeduplicationId,
   UpdateMessageByDeduplicationIdResult,
   UpdateMessageById,
   UpdateMessageByIdResult,
-  ManagerEventScheduler,
-  WorkerEventScheduler,
   FindMessageByIdResult,
   SendMessage,
-  SQNSClient,
-  SQNS,
   SQNSClientConfig,
-  Database,
   ResponseItem,
   SendMessageRequest,
   MessageAttributeMap,
+};
+
+export {
+  EventState,
+  ManagerEventScheduler,
+  WorkerEventScheduler,
+  SQNSClient,
+  SQNS,
+  Database,
   WorkerQueueConfig,
   logger,
 };

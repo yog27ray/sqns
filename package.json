@@ -5,6 +5,11 @@
   "main": "index.js",
   "types": "typings/index.d.ts",
   "scripts": {
+    "lint-src": "node_modules/eslint/bin/eslint.js src",
+    "lint-typings": "node_modules/eslint/bin/eslint.js typings",
+    "tslint": "node_modules/tslint/bin/tslint -p ./ -c src/tslint.json",
+    "tsc": "node_modules/typescript/bin/tsc -p ./ && rm -rf dist",
+    "lint": "npm run lint-src && npm run lint-typings && npm run tslint && npm run tsc",
     "build": "mkdir -p dist; cd dist; rm -rf *;rm -rf .github; cd ..;node_modules/typescript/bin/tsc -p ./tsconfig.json; cp package*.json dist; cp README.md dist",
     "tunnel": "ssh -R 80:localhost:9000 serveo.net",
     "coverage": "npm run coverage:mongodb",

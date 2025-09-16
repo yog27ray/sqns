@@ -8,4 +8,4 @@ interface QueueAdapter {
   reset(): void;
 }
 
-export { QueueAdapter };
+export type { QueueAdapter };
