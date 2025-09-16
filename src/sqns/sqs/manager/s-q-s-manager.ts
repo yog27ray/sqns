@@ -270,6 +270,7 @@ export class SQSManager extends BaseManager {
     if (this._eventQueue.isEventPresent(eventItem)) {
       return;
     }
+    log.debug('TrackDuplicateProcessing Item Added', eventItem.id, eventItem.eventTime);
     this._eventQueue.add(eventItem);
   }
 }
