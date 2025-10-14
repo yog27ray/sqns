@@ -1,5 +1,7 @@
-import { Express } from 'express';
+import { trace } from '@opentelemetry/api';
+import { Express, Request } from 'express';
 import { Logger4Node } from 'logger4node';
+import { randomBytes } from 'node:crypto';
 import { AdminSecretKeys, SQNSConfig } from '../../typings/config';
 import { ARN, BaseClient, EventItem } from '../client';
 import { SQNSErrorCreator } from './common/auth/s-q-n-s-error-creator';
@@ -14,6 +16,14 @@ import { SQSManager } from './sqs/manager/s-q-s-manager';
 import { generateRoutes as sqsRoutes } from './sqs/routes';
 
 const log = logger.instance('SQNS');
+
+export function getTraceId(): string {
+  const activeSpan = trace.getActiveSpan();
+  if (!activeSpan) {
+    return `cs${randomBytes(16).toString('hex')}`;
+  }
+  return activeSpan.spanContext().traceId;
+}
 
 export class SQNS {
   private readonly _url: { host: string; basePath: string; endpoint: string };
@@ -64,7 +74,10 @@ export class SQNS {
   }
 
   registerExpressRoutes(app: Express): void {
-    app.use(Logger4Node.Trace.requestHandler(() => ({})));
+    app.use(Logger4Node.Trace.requestHandler((req: Request) => {
+      req.headers['request-id'] = req.headers['request-id'] || randomBytes(8).toString('hex');
+      return { path: req.path, traceId: getTraceId(), id: req.headers['request-id'] as string };
+    }));
     app.use(this._url.basePath, sqnsRoutes());
     if (this.sqsManager) {
       log.info('SQS path added.');
