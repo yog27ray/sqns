@@ -32,6 +32,7 @@ class WorkerEventScheduler {
 
   cancel(): void {
     this.job?.cancel();
+    delete this.job;
   }
 
   async processSnsEvents(workerQueueConfig: WorkerQueueConfig, responseItem: ResponseItem): Promise<string> {
@@ -142,7 +143,14 @@ class WorkerEventScheduler {
   private initialize(cronInterval: string = '15 * * * * *'): void {
     log.info('Adding scheduler job for event slave.');
     this.job = schedule.scheduleJob(cronInterval, () => {
-      log.info('Executing Worker Job Interval');
+      log.info('Executing Worker Job Interval ');
+      log.verbose('Executing Worker Job Interval ', this.queueNames.map((queueName: string) => ({
+        queueName: this.queueConfigs[queueName].queueName,
+        count: this.queueConfigs[queueName].count,
+        config: this.queueConfigs[queueName].config,
+        hasMore: this.queueConfigs[queueName].hasMore,
+        polling: this.queueConfigs[queueName].polling,
+      })));
       const queuesNotPollingEvent = this.queueNames.filter((queueName: string) => !this.queueConfigs[queueName].polling);
       log.info('Queues to start event polling:', queuesNotPollingEvent);
       queuesNotPollingEvent.forEach((queueName: string) => this.checkIfMoreItemsCanBeProcessed(this.queueConfigs[queueName]));
@@ -177,9 +185,17 @@ class WorkerEventScheduler {
 
   private requestEventToProcessAsynchronous(workerQueueConfig: WorkerQueueConfig): void {
     workerQueueConfig.incrementCount();
+    const countNumber = workerQueueConfig.count;
     try {
-      this.requestEventToProcess(workerQueueConfig)
+      log.verbose(
+        'requestEventToProcessAsynchronous count: ',
+        countNumber,
+        'start fetch',
+        workerQueueConfig.config.MAX_COUNT,
+        workerQueueConfig.hasMore);
+      this.requestEventToProcess(workerQueueConfig, countNumber)
         .then(() => {
+          log.verbose('requestEventToProcessAsynchronous count: ', countNumber, 'completed');
           workerQueueConfig.decrementCount();
           this.checkIfMoreItemsCanBeProcessed(workerQueueConfig);
           return 0;
@@ -190,21 +206,27 @@ class WorkerEventScheduler {
     }
   }
 
-  private async requestEventToProcess(workerQueueConfig_: WorkerQueueConfig): Promise<void> {
+  private async requestEventToProcess(workerQueueConfig_: WorkerQueueConfig, countNumber: number): Promise<void> {
     const workerQueueConfig = workerQueueConfig_;
+    log.verbose('requestEventToProcess count: ', countNumber, 'request event: ', workerQueueConfig.queueName, workerQueueConfig.count);
     await this.findOrCreateQueue(workerQueueConfig);
+    log.verbose('requestEventToProcess count: ', countNumber, 'queue created/present: ', workerQueueConfig.queueName);
     const result = await this.sqnsClient.receiveMessage({ QueueUrl: workerQueueConfig.queue.QueueUrl, MessageAttributeNames: ['ALL'] });
     const { Messages: [eventItem] } = result;
+    log.verbose('requestEventToProcess count: ', countNumber, 'new messages received: ', workerQueueConfig.queueName);
     if (!eventItem) {
       workerQueueConfig.hasMore = false;
+      log.verbose('requestEventToProcess count: ', countNumber, 'no new message');
     } else {
-      log.debug('MessageReceived', eventItem.MessageId);
+      log.debug('requestEventToProcess count: ', countNumber, 'MessageReceived', eventItem.MessageId);
       const [isSuccess, response] = await this.processEvent(workerQueueConfig, eventItem);
+      log.verbose('requestEventToProcess count: ', countNumber, 'isSuccess: ', isSuccess, 'response:', response);
       if (isSuccess) {
         await this.sqnsClient.markEventSuccess(eventItem.MessageId, workerQueueConfig.queue.QueueUrl, response);
       } else {
         await this.sqnsClient.markEventFailure(eventItem.MessageId, workerQueueConfig.queue.QueueUrl, response);
       }
+      log.verbose('requestEventToProcess count: ', countNumber, 'response commited');
     }
   }
 
