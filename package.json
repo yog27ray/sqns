@@ -77,7 +77,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
-    "express": "5.1.0",
+    "express": "5.2.0",
     "fastpriorityqueue": "0.7.5",
     "logger4node": "1.0.53",
     "moment": "2.30.1",
