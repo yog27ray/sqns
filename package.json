@@ -53,7 +53,7 @@
     "@babel/core": "7.29.0",
     "@babel/preset-env": "7.29.0",
     "@types/chai": "5.2.3",
-    "@types/express": "5.0.5",
+    "@types/express": "5.0.6",
     "@types/mocha": "10.0.10",
     "@types/node-fetch": "2.6.13",
     "@types/node-schedule": "2.1.8",
@@ -81,7 +81,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
-    "express": "5.2.0",
+    "express": "5.2.1",
     "fastpriorityqueue": "0.8.0",
     "logger4node": "2.0.1",
     "moment": "2.30.1",
