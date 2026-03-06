@@ -28,6 +28,9 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.pat_github }}
+          ref: master
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
