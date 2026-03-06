@@ -50,7 +50,7 @@
   ],
   "homepage": "https://github.com/yog27ray/sqns#readme",
   "devDependencies": {
-    "@babel/core": "7.28.5",
+    "@babel/core": "7.29.0",
     "@babel/preset-env": "7.29.0",
     "@types/chai": "5.2.3",
     "@types/express": "5.0.5",
