@@ -13,36 +13,33 @@ on:
           - minor
           - major
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     concurrency:
       group: release
       cancel-in-progress: true
     steps:
-    - uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.pat_github }}
-        ref: master
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        registry-url: 'https://registry.npmjs.org'
-    - name: Update package
-      id: update_package
-      run: |
-        npm ci
-        git config --global user.email "yog27ray@example.com"
-        git config --global user.name "Yogendra Singh"
-        VERSION=$(npm version ${{ github.event.inputs.increment-type }})
-        npm run build
-        cd dist
-        npm publish
-        cd ..
-        git push
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Update package
+        id: update_package
+        run: |
+          npm ci
+          git config --global user.email "yog27ray@example.com"
+          git config --global user.name "Yogendra Singh"
+          VERSION=$(npm version ${{ github.event.inputs.increment-type }})
+          npm run build
+          cd dist
+          npm publish --provenance
+          cd ..
+          git push
