@@ -30,6 +30,7 @@
   "exclude": [
     "node_modules",
     "typings",
+    "eslint.config.mjs",
     "**/*.js"
   ],
   "filesGlob": [],
