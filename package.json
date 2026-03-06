@@ -60,7 +60,7 @@
     "@typescript-eslint/eslint-plugin": "8.56.1",
     "@typescript-eslint/parser": "8.56.1",
     "body-parser": "2.2.2",
-    "chai": "6.2.0",
+    "chai": "6.2.2",
     "chai-subset": "1.6.0",
     "codecov": "3.8.3",
     "eslint": "9.39.3",
