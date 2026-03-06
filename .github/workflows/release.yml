@@ -42,6 +42,7 @@ jobs:
           git config --global user.name "Yogendra Singh"
           VERSION=$(npm version ${{ github.event.inputs.increment-type }})
           npm run build
+          git push
           cd dist
           npm publish --provenance
           cd ..
