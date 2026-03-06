@@ -1,11 +1,12 @@
 import importPlugin from "eslint-plugin-import";
-import { configs } from "@eslint/js";
+import _eslintJs from '@eslint/js';
+const { configs: jsConfigs } = _eslintJs;
 import promisePlugin from "eslint-plugin-promise";
 import typescriptEslintParser from "@typescript-eslint/parser";
 import typescriptEslintPlugin from "@typescript-eslint/eslint-plugin";
 
 export default [
-  configs.recommended,
+  jsConfigs.recommended,
   {
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
